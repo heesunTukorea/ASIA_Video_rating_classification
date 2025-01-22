@@ -79,9 +79,9 @@ def process_matching(image_folder, text_file_path, output_file_path):
 
 if __name__ == "__main__":
     # 예제 실행
-    image_folder = "video_data/오징어게임_ssim_hist"  # 이미지 파일 경로
-    text_file_path = "video_data/오징어게임시즌2 text_output/오징어게임시즌2 _text.txt"  # 텍스트 파일 경로
-    output_file_path = "video_data/matched.json"  # 결과 저장 파일 경로
+    image_folder = "result/오징어게임시즌2/오징어게임_classify"  # 이미지 파일 경로
+    text_file_path = "result/오징어게임시즌2/오징어게임시즌2_text_output/오징어게임시즌2_text.txt"  # 텍스트 파일 경로
+    output_file_path = "result/오징어게임시즌2/matched.json"  # 결과 저장 파일 경로
 
     result = process_matching(image_folder, text_file_path, output_file_path)
     for item in result:
