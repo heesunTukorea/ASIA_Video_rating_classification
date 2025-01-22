@@ -69,9 +69,11 @@ def detect_alcohol_in_images(images_path, output_path, checkpoint="google/owlv2-
 
     print(f"Results saved to {output_path}")  # 저장 완료 메시지 출력
     
-images_path = 'video_data/술꾼_images_output'
-output_path = 'alcohol_predictions_술꾼.json'
-detect_alcohol_in_images(images_path, output_path, checkpoint="google/owlv2-base-patch16-ensemble", score_threshold=0.1)
+# images_path = 'video_data/술꾼_images_output'
+# output_path = 'alcohol_predictions_술꾼.json'
+#detect_alcohol_in_images(images_path, output_path, checkpoint="google/owlv2-base-patch16-ensemble", score_threshold=0.1)
+
+######### 연속 알코올 탐지##########
 
 
 

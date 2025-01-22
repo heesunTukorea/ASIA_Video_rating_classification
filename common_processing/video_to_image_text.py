@@ -102,7 +102,11 @@ def process_video(input_video_path):
     write_text(output_text_path, result)
 
     print("프로세스 완료")
+    
+    
+    
+    
 # import한 후 호출 예시
 # from this_module import process_video
-process_video("video_data/불한당.mp4")
+#process_video("video_data/불한당.mp4")
 #video_data 폴더 만들고 영상넣으시면됩니다
