@@ -13,10 +13,6 @@ openai_api_key = os.getenv('OPENAI_API_KEY')
 ### OpenAI 함수 호출
 client = OpenAI(api_key=openai_api_key)
 
-# 파일 경로 설정
-TEXT_FILE_PATH = "data/whisper_output.txt"  # Whisper로 추출된 텍스트 파일 경로
-OUTPUT_FILE_PATH = "results/sexuality_text_results.json"  # 분석 결과 저장 경로
-
 # 1. 텍스트 파일 읽기
 def load_texts(file_path):
     """텍스트 파일에서 데이터를 읽어 리스트로 반환"""
@@ -100,15 +96,18 @@ def save_results(results, output_path):
 def main():
     """메인 실행 함수"""
  
-    # Whisper로 추출된 텍스트 로드
-    texts = load_texts(TEXT_FILE_PATH)
+    # 파일 경로 설정
+    text_path = "result/연애빠진로맨스/연애빠진로맨스_text_output/연애빠진로맨스_text.txt"  # 텍스트 파일 경로
+    output_path = "result/연애빠진로맨스/result_json/연애빠진로맨스_sexuality_text_json.json"  # 분석 결과 저장 경로
+
+     # Whisper로 추출된 텍스트 로드
+    texts = load_texts(text_path)
     
     # GPT-4o를 사용한 선정성 분석
     results = detect_violence(texts)
-    print(results)
     
     # 결과 저장
-    save_results(results, OUTPUT_FILE_PATH)
+    save_results(results, output_path)
 
 if __name__ == "__main__":
     main()
