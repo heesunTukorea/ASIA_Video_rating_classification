@@ -13,13 +13,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-    
+### API Key 불러오기
+openai_api_key = os.getenv('OPENAI_API_KEY')
+# print(openai_api_key)
 
-# 환경 변수 사용
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-# 발급받은 API 키 설정
-client = OpenAI(api_key=OPENAI_API_KEY)
+### OpenAi 함수 호출
+client = OpenAI()
 whisper_client= client 
 # 디렉토리 생성 함수
 def create_dirs(base_path, relative_path):
@@ -101,5 +100,5 @@ def process_video(input_video_path, client):
     print("프로세스 완료")
 # import한 후 호출 예시
 # from this_module import process_video
-process_video("video_data/불한당.mp4", whisper_client)
+process_video("video_data/오징어게임시즌2 .mp4", whisper_client)
 #video_data 폴더 만들고 영상넣으시면됩니다
