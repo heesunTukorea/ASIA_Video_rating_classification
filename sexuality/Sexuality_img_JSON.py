@@ -1,8 +1,3 @@
-# # 필요한 라이브러리 설치
-# pip install -q transformers
-# pip install -q torch torchvision
-# pip install -q pillow
-
 # 라이브러리 임포트
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
