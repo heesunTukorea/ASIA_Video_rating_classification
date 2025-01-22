@@ -23,15 +23,17 @@ whisper_client= client
 # 디렉토리 생성 함수
 def create_dirs(base_path, relative_path):
     base_name = os.path.splitext(relative_path)[0]  # 확장자 제외한 파일 이름만 가져옴
-
-    output_audio_path = f"{base_path}video_data" + f"/{base_name}_audio_output" + f"/{base_name}_audio.mp3"
-    output_images_path = f"{base_path}video_data" + f"/{base_name}_images_output" + f"/frame_%03d.png"
-    output_text_path = f"{base_path}video_data" + f"/{base_name}text_output" + f"/{base_name}_text.txt"
+    os.makedirs(f"./result", exist_ok=True)
+    result_folder_path = f"./result/{base_name}"
+    os.makedirs(result_folder_path, exist_ok=True)
+    output_audio_path = result_folder_path + f"/{base_name}_audio_output" + f"/{base_name}_audio.mp3"
+    output_images_path = result_folder_path + f"/{base_name}_images_output" + f"/frame_%03d.png"
+    output_text_path = result_folder_path + f"/{base_name}_text_output" + f"/{base_name}_text.txt"
 
     os.makedirs(os.path.dirname(output_audio_path), exist_ok=True)
     os.makedirs(os.path.dirname(output_images_path), exist_ok=True)
     os.makedirs(os.path.dirname(output_text_path), exist_ok=True)
-
+    os.makedirs(result_folder_path+"/result_json", exist_ok=True)
     return output_audio_path, output_images_path, output_text_path
 
 # 오디오 추출 (ffmpeg)
@@ -100,5 +102,5 @@ def process_video(input_video_path, client):
     print("프로세스 완료")
 # import한 후 호출 예시
 # from this_module import process_video
-process_video("video_data/오징어게임시즌2 .mp4", whisper_client)
+process_video("video_data/오징어게임시즌2.mp4", whisper_client)
 #video_data 폴더 만들고 영상넣으시면됩니다
