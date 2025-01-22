@@ -1,102 +1,80 @@
 import os
 import json
+from tqdm import tqdm
+from PIL import Image
 from transformers import pipeline
 
-
-
-def classify_images_with_clip(image_folder, output_json_path, horror_candidates, non_horror_candidates):
-    checkpoint = "openai/clip-vit-large-patch14"
-    detector = pipeline(model=checkpoint, task="zero-shot-image-classification")
+def detect_alcohol_in_images(images_path, output_path, checkpoint="google/owlv2-base-patch16-ensemble", score_threshold=0.1):
     """
-    이미지 폴더 내 모든 이미지를 CLIP 모델로 분류하고 JSON 파일로 저장하는 함수.
-    
+    이미지에서 알코올 관련 객체를 탐지하고 결과를 JSON 파일로 저장합니다.
+
     Args:
-        image_folder (str): 이미지 파일이 저장된 폴더 경로.
-        output_json_path (str): 결과를 저장할 JSON 파일 경로.
-        horror_candidates (list): 공포 관련 텍스트 후보군.
-        non_horror_candidates (list): 공포스럽지 않은 텍스트 후보군.
-    
+        images_path (str): 이미지가 저장된 디렉토리 경로.
+        output_path (str): JSON 결과를 저장할 파일 경로.
+        checkpoint (str): 탐지에 사용할 모델 체크포인트. 기본값은 "google/owlv2-base-patch16-ensemble".
+        score_threshold (float): 객체 탐지 점수의 임계값. 기본값은 0.1.
+
     Returns:
-        None: JSON 파일로 결과를 저장.
+        None
     """
-    # 결과 저장용 리스트
-    results = []
-    
-    # 이미지 폴더 내 파일 처리
-    for image_name in sorted(os.listdir(image_folder)):
-        image_path = os.path.join(image_folder, image_name)
+    # 탐지 모델 초기화
+    detector = pipeline(model=checkpoint, task="zero-shot-object-detection", batch_size=1)
+
+    # 이미지 디렉토리에서 파일 목록 가져오기
+    list_d = os.listdir(path=images_path)
+    alcohol_predict = {}
+
+    # 결과를 포맷팅하는 함수 정의
+    def format_predictions(image_name, predictions):
+        """
+        탐지 결과를 알코올 객체 개수와 분류 여부로 포맷팅합니다.
+
+        Args:
+            image_name (str): 이미지 파일 이름.
+            predictions (list): 탐지된 객체 리스트.
+
+        Returns:
+            dict: 알코올 탐지 결과.
+        """
+        alcohol_count = 0  # 알코올 객체 개수를 초기화
+        classification = False  # 기본적으로 분류되지 않은 상태로 설정
+        #print(predictions)
+        if predictions:  # 탐지 결과가 있을 경우
+            for pred in predictions:
+                if pred['score'] > score_threshold:  # 점수가 임계값을 초과하는 경우
+                    alcohol_count += 1
+                    classification = True  # 알코올 객체가 탐지되었음을 표시
+        print(image_name,alcohol_count,classification)
+
+        return {
+            "image_name": image_name,  # 이미지 이름
+            "alcohol_count": alcohol_count,  # 알코올 객체 개수
+            "classification": classification  # 탐지 여부
+        }
         
-        # 이미지 파일만 처리 (예: .png, .jpg, .jpeg)
-        if not image_name.lower().endswith((".png", ".jpg", ".jpeg")):
-            continue
-        
+
+    # 각 이미지를 처리
+    for image_name in tqdm(list_d, desc="Processing images"):
+        image_path = os.path.join(images_path, image_name)  # 이미지 전체 경로 생성
         try:
-            # CLIP 모델로 예측
-            predictions = detector(image_path, candidate_labels=horror_candidates + non_horror_candidates)
-            # 가장 높은 확률과 해당 레이블 추출
-            best_prediction = max(predictions, key=lambda x: x['score'])
-
-            highest_prob = best_prediction['score']
-            best_caption = best_prediction['label']
-            if best_caption in horror_candidates:
-                if highest_prob < 0.4:
-                    best_caption = "non-horror"
-                    
-            elif best_caption in non_horror_candidates:
-                best_caption = "non-horror"
-            
-            
-            # 공포 여부 판단 (True: 공포 관련, False: 공포스럽지 않은)
-            classification = best_caption in horror_candidates
-            
-            
-            print(f"Image: {image_name}, Classification: {classification}, Best Caption: {best_caption}, Highest Probability: {highest_prob}")
-            # 결과 저장
-            results.append({
-                "image_name": image_name,
-                "best_caption": best_caption,
-                "highest_prob": str(highest_prob),
-                "classification": classification
-            })
+            image = Image.open(image_path)  # 이미지를 열기
+            predictions = detector(image, candidate_labels=["alcohol"])  # 알코올 객체 탐지
+            alcohol_predict[image_name] = format_predictions(image_name, predictions)  # 결과 저장
         except Exception as e:
-            print(f"Error processing {image_name}: {e}")
-    
+            print(f"Error processing {image_name}: {e}")  # 에러 발생 시 메시지 출력
+
     # 결과를 JSON 파일로 저장
-    with open(output_json_path, "w") as json_file:
-        json.dump(results, json_file, indent=4)
+    with open(output_path, 'w', encoding='utf-8') as json_file:
+        json.dump(alcohol_predict, json_file, ensure_ascii=False, indent=4)
+
+    print(f"Results saved to {output_path}")  # 저장 완료 메시지 출력
     
-    print(f"JSON 저장 완료: {output_json_path}")
+images_path = 'video_data/술꾼_images_output'
+output_path = 'alcohol_predictions_술꾼.json'
+detect_alcohol_in_images(images_path, output_path, checkpoint="google/owlv2-base-patch16-ensemble", score_threshold=0.1)
 
-# 텍스트 후보군 정의
-horror_candidates = [
-    "A scene that evokes psychological fear and suffering",  # 심리적 공포와 고통이 느껴지는 장면
-    "An image that induces tension and anxiety",  # 긴장감과 불안감을 유발하는 이미지
-    "A character with a terrified facial expression",  # 공포에 질린 표정을 짓는 등장인물
-    "A frightening or grotesque scene",  # 무섭거나 혐오스러운 장면
-    "A dark atmosphere with threatening elements",  # 어두운 분위기와 위협적인 요소
-    "An image with sudden jump-scare effects",  # 갑작스러운 놀람 효과가 포함된 이미지
-    "An unrealistic and menacing fantasy character",  # 비현실적이고 위협적인 판타지 캐릭터
-    "A visual effect that creates an eerie atmosphere",  # 공포 분위기를 조성하는 시각적 효과
-    "A fantasy creature with a terrifying appearance"  # 무서운 외양을 가진 판타지 생물체
-]
 
-non_horror_candidates = [
-    "A scene with a peaceful and stable atmosphere",  # 평화롭고 안정적인 분위기의 장면
-    "An image that feels bright and warm",  # 밝고 따뜻한 분위기가 느껴지는 이미지
-    "A natural landscape depicted in tranquility",  # 자연 경관이 평온하게 묘사된 장면
-    "A frame showing everyday and familiar activities",  # 일상적이고 친숙한 활동이 표현된 화면
-    "A scene featuring characters smiling",  # 웃고 있는 등장인물이 나오는 장면
-    "A cozy and comfortable indoor space",  # 쾌적하고 편안한 실내 공간
-    "An outdoor scene with bright sunlight",  # 밝은 햇살이 비치는 야외 장면
-    "An image completely free of horror elements",  # 공포 요소가 전혀 없는 이미지
-    "A moment conveying joy and comfort",  # 즐거움과 편안함이 느껴지는 순간
-    "An environment that feels pure and safe",  # 순수하고 안전한 환경이 표현된 화면
-    "A character with a casual expression" # 아무렇지 않은 표정을 짓고있는 등장인물
-]
 
-# 함수 실행 예시
-if __name__ == "__main__":
-    image_folder_path = "video_data/범죄도시_images_output"
-    output_json_path = "./범죄도시.json"
-    
-    classify_images_with_clip(image_folder_path, output_json_path, horror_candidates, non_horror_candidates)
+
+
+
