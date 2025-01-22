@@ -3,8 +3,11 @@ import json
 import base64
 from dotenv import load_dotenv
 import os
+from image_text_match import process_matching
 # OpenAI API 키 설정
 # .env 파일 로드
+
+
 
 load_dotenv()
 
@@ -70,14 +73,14 @@ def process_scene_data(scene_text, image_path):
     ]
 
     # GPT API 호출
-    response = openai.ChatCompletion.create(
+    response = openai.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "user", "content": user_message}
         ],
         max_tokens=500
     )
-    print(f'응답 확인 : \n{response.choices[0].message.content}')
+    # print(f'응답 확인 : \n{response.choices[0].message.content}')
     result_text = response.choices[0].message.content
     result_text = result_text.replace("json","")
     result_text = result_text.replace("```","")
@@ -98,6 +101,7 @@ def process_input_file(input_file, output_file):
     for scene in scenes:
         try:
             result = process_scene_data(scene["text"], scene["image_path"])
+            print(result)
             results.append(result)
         except Exception as e:
             print(f"Error processing scene: {scene['text']} with error: {str(e)}")
@@ -110,14 +114,20 @@ def process_input_file(input_file, output_file):
     print(f"Processing complete. Results saved to {output_file}")
 
 # 메인 함수
-def main():
+def imitation_risk_api(image_folder,text_file_path):
     """
     메인 실행 함수. 입력 파일 경로와 출력 파일 경로를 지정합니다.
     """
-    input_file = "test.json"  # 입력 JSON 파일 경로
-    output_file = "scene_analysis_results.json"  # 출력 JSON 파일 경로
+      # 텍스트 파일 경로
+    # output_file_path = "result/오징어게임시즌2/matched.json"  # 결과 저장 파일 경로
+    base_path = os.path.dirname(image_folder)
+    base_name = base_path.split('result/')[1] 
+    result,input_file= process_matching(image_folder, text_file_path)
+    input_file = input_file
+    #input_file = "test.json"  # 입력 JSON 파일 경로
+    output_file = f"{base_path}/result_json/{base_name}_imitation_json.json"  # 출력 JSON 파일 경로
     process_input_file(input_file, output_file)
 
-# 실행
-if __name__ == "__main__":
-    main()
+image_folder = "result/오징어게임시즌2/오징어게임시즌2_images_output" #이미지 폴더 경로
+text_file_path = "result/오징어게임시즌2/오징어게임시즌2_text_output/오징어게임시즌2_text.txt"#대사 경로
+imitation_risk_api(image_folder,text_file_path) # result_json 폴더에 자동으로 파일 생성

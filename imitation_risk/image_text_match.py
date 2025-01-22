@@ -2,6 +2,8 @@ import os
 from datetime import timedelta
 import re
 import json
+from similarity_classfication import detect_scene_transitions
+
 
 # 시간 문자열을 초 단위로 변환하는 함수
 def time_to_seconds(time_str):
@@ -65,24 +67,29 @@ def save_matched_data(output_file_path, matched_data):
         json.dump(matched_data, f, ensure_ascii=False, indent=4)
 
 # 메인 실행 함수
-def process_matching(image_folder, text_file_path, output_file_path):
+def process_matching(image_folder, text_file_path):
+    base_path = os.path.dirname(image_folder)
+    base_name = base_path.split('result/')[1]  
+    classify_folder = base_path+ f"/{base_name}_classify"
+    output_file_path = base_path+ f"/{base_name}_matched.json"
+    detect_scene_transitions(image_folder, classify_folder, similarity_threshold=0.5)
     """이미지와 대사를 매칭하고 결과를 저장"""
     # 텍스트 파일에서 대사 파싱
     script = parse_script(text_file_path)
 
     # 이미지와 대사 매칭
     matched_data = match_images_with_script(image_folder, script)
-
+    for item in matched_data:
+        print(item)
     # 매칭 결과 저장
     save_matched_data(output_file_path, matched_data)
-    return matched_data
+    return matched_data,output_file_path
 
 if __name__ == "__main__":
     # 예제 실행
-    image_folder = "result/오징어게임시즌2/오징어게임_classify"  # 이미지 파일 경로
+    image_folder = "result/오징어게임시즌2/오징어게임시즌2_images_output"
     text_file_path = "result/오징어게임시즌2/오징어게임시즌2_text_output/오징어게임시즌2_text.txt"  # 텍스트 파일 경로
-    output_file_path = "result/오징어게임시즌2/matched.json"  # 결과 저장 파일 경로
+    # output_file_path = "result/오징어게임시즌2/matched.json"  # 결과 저장 파일 경로
 
-    result = process_matching(image_folder, text_file_path, output_file_path)
-    for item in result:
-        print(item)
+    result,output_file_path = process_matching(image_folder, text_file_path)
+

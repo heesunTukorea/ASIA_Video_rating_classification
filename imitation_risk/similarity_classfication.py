@@ -4,6 +4,7 @@ import numpy as np
 from skimage.metrics import structural_similarity as ssim
 from PIL import Image
 
+
 def pil_to_numpy(image):
     """PIL 이미지를 NumPy 배열로 변환"""
     return np.array(image)
@@ -81,7 +82,7 @@ def detect_scene_transitions(image_folder, output_folder, similarity_threshold=0
         save_path = os.path.join(output_folder, filename)
         img.save(save_path)
 
-    print(f"장면 전환 이미지가 {len(scene_transition_images)}개 저장되었습니다. 경로: {output_folder}")
+    print(f"장면 전환 이미지가 {len(scene_transition_images)+1}개 저장되었습니다. 경로: {output_folder}")
 
 if __name__ == "__main__":
     # 예제 실행 코드
