@@ -1,3 +1,8 @@
+# # 필요한 라이브러리 설치
+# pip install -q transformers
+# pip install -q torch torchvision
+# pip install -q pillow
+
 # 라이브러리 임포트
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
@@ -53,7 +58,7 @@ def detect_sexual_content(image_path, sexual, non_sexual, threshold=0.3, display
         "classification": is_sexual
     }
 
-    if result["is_sexual_content"]:
+    if result["classification"]:
         print(f"\U0001F51E 선정적 콘텐츠 감지됨")
         print(f"Generated Caption: {best_caption}")
         print(f"Similarity Score: {highest_prob}")
