@@ -76,11 +76,12 @@ def process_scene_data(scene_text, image_path):
     response = openai.chat.completions.create(
         model="gpt-4o",
         messages=[
+            {"role": "system", "content": "You are an expert at generating JSON data. Analyze the input text and image and generate a structured JSON result."},
             {"role": "user", "content": user_message}
         ],
         max_tokens=500
     )
-    # print(f'응답 확인 : \n{response.choices[0].message.content}')
+    print(f'응답 확인 : \n{response.choices[0].message.content}')
     result_text = response.choices[0].message.content
     result_text = result_text.replace("json","")
     result_text = result_text.replace("```","")
@@ -100,18 +101,27 @@ def process_input_file(input_file, output_file):
     results = []
     for scene in scenes:
         try:
+            # 첫 번째 시도
             result = process_scene_data(scene["text"], scene["image_path"])
             print(result)
             results.append(result)
         except Exception as e:
-            print(f"Error processing scene: {scene['text']} with error: {str(e)}")
-            results.append({"scene": scene["text"], "error": str(e)})
-
-    # 결과를 JSON 파일로 저장
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(results, f, ensure_ascii=False, indent=4)
-    
-    print(f"Processing complete. Results saved to {output_file}")
+            print(f"Error processing scene: {scene['text']} on first attempt with error: {str(e)}")
+            try:
+                # 두 번째 시도
+                print("Retrying...")
+                result = process_scene_data(scene["text"], scene["image_path"])
+                print(result)
+                results.append(result)
+            except Exception as retry_e:
+                print(f"Error processing scene: {scene['text']} on second attempt with error: {str(retry_e)}")
+                # 두 번째 시도도 실패한 경우
+                results.append({"scene": scene["text"], "error": str(retry_e)})
+        # 결과를 JSON 파일로 저장
+        with open(output_file, "w", encoding="utf-8") as f:
+            json.dump(results, f, ensure_ascii=False, indent=4)
+        
+        print(f"Processing complete. Results saved to {output_file}")
 
 # 메인 함수
 def imitation_risk_api(image_folder,text_file_path):

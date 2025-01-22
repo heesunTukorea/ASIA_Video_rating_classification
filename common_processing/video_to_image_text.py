@@ -10,16 +10,17 @@ from dotenv import load_dotenv
 	 
 
 # .env 파일 로드
+def open_ai_load():
+    load_dotenv()
 
-load_dotenv()
+    ### API Key 불러오기
+    openai_api_key = os.getenv('OPENAI_API_KEY')
+    # print(openai_api_key)
 
-### API Key 불러오기
-openai_api_key = os.getenv('OPENAI_API_KEY')
-# print(openai_api_key)
-
-### OpenAi 함수 호출
-client = OpenAI()
-whisper_client= client 
+    ### OpenAi 함수 호출
+    client = OpenAI()
+    whisper_client= client 
+    return whisper_client
 # 디렉토리 생성 함수
 def create_dirs(base_path, relative_path):
     base_name = os.path.splitext(relative_path)[0]  # 확장자 제외한 파일 이름만 가져옴
@@ -77,7 +78,8 @@ def write_text(output_text_path, result):
             print(f"[{start_time} - {end_time}]  {text}")
 
 # 메인 프로세스 실행
-def process_video(input_video_path, client):
+def process_video(input_video_path):
+    client=open_ai_load()
     base_path, relative_path = input_video_path.split("video_data/")
 
     # 디렉토리 생성 및 경로 반환
@@ -102,5 +104,5 @@ def process_video(input_video_path, client):
     print("프로세스 완료")
 # import한 후 호출 예시
 # from this_module import process_video
-process_video("video_data/오징어게임시즌2.mp4", whisper_client)
+process_video("video_data/불한당.mp4")
 #video_data 폴더 만들고 영상넣으시면됩니다
