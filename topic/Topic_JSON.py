@@ -2,7 +2,6 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 import json
-from whisper import transcribe_audio  # Whisper 사용 가정
 
 def load_env():
     """.env 파일에서 OpenAI API 키를 로드합니다."""
@@ -19,6 +18,14 @@ def get_user_metadata():
     synopsis = input("영상 줄거리를 입력하세요: ")
     genre = input("영상 장르를 입력하세요: ")
     return {"title": title, "synopsis": synopsis, "genre": genre}
+
+def load_generated_text(file_path):
+    """생성된 텍스트 파일을 읽어 문자열로 반환합니다."""
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            return file.read()
+    except FileNotFoundError:
+        raise FileNotFoundError(f"텍스트 파일을 찾을 수 없습니다: {file_path}")
 
 def analyze_metadata_and_script(openai_client, metadata, script):
     """
@@ -63,10 +70,16 @@ def process_topic():
     # 사용자로부터 메타데이터 입력 받기
     metadata = get_user_metadata()
 
-    # Whisper를 사용하여 오디오 파일에서 스크립트 추출
-    audio_path = input("분석할 오디오 파일 경로를 입력하세요: ")
-    whisper_result = transcribe_audio(audio_path)  # Whisper로 텍스트 변환 결과 가져오기
-    script = "\n".join([segment["text"] for segment in whisper_result["segments"]])
+    # 생성된 텍스트 파일 경로 설정
+    text_output_path = "./result/소년시대/소년시대_text_output/소년시대_text.txt"
+
+    # 저장된 텍스트 파일 읽기
+    try:
+        script = load_generated_text(text_output_path)
+        print(f"텍스트 파일에서 내용을 성공적으로 읽었습니다: {text_output_path}")
+    except FileNotFoundError as e:
+        print(e)
+        return
 
     # 메타데이터와 대사 분석
     analysis_result = analyze_metadata_and_script(client, metadata, script)
