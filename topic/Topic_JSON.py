@@ -57,7 +57,7 @@ def parse_analysis_result(result):
         print("JSON 디코딩 실패. 응답 내용:", result)
         return None
 
-def process_topic():
+def process_topic(text_output_path):
     """메타데이터 및 대사 분석을 처리하는 메인 함수."""
     # API 키 로드
     openai_api_key = load_env()
@@ -71,7 +71,7 @@ def process_topic():
     metadata = get_user_metadata()
 
     # 생성된 텍스트 파일 경로 설정
-    text_output_path = "./result/소년시대/소년시대_text_output/소년시대_text.txt"
+    text_output_path = text_output_path
 
     # 저장된 텍스트 파일 읽기
     try:
@@ -88,6 +88,3 @@ def process_topic():
     analysis_json = parse_analysis_result(analysis_result)
     if analysis_json:
         print(json.dumps(analysis_json, indent=4, ensure_ascii=False))
-
-if __name__ == "__main__":
-    process_topic()
