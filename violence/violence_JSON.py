@@ -62,7 +62,8 @@ def violence(image_folder_path, output_file, threshold=0.45):
         image_path = os.path.join(image_folder_path, image_name)
 
         try:
-            print(f"처리 중: [{idx}/{len(image_files)}] {image_name}")  # 이미지 처리 상황 출력
+            # 이미지 처리 상황 출력
+            print(f"처리 중: [{idx}/{len(image_files)}] {image_name}")
 
             # 이미지 로드
             image = Image.open(image_path).convert("RGB")
