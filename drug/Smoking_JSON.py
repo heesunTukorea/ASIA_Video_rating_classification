@@ -8,9 +8,21 @@ import os
 clip = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
 
+# 텍스트 후보군 생성 함수
+def get_text_candidates():
+    return [
+        "A person with smoke coming from their mouth",
+        "A lit cigarette",
+        "A cigarette with visible smoke",
+        "A cigarette held between fingers",
+        "A person holding a lighter with no cigarette",
+        "A person holding a lighter and cigarette",
+        "A person holding a cigarette"
+    ]
+
 # CLIP 모델을 이용해 이미지에서 흡연 장면을 판단하는 함수
 def detect_smoking_scene(image_path, text_candidates, threshold=0.3, display_image=True, output_json_path=None):
-   
+
     # 이미지 불러오기
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"이미지 경로를 찾을 수 없습니다: {image_path}")
@@ -90,16 +102,8 @@ def analyze_smoking_folder(folder_path, text_candidates, threshold=0.3, display_
     return results
 
 if __name__ == "__main__":
-    # 텍스트 후보군 리스트
-    text_candidates = [
-        "A person with smoke coming from their mouth",
-        "A lit cigarette",
-        "A cigarette with visible smoke",
-        "A cigarette held between fingers",
-        "A person holding a lighter with no cigarette",
-        "A person holding a lighter and cigarette",
-        "A person holding a cigarette"
-    ]
+    # 텍스트 후보군 리스트 생성
+    text_candidates = get_text_candidates()
 
     # 폴더 경로
     folder_path = "./video2imgs/흡연_장면_폴더"
