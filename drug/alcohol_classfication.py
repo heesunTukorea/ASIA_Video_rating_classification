@@ -18,7 +18,7 @@ def detect_alcohol_in_images(images_path, output_path, checkpoint="google/owlv2-
         None
     """
     # 탐지 모델 초기화
-    detector = pipeline(model=checkpoint, task="zero-shot-object-detection", batch_size=1)
+    detector = pipeline(model=checkpoint, task="zero-shot-object-detection")
 
     # 이미지 디렉토리에서 파일 목록 가져오기
     list_d = os.listdir(path=images_path)

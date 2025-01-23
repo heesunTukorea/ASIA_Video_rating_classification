@@ -4,7 +4,7 @@ from transformers import pipeline
 
 
 
-def classify_images_with_clip(image_folder, output_json_path, horror_candidates, non_horror_candidates):
+def classify_images_horror(image_folder, output_json_path, horror_candidates, non_horror_candidates):
     checkpoint = "openai/clip-vit-large-patch14"
     detector = pipeline(model=checkpoint, task="zero-shot-image-classification")
     """
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     image_folder_path = "video_data/범죄도시_images_output"
     output_json_path = "./범죄도시.json"
     
-    classify_images_with_clip(image_folder_path, output_json_path, horror_candidates, non_horror_candidates)
+    classify_images_horror(image_folder_path, output_json_path, horror_candidates, non_horror_candidates)
     
     
     
