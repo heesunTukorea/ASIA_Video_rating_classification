@@ -119,6 +119,6 @@ def violence(image_folder_path, output_file, threshold=0.45):
     return results, dict(caption_counts)
 
 # 실행
-image_path = '이미지 폴더 경로'
-output_file = '결과 저장 경로'
-violence(image_path, output_file, threshold=0.45)
+# image_path = '이미지 폴더 경로'
+# output_file = '결과 저장 경로'
+# violence(image_path, output_file, threshold=0.45)

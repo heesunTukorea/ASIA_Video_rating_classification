@@ -96,8 +96,8 @@ def lines_result(model_path, script_path):
     return result
 
 # 결과 처리 및 파일 저장
-def process_lines(script_path, output_path, JminJmodel_path):
-    model_path = JminJmodel_path
+def process_lines(script_path, output_path):
+    model_path = 'lines/JminJ'
     script_path = script_path
 
     # 분석 결과 생성

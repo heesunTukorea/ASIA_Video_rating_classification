@@ -2,7 +2,7 @@ import os
 from datetime import timedelta
 import re
 import json
-from similarity_classfication import detect_scene_transitions
+from imitation_risk.similarity_classfication import detect_scene_transitions
 
 
 # 시간 문자열을 초 단위로 변환하는 함수

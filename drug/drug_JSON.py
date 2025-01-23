@@ -112,6 +112,6 @@ def drug(image_folder_path, output_file, threshold=0.3):
     return results
 
 # 실행
-image_path = '이미지 폴더 경로'
-output_file = '결과 저장 경로'
-drug(image_path, output_file, threshold=0.3)
+# image_path = '이미지 폴더 경로'
+# output_file = '결과 저장 경로'
+# drug(image_path, output_file, threshold=0.3)

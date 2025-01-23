@@ -57,6 +57,7 @@ def detect_violence(texts):
             )
             # GPT-4o 응답 파싱
             answer = response.choices[0].message.content.strip()  # 응답에서 텍스트 추출
+            print(text +' 완료')
             if answer:
                 try:
                     json_start = answer.find('{')
@@ -93,12 +94,12 @@ def save_results(results, output_path):
     print(f"분석 결과가 {output_path}에 저장되었습니다.")
 
 # 4. 메인 함수
-def main():
+def sexuality_text_main(text_path,output_path):
     """메인 실행 함수"""
  
     # 파일 경로 설정
-    text_path = "result/연애빠진로맨스/연애빠진로맨스_text_output/연애빠진로맨스_text.txt"  # 텍스트 파일 경로
-    output_path = "result/연애빠진로맨스/result_json/연애빠진로맨스_sexuality_text_json.json"  # 분석 결과 저장 경로
+    #text_path = "result/연애빠진로맨스/연애빠진로맨스_text_output/연애빠진로맨스_text.txt"  # 텍스트 파일 경로
+    #output_path = "result/연애빠진로맨스/result_json/연애빠진로맨스_sexuality_text_json.json"  # 분석 결과 저장 경로
 
      # Whisper로 추출된 텍스트 로드
     texts = load_texts(text_path)
@@ -109,5 +110,5 @@ def main():
     # 결과 저장
     save_results(results, output_path)
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     sexuality_text_main(text_path,output_path)

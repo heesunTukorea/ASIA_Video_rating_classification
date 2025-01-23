@@ -3,15 +3,13 @@ import json
 import base64
 from dotenv import load_dotenv
 import os
-from image_text_match import process_matching
+from imitation_risk.image_text_match import process_matching
 # OpenAI API 키 설정
 # .env 파일 로드
 
 
 
 load_dotenv()
-
-    
 
 # 환경 변수 사용
 
@@ -138,6 +136,6 @@ def imitation_risk_api(image_folder,text_file_path):
     output_file = f"{base_path}/result_json/{base_name}_imitation_json.json"  # 출력 JSON 파일 경로
     process_input_file(input_file, output_file)
 
-image_folder = "result/오징어게임시즌2/오징어게임시즌2_images_output" #이미지 폴더 경로
-text_file_path = "result/오징어게임시즌2/오징어게임시즌2_text_output/오징어게임시즌2_text.txt"#대사 경로
-imitation_risk_api(image_folder,text_file_path) # result_json 폴더에 자동으로 파일 생성
+# image_folder = "result/오징어게임시즌2/오징어게임시즌2_images_output" #이미지 폴더 경로
+# text_file_path = "result/오징어게임시즌2/오징어게임시즌2_text_output/오징어게임시즌2_text.txt"#대사 경로
+# imitation_risk_api(image_folder,text_file_path) # result_json 폴더에 자동으로 파일 생성
