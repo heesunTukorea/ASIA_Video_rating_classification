@@ -13,7 +13,6 @@ def violence(image_folder_path, output_file, threshold=0.45):
 
     # 텍스트 후보군 생성
     text_candidates = [
-
         # 폭력
         "a scene of physical violence",
         "a scene of rape",
@@ -59,10 +58,12 @@ def violence(image_folder_path, output_file, threshold=0.45):
     image_files.sort()
 
     # 폴더 내 모든 이미지 파일 처리
-    for image_name in image_files:
+    for idx, image_name in enumerate(image_files, start=1):
         image_path = os.path.join(image_folder_path, image_name)
 
         try:
+            print(f"처리 중: [{idx}/{len(image_files)}] {image_name}")  # 이미지 처리 상황 출력
+
             # 이미지 로드
             image = Image.open(image_path).convert("RGB")
 
@@ -116,3 +117,7 @@ def violence(image_folder_path, output_file, threshold=0.45):
     # 결과와 각 폭력성 빈도 리턴
     return results, dict(caption_counts)
 
+# 실행
+image_path = '이미지 폴더 경로'
+output_file = '결과 저장 경로'
+violence(image_path, output_file, threshold=0.45)
