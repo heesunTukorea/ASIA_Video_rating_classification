@@ -8,9 +8,10 @@ import os
 clip = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
 
-# 텍스트 후보군 생성 함수
-def get_text_candidates():
-    return {
+# CLIP 모델을 이용해 이미지에서 선정성을 판단하는 함수
+def detect_sexual_content(image_path, threshold=0.3, display_image=True):
+    # 텍스트 후보군 정의
+    text_candidates = {
         "sexual": [
             'They are having sex',
             "They are engaging in simulated sexual activity.",
@@ -39,9 +40,9 @@ def get_text_candidates():
         ]
     }
 
-# CLIP 모델을 이용해 이미지에서 선정성을 판단하는 함수
-def detect_sexual_content(image_path, sexual, non_sexual, threshold=0.3, display_image=True, output_json_path=None):
-
+    sexual = text_candidates["sexual"]
+    non_sexual = text_candidates["non_sexual"]
+    
     # 이미지 불러오기
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"이미지 경로를 찾을 수 없습니다: {image_path}")
@@ -93,7 +94,7 @@ def detect_sexual_content(image_path, sexual, non_sexual, threshold=0.3, display
     return result
 
 # 폴더 내 모든 이미지를 분석하고 결과를 JSON 파일로 저장하는 함수
-def analyze_folder(folder_path, sexual, non_sexual, threshold=0.3, display_image=False, output_json_path=None):
+def analyze_folder(folder_path, threshold=0.3, display_image=False, output_json_path=None):
     if not os.path.exists(folder_path):
         raise FileNotFoundError(f"폴더 경로를 찾을 수 없습니다: {folder_path}")
 
@@ -107,8 +108,6 @@ def analyze_folder(folder_path, sexual, non_sexual, threshold=0.3, display_image
         print(f"분석 중: frame_{os.path.splitext(os.path.basename(image_path))[0].split('_')[-1]}.png")
         result = detect_sexual_content(
             image_path,
-            sexual,
-            non_sexual,
             threshold=threshold,
             display_image=display_image
         )
@@ -123,11 +122,6 @@ def analyze_folder(folder_path, sexual, non_sexual, threshold=0.3, display_image
     return results
 
 if __name__ == "__main__":
-    # 텍스트 후보군 리스트 생성
-    text_candidates = get_text_candidates()
-    sexual = text_candidates["sexual"]
-    non_sexual = text_candidates["non_sexual"]
-
     # 폴더 경로
     folder_path = "./video2imgs/인간중독_video2imgs"
 
@@ -138,8 +132,6 @@ if __name__ == "__main__":
     try:
         results = analyze_folder(
             folder_path,
-            sexual,
-            non_sexual,
             threshold=0.3,
             display_image=False,
             output_json_path=output_json_path
