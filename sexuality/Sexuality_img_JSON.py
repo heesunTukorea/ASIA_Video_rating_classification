@@ -1,4 +1,3 @@
-# 라이브러리 임포트
 from transformers import CLIPProcessor, CLIPModel
 from PIL import Image
 import matplotlib.pyplot as plt
@@ -9,9 +8,40 @@ import os
 clip = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
 
+# 텍스트 후보군 생성 함수
+def get_text_candidates():
+    return {
+        "sexual": [
+            'They are having sex',
+            "They are engaging in simulated sexual activity.",
+            "There are direct full body exposure.",
+            "They are kissing on the lips.",
+            "They are having physical contact and touching in revealing clothes.",
+            "There are upper body exposure especially chest in revealing clothes.",
+            "bikini"
+        ],
+        "non_sexual": [
+            "A peaceful scene",
+            "A person walking in the street",
+            "A calm conversation between people",
+            "A person smiling, laughing, surprising",
+            "A serene and tranquil environment",
+            "a photo of a drinking coke",
+            "a photo of a drinking",
+            "a photo of a person bleeding",
+            "a photo of a ghost",
+            "a photo of a smoking",
+            "a photo of a knife posing a threat",
+            "a photo of a gun posing a threat",
+            "people and animal",
+            "There are family",
+            'They are eating food'
+        ]
+    }
+
 # CLIP 모델을 이용해 이미지에서 선정성을 판단하는 함수
 def detect_sexual_content(image_path, sexual, non_sexual, threshold=0.3, display_image=True, output_json_path=None):
-   
+
     # 이미지 불러오기
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"이미지 경로를 찾을 수 없습니다: {image_path}")
@@ -93,35 +123,10 @@ def analyze_folder(folder_path, sexual, non_sexual, threshold=0.3, display_image
     return results
 
 if __name__ == "__main__":
-    # 텍스트 후보군 리스트
-    sexual = [
-        # 선정적 
-        'They are having sex',
-        "They are engaging in simulated sexual activity.",
-        "There are direct full body exposure.",
-        "They are kissing on the lips.",
-        "They are having physical contact and touching in revealing clothes.",
-        "There are upper body exposure especially chest in revealing clothes.",
-        "bikini"
-    ]
-    non_sexual =[
-        # 일반적 
-        "A peaceful scene",
-        "A person walking in the street",
-        "A calm conversation between people",
-        "A person smiling, laughing, surprising",
-        "A serene and tranquil environment",
-        "a photo of a drinking coke",
-        "a photo of a drinking",
-        "a photo of a person bleeding",
-        "a photo of a ghost",
-        "a photo of a smoking",
-        "a photo of a knife posing a threat",
-        "a photo of a gun posing a threat",
-        "people and animal",
-        "There are family",
-        'They are eating food'
-    ]
+    # 텍스트 후보군 리스트 생성
+    text_candidates = get_text_candidates()
+    sexual = text_candidates["sexual"]
+    non_sexual = text_candidates["non_sexual"]
 
     # 폴더 경로
     folder_path = "./video2imgs/인간중독_video2imgs"
