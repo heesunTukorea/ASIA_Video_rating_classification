@@ -4,7 +4,7 @@ import json
 from PIL import Image
 from collections import Counter 
 
-def drug(image_folder_path, output_file, threshold=0.45):
+def drug(image_folder_path, output_file, threshold=0.3):
     
     # 모델 및 프로세서 로드
     model_name = "openai/clip-vit-large-patch14"
@@ -13,29 +13,29 @@ def drug(image_folder_path, output_file, threshold=0.45):
 
     # 텍스트 후보군 생성
     text_candidates = [
-        # 폭력
-        "a scene of physical violence",
-        "a scene of rape",
-        "a scene of a person bleeding",
-        "a scene of an animal bleeding",
-        "the scene of a corpses",
-        "a murderous scene",
-        "a scene using knives, guns, bats, etc. to pose a threat",
+
+       # 마약
+        "someone on drugs",
+        "white powder in the scene",
+        "a person preparing drugs for use",
+        "a laboratory scene with drug production equipment",
+        "a posture of inhaling powder while blocking one nostril with one hand",
 
         # 기타
         "A picture of a person standing",
         "A peaceful scene",
         "A person walking in the street",
-        "A lot of people walking in the street",
+        "A lot of people walking in th street",
         "A calm conversation between people",
         "A person smiling and laughing",
         "The scene that people are talking about",
-        "a picture of a person sitting",
+        "a person sitting",
+        "a person standing",
         "a photo of a drinking",
         "a picture of someone kissing",
         "a picture of someone taking off his clothes",
         "a photo of a smoking",
-        "a photo of someone on drugs",
+        "a scene of violence"
     ]
 
     # 출력 테스트 타깃 설정
@@ -118,6 +118,6 @@ def drug(image_folder_path, output_file, threshold=0.45):
     return results, dict(caption_counts)
 
 # 실행
-image_path = 'C:/Users/Administrator/movie/result/범죄도시/범죄도시_images_output'
-output_file = 'C:/Users/Administrator/movie/실험/result.json'
-violence(image_path, output_file, threshold=0.45)
+image_path = '이미지 폴더 경로'
+output_file = '결과 저장 경로'
+drug(image_path, output_file, threshold=0.3)
