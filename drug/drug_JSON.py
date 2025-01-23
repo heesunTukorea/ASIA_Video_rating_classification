@@ -9,7 +9,7 @@ def drug(image_folder_path, output_file, threshold=0.3):
     model_name = "openai/clip-vit-large-patch14"
     model = CLIPModel.from_pretrained(model_name)
     processor = CLIPProcessor.from_pretrained(model_name)
-
+    
     # 텍스트 후보군 생성
     text_candidates = [
 
