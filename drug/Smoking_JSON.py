@@ -8,9 +8,10 @@ import os
 clip = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
 processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
 
-# 텍스트 후보군 생성 함수
-def get_text_candidates():
-    return [
+# CLIP 모델을 이용해 이미지에서 흡연 장면을 판단하는 함수
+def detect_smoking_scene(image_path, threshold=0.3, display_image=True, output_json_path=None):
+    # 텍스트 후보군 정의
+    text_candidates = [
         "A person with smoke coming from their mouth",
         "A lit cigarette",
         "A cigarette with visible smoke",
@@ -19,10 +20,7 @@ def get_text_candidates():
         "A person holding a lighter and cigarette",
         "A person holding a cigarette"
     ]
-
-# CLIP 모델을 이용해 이미지에서 흡연 장면을 판단하는 함수
-def detect_smoking_scene(image_path, text_candidates, threshold=0.3, display_image=True, output_json_path=None):
-
+    
     # 이미지 불러오기
     if not os.path.exists(image_path):
         raise FileNotFoundError(f"이미지 경로를 찾을 수 없습니다: {image_path}")
@@ -73,7 +71,7 @@ def detect_smoking_scene(image_path, text_candidates, threshold=0.3, display_ima
     return result
 
 # 폴더 내 모든 이미지를 분석하고 결과를 JSON 파일로 저장하는 함수
-def analyze_smoking_folder(folder_path, text_candidates, threshold=0.3, display_image=False, output_json_path=None):
+def analyze_smoking_folder(folder_path, threshold=0.3, display_image=False, output_json_path=None):
     if not os.path.exists(folder_path):
         raise FileNotFoundError(f"폴더 경로를 찾을 수 없습니다: {folder_path}")
 
@@ -87,7 +85,6 @@ def analyze_smoking_folder(folder_path, text_candidates, threshold=0.3, display_
         print(f"분석 중: frame_{os.path.splitext(os.path.basename(image_path))[0].split('_')[-1]}.png")
         result = detect_smoking_scene(
             image_path,
-            text_candidates,
             threshold=threshold,
             display_image=display_image
         )
@@ -102,11 +99,8 @@ def analyze_smoking_folder(folder_path, text_candidates, threshold=0.3, display_
     return results
 
 if __name__ == "__main__":
-    # 텍스트 후보군 리스트 생성
-    text_candidates = get_text_candidates()
-
     # 폴더 경로
-    folder_path = "./video2imgs/흡연_장면_폴더"
+    folder_path = "video2imgs/흡연/국내배우흡연모음_video2imgs"
 
     # JSON 저장 경로
     output_json_path = "./smoking_detection_results.json"
@@ -115,7 +109,6 @@ if __name__ == "__main__":
     try:
         results = analyze_smoking_folder(
             folder_path,
-            text_candidates,
             threshold=0.3,
             display_image=False,
             output_json_path=output_json_path
