@@ -26,8 +26,7 @@ def analyze_metadata_and_script(openai_client, metadata, script):
     장르적 특성을 JSON 형식으로 추출합니다.
     """
     prompt = (
-        f"다음 메타데이터와 대사에서 주제를 찾아서 키워드, 키워드의 설명, 표현방식, 메시지 전달의도, 장르적 특성을 JSON 형식으로 출력해줘. "
-        f"JSON에 소개와 장르 정보도 요약해서 추가해줘.\n\n"
+        f"다음 메타데이터와 대사를 분석해서, 주제를 기반으로 한 키워드(최대 3개)와 키워드에 대한 설명은 개별적으로 나열하고, 표현방식, 메시지 전달의도, 장르적 특성은 작품 전체적으로 보아 하나의 설명으로 JSON 형식으로 출력해줘.\n\n"
         f"메타데이터:\n{metadata}\n\n"
         f"대사:\n{script}"
     )
@@ -39,8 +38,10 @@ def analyze_metadata_and_script(openai_client, metadata, script):
         ],
         max_tokens=1000
     )
-
-    return response.choices[0].message.content
+    ai_response = response.choices[0].message.content
+    ai_response = ai_response.replace("json","")
+    ai_response = ai_response.replace("```","")
+    return ai_response
 
 def parse_analysis_result(result):
     """결과를 JSON 형식으로 변환하며, 변환 실패 시 오류를 처리합니다."""
@@ -88,3 +89,12 @@ def process_topic(text_output_path, output_json_path, title, synopsis, genre):
         with open(output_json_path, "w", encoding="utf-8") as json_file:
             json.dump(analysis_json, json_file, ensure_ascii=False, indent=4)
         print(f"분석 결과가 '{output_json_path}' 파일에 저장되었습니다.")
+
+# if __name__ == "__main__":
+#     process_topic(
+#     text_output_path='video_data\술꾼도시여자들.txt',
+#     output_json_path='topic/topicJSON.json',  # 파일 확장자 추가 및 슬래시로 경로 수정
+#     title="술꾼도시여자들",
+#     synopsis='술 마시는 세 여자의 청춘 이야기',
+#     genre='드라마'
+# )
