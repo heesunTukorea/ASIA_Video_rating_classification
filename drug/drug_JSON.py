@@ -4,7 +4,7 @@ import json
 from PIL import Image
 from collections import Counter 
 
-def violence(image_folder_path, output_file, threshold=0.45):
+def drug(image_folder_path, output_file, threshold=0.45):
     
     # 모델 및 프로세서 로드
     model_name = "openai/clip-vit-large-patch14"
