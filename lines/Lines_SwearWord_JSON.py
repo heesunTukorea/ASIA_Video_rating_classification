@@ -1,4 +1,5 @@
 import os
+import json
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
 import torch.nn.functional as F
@@ -59,7 +60,7 @@ def predict_sentence(model, tokenizer, sentence, device):
     return label, confidence
 
 # 대사 분석 및 결과 집계
-def process_lines(model_path, script_path):
+def lines_result(model_path, script_path):
     device = get_device()
     model, tokenizer = load_model_and_tokenizer(model_path, device)
 
@@ -94,9 +95,16 @@ def process_lines(model_path, script_path):
 
     return result
 
-if __name__ == "__main__":
-    model_path = r"ASIA_Video_rating_classification\lines\JminJ"
-    script_path = r"ASIA_Video_rating_classification\result\소년시대\소년시대_text_output\소년시대_text.txt" #텍스트 파일 경로 수정
+# 결과 처리 및 파일 저장
+def process_lines(script_path, output_path, JminJmodel_path):
+    model_path = JminJmodel_path
+    script_path = script_path
 
-    analysis_result = process_lines(model_path, script_path)
-    print(analysis_result)
+    # 분석 결과 생성
+    analysis_result = lines_result(model_path, script_path)
+
+    # 결과를 JSON 파일로 저장
+    with open(output_path, "w", encoding="utf-8") as json_file:
+        json.dump(analysis_result, json_file, ensure_ascii=False, indent=4)
+
+    print(f"분석 결과가 '{output_path}' 파일에 저장되었습니다.")
