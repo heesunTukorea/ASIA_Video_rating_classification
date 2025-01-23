@@ -2,7 +2,6 @@ from transformers import CLIPProcessor, CLIPModel
 import os
 import json
 from PIL import Image
-from collections import Counter 
 
 def drug(image_folder_path, output_file, threshold=0.3):
     
@@ -51,7 +50,6 @@ def drug(image_folder_path, output_file, threshold=0.3):
 
     # 결과 저장
     results = []
-    caption_counts = Counter() 
 
     # 폴더 내 모든 이미지 파일 가져오기
     image_files = os.listdir(image_folder_path)
@@ -85,9 +83,9 @@ def drug(image_folder_path, output_file, threshold=0.3):
             # 조건에 따른 출력
             if highest_prob >= threshold and best_caption in target_captions:
                 display_caption = best_caption
-                caption_counts[best_caption] += 1  
+
             else:
-                display_caption = "폭력적인 장면이 없습니다."
+                display_caption = "마약과 관련된 장면이 없습니다."
 
             # 결과 저장
             results.append({
@@ -103,11 +101,6 @@ def drug(image_folder_path, output_file, threshold=0.3):
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(results, f, indent=4, ensure_ascii=False)
 
-    # caption_counts와 results 출력
-    print("\n폭력적인 장면 빈도:")
-    for caption, count in caption_counts.items():
-        print(f"{caption}: {count}")
-
     print("\n분석 결과:")
     for result in results:
         print(result)
@@ -115,7 +108,7 @@ def drug(image_folder_path, output_file, threshold=0.3):
     print(f"\n모든 결과가 {output_file}에 저장되었습니다.")
 
     # 결과와 각 폭력성 빈도 리턴
-    return results, dict(caption_counts)
+    return results
 
 # 실행
 image_path = '이미지 폴더 경로'
