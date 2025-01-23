@@ -12,13 +12,6 @@ def initialize_openai_client(api_key):
     """제공된 API 키를 사용하여 OpenAI 클라이언트를 초기화합니다."""
     return OpenAI(api_key=api_key)
 
-def get_user_metadata():
-    """사용자로부터 메타데이터를 입력받습니다."""
-    title = input("영상 제목을 입력하세요: ")
-    synopsis = input("영상 줄거리를 입력하세요: ")
-    genre = input("영상 장르를 입력하세요: ")
-    return {"title": title, "synopsis": synopsis, "genre": genre}
-
 def load_generated_text(file_path):
     """생성된 텍스트 파일을 읽어 문자열로 반환합니다."""
     try:
@@ -57,7 +50,7 @@ def parse_analysis_result(result):
         print("JSON 디코딩 실패. 응답 내용:", result)
         return None
 
-def process_topic(text_output_path):
+def process_topic(text_output_path, output_json_path, title, synopsis, genre):
     """메타데이터 및 대사 분석을 처리하는 메인 함수."""
     # API 키 로드
     openai_api_key = load_env()
@@ -66,9 +59,6 @@ def process_topic(text_output_path):
 
     # OpenAI 클라이언트 초기화
     client = initialize_openai_client(openai_api_key)
-
-    # 사용자로부터 메타데이터 입력 받기
-    metadata = get_user_metadata()
 
     # 생성된 텍스트 파일 경로 설정
     text_output_path = text_output_path
@@ -81,10 +71,20 @@ def process_topic(text_output_path):
         print(e)
         return
 
+    # 메타데이터 구성
+    metadata = {
+        "title": title,
+        "synopsis": synopsis,
+        "genre": genre
+    }
+
     # 메타데이터와 대사 분석
     analysis_result = analyze_metadata_and_script(client, metadata, script)
 
-    # 결과를 JSON 형식으로 변환하고 출력
+    # 결과를 JSON 형식으로 변환
     analysis_json = parse_analysis_result(analysis_result)
     if analysis_json:
-        print(json.dumps(analysis_json, indent=4, ensure_ascii=False))
+        # 결과를 JSON 파일로 저장
+        with open(output_json_path, "w", encoding="utf-8") as json_file:
+            json.dump(analysis_json, json_file, ensure_ascii=False, indent=4)
+        print(f"분석 결과가 '{output_json_path}' 파일에 저장되었습니다.")
