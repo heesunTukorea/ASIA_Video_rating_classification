@@ -1,7 +1,7 @@
 import os
 import json
 from transformers import pipeline
-
+from collections import Counter
 
 
 def classify_images_horror(image_folder, output_json_path):
@@ -86,7 +86,33 @@ def classify_images_horror(image_folder, output_json_path):
             })
         except Exception as e:
             print(f"Error processing {image_name}: {e}")
-    
+        
+        # 총 페이지 수
+    total_pages = len(results)
+
+    # best_caption 값의 등장 횟수
+    caption_counts = Counter(item['best_caption'] for item in results)
+
+    # horror_candidates 리스트와 비교하여 공포 관련 best_caption 값 추출
+    horror_caption_counts = {caption: caption_counts.get(caption, 0) for caption in horror_candidates}
+
+    # classification 값의 true와 false 개수
+    true_count = sum(1 for item in results if item['classification'] is True)
+    false_count = total_pages - true_count
+
+    # 비율 계산
+    true_rate = round(true_count / total_pages, 2) if total_pages > 0 else 0
+    false_rate = round(false_count / total_pages, 2) if total_pages > 0 else 0
+
+    # 요약 결과 생성
+    summary = {
+        "total_scenes": total_pages,
+        "horror_best_caption": horror_caption_counts,
+        "non-horror": caption_counts.get("non-horror", 0),
+        "horror_rate_true": true_rate,
+        "horror_rate_false": false_rate
+    }
+    results.append(summary)
     # 결과를 JSON 파일로 저장
     with open(output_json_path, "w") as json_file:
         json.dump(results, json_file, indent=4)

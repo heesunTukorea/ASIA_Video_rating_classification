@@ -38,26 +38,35 @@ def create_dirs(base_path, relative_path):
     return output_audio_path, output_images_path, output_text_path
 
 # 오디오 추출 (ffmpeg)
-def extract_audio(input_video_path, output_audio_path):
-    command = [
-        "ffmpeg", "-i", input_video_path, "-vn", "-acodec", "mp3", output_audio_path
-    ]
+def extract_audio(input_video_path, output_audio_path, start_time=None, duration=None):
+    command = ["ffmpeg", "-i", input_video_path, "-vn", "-acodec", "mp3"]
+    
+    if start_time:
+        command.extend(["-ss", start_time])
+    if duration:
+        command.extend(["-t", duration])
+    
+    command.append(output_audio_path)
     return subprocess.run(command)
 
-# 이미지 추출 (ffmpeg)
-def extract_images(input_video_path, output_images_path):
-    command = [
-        "ffmpeg", "-i", input_video_path, "-vf", "fps=1", output_images_path
-    ]
+def extract_images(input_video_path, output_images_path, start_time=None, duration=None):
+    command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1"]
+    
+    if start_time:
+        command.extend(["-ss", start_time])
+    if duration:
+        command.extend(["-t", duration])
+    
+    command.append(output_images_path)
     return subprocess.run(command)
 
 # Whisper 텍스트 변환
-def transcribe_audio(client, output_audio_path):
+def transcribe_audio(client, output_audio_path,language):
     with open(output_audio_path, "rb") as audio_file:
         transcription = client.audio.transcriptions.create(
             model="whisper-1", 
             file=audio_file,
-            language='ko',
+            language=language,
             response_format="verbose_json",
             timestamp_granularities=["segment"]
         )
@@ -78,7 +87,7 @@ def write_text(output_text_path, result):
             print(f"[{start_time} - {end_time}]  {text}")
 
 # 메인 프로세스 실행
-def process_video(input_video_path):
+def process_video(input_video_path,start_time=None, duration=None,language='ko'):
     client=open_ai_load()
     base_path, relative_path = input_video_path.split("video_data/")
 
@@ -86,19 +95,19 @@ def process_video(input_video_path):
     output_audio_path, output_images_path, output_text_path = create_dirs(base_path, relative_path)
 
     # 오디오 추출
-    if extract_audio(input_video_path, output_audio_path).returncode == 0:
+    if extract_audio(input_video_path, output_audio_path,start_time, duration).returncode == 0:
         print("오디오 추출 완료")
     else:
         print("오디오 추출 중 오류 발생")
 
     # 이미지 추출
-    if extract_images(input_video_path, output_images_path).returncode == 0:
+    if extract_images(input_video_path, output_images_path,start_time, duration).returncode == 0:
         print("이미지 추출 완료")
     else:
         print("이미지 추출 중 오류 발생")
 
     # Whisper로 텍스트 변환
-    result = transcribe_audio(client, output_audio_path)
+    result = transcribe_audio(client, output_audio_path,language=language)
     write_text(output_text_path, result)
 
     print("프로세스 완료")
@@ -108,5 +117,5 @@ def process_video(input_video_path):
     
 # import한 후 호출 예시
 # from this_module import process_video
-#process_video("video_data/불한당.mp4")
+#process_video("video_data/불한당.mp4",)
 #video_data 폴더 만들고 영상넣으시면됩니다

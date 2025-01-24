@@ -22,7 +22,7 @@ def detect_alcohol_in_images(images_path, output_path, checkpoint="google/owlv2-
 
     # 이미지 디렉토리에서 파일 목록 가져오기
     list_d = os.listdir(path=images_path)
-    alcohol_predict = {}
+    alcohol_predict = []
 
     # 결과를 포맷팅하는 함수 정의
     def format_predictions(image_name, predictions):
@@ -59,9 +59,25 @@ def detect_alcohol_in_images(images_path, output_path, checkpoint="google/owlv2-
         try:
             image = Image.open(image_path)  # 이미지를 열기
             predictions = detector(image, candidate_labels=["alcohol"])  # 알코올 객체 탐지
-            alcohol_predict[image_name] = format_predictions(image_name, predictions)  # 결과 저장
+            alcohol_predict.append(format_predictions(image_name, predictions))  # 결과 저장
         except Exception as e:
             print(f"Error processing {image_name}: {e}")  # 에러 발생 시 메시지 출력
+    total_scenes = len(alcohol_predict)
+    alcohol_true_count = sum(1 for item in alcohol_predict if item['classification'] is True)
+    alcohol_false_count = total_scenes - alcohol_true_count
+    true_rate = round(alcohol_true_count / total_scenes, 2) if total_scenes > 0 else 0
+    false_rate = round(alcohol_false_count / total_scenes, 2) if total_scenes > 0 else 0
+
+    # Generate summary JSON
+    summary_data = {
+        "total_scenes": total_scenes,
+        "alcohol_true": alcohol_true_count,
+        "alcohol_false": alcohol_false_count,
+        "true_rate": true_rate,
+        "false_rate": false_rate
+    }
+    alcohol_predict.append(summary_data)
+
 
     # 결과를 JSON 파일로 저장
     with open(output_path, 'w', encoding='utf-8') as json_file:
