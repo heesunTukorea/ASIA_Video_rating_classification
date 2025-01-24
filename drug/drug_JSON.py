@@ -2,6 +2,7 @@ from transformers import CLIPProcessor, CLIPModel
 import os
 import json
 from PIL import Image
+from collections import Counter
 
 def drug(image_folder_path, output_file, threshold=0.3):
     
@@ -39,17 +40,16 @@ def drug(image_folder_path, output_file, threshold=0.3):
 
     # 출력 테스트 타깃 설정
     target_captions = {
-        "a scene of physical violence",
-        "a scene of rape",
-        "a scene of a person bleeding",
-        "a scene of an animal bleeding",
-        "the scene of a corpses",
-        "a murderous scene",
-        "a scene using knives, guns, bats, etc. to pose a threat"
+        "someone on drugs",
+        "white powder in the scene",
+        "a person preparing drugs for use",
+        "a laboratory scene with drug production equipment",
+        "a posture of inhaling powder while blocking one nostril with one hand"
     }
 
     # 결과 저장
     results = []
+    caption_counts = Counter()
 
     # 폴더 내 모든 이미지 파일 가져오기
     image_files = os.listdir(image_folder_path)
@@ -84,7 +84,7 @@ def drug(image_folder_path, output_file, threshold=0.3):
             # 조건에 따른 출력
             if highest_prob >= threshold and best_caption in target_captions:
                 display_caption = best_caption
-
+                caption_counts[best_caption] += 1
             else:
                 display_caption = "마약과 관련된 장면이 없습니다."
 
@@ -98,9 +98,30 @@ def drug(image_folder_path, output_file, threshold=0.3):
         except Exception as e:
             print(f"Error processing {image_name}: {e}")
 
+    # 마약 관련 요약 추가
+    total_scenes = len(image_files)
+    drug_count = sum(caption_counts[caption] for caption in target_captions)
+    non_drug_count = total_scenes - drug_count
+    drug_rate_true = drug_count / total_scenes if total_scenes > 0 else 0
+    drug_rate_false = non_drug_count / total_scenes if total_scenes > 0 else 0
+
+    summary_stats = {
+        "total_scenes": total_scenes,
+        "drug_best_caption": {
+            caption: caption_counts[caption] for caption in target_captions
+        },
+        "non-drug": non_drug_count,
+        "drug_rate_true": drug_rate_true,
+        "drug_rate_false": drug_rate_false
+    }
+
     # JSON으로 저장
     with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=4, ensure_ascii=False)
+        json.dump({"results": results, "summary": summary_stats}, f, indent=4, ensure_ascii=False)
+
+    print("\n마약과 관련된 장면 빈도:")
+    for caption, count in caption_counts.items():
+        print(f"{caption}: {count}")
 
     print("\n분석 결과:")
     for result in results:
@@ -108,8 +129,8 @@ def drug(image_folder_path, output_file, threshold=0.3):
 
     print(f"\n모든 결과가 {output_file}에 저장되었습니다.")
 
-    # 결과와 각 폭력성 빈도 리턴
-    return results
+    # 결과와 각 마약성 빈도 리턴
+    return results, summary_stats
 
 # 실행
 # image_path = '이미지 폴더 경로'
