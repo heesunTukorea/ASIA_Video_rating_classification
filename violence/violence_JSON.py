@@ -100,9 +100,26 @@ def violence(image_folder_path, output_file, threshold=0.45):
         except Exception as e:
             print(f"Error processing {image_name}: {e}")
 
+    # 폭력 관련 요약 추가
+    total_scenes = len(image_files)
+    violence_count = sum(caption_counts[caption] for caption in target_captions)
+    non_violence_count = total_scenes - violence_count
+    violence_rate_true = violence_count / total_scenes if total_scenes > 0 else 0
+    violence_rate_false = non_violence_count / total_scenes if total_scenes > 0 else 0
+
+    summary_stats = {
+        "total_scenes": total_scenes,
+        "violence_best_caption": {
+            caption: caption_counts[caption] for caption in target_captions
+        },
+        "non-violence": non_violence_count,
+        "violence_rate_true": violence_rate_true,
+        "violence_rate_false": violence_rate_false
+    }
+
     # JSON으로 저장
     with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(results, f, indent=4, ensure_ascii=False)
+        json.dump({"results": results, "summary": summary_stats}, f, indent=4, ensure_ascii=False)
 
     # caption_counts와 results 출력
     print("\n폭력적인 장면 빈도:")
@@ -116,7 +133,7 @@ def violence(image_folder_path, output_file, threshold=0.45):
     print(f"\n모든 결과가 {output_file}에 저장되었습니다.")
 
     # 결과와 각 폭력성 빈도 리턴
-    return results, dict(caption_counts)
+    return results, summary_stats
 
 # 실행
 # image_path = '이미지 폴더 경로'
