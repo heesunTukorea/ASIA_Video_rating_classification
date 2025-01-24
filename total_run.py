@@ -1,8 +1,8 @@
 from common_processing.video_to_image_text import process_video
 from drug.drug_JSON import drug
-from drug.Smoking_JSON import analyze_smoking_folder
+from drug.Smoking_JSON import classify_images_smoking
 from horror.horror_classfication import classify_images_horror
-from sexuality.Sexuality_img_JSON import analyze_folder
+from sexuality.Sexuality_img_JSON import classify_images_sexuality
 from imitation_risk.imitaion_risk_result import imitation_risk_api
 from topic.Topic_JSON import process_topic
 from lines.Lines_SwearWord_JSON import process_lines
@@ -59,13 +59,13 @@ print('대사 완료')
 drug(image_folder_path=images_path, output_file = json_class_name['약물_마약'], threshold=0.3) #클립 마약
 print('마약 완료')
 #담배
-analyze_smoking_folder(folder_path=images_path,threshold=0.3,display_image=False,output_json_path=json_class_name['약물_담배']) #클립 담배
+classify_images_smoking(folder_path=images_path,threshold=0.3,display_image=False,output_json_path=json_class_name['약물_담배']) #클립 담배
 print('담배 완료')
 #공포 이미지
 classify_images_horror(image_folder=images_path, output_json_path = json_class_name['공포'])# 클립 호러
 print('공포 완료')
 #선정성 이미지
-analyze_folder(folder_path=images_path, threshold=0.3, display_image=False, output_json_path=json_class_name['선정성_이미지'])# 클립 선정성
+classify_images_sexuality(folder_path=images_path, threshold=0.3, display_image=False, output_json_path=json_class_name['선정성_이미지'])# 클립 선정성
 print('선정성 이미지 완료')
 #폭력 이미지
 violence(image_folder_path=images_path, output_file=json_class_name['폭력_이미지'], threshold=0.45)#클립 폭력성
