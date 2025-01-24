@@ -47,7 +47,7 @@ def calculate_combined_similarity(image1, image2):
     """SSIM과 히스토그램 유사도를 결합하여 계산"""
     ssim_score = calculate_ssim_similarity(image1, image2)
     histogram_score = calculate_histogram_similarity(image1, image2)
-    combined_score = 0.9 * ssim_score + 0.1 * histogram_score
+    combined_score = 0.7 * ssim_score + 0.3 * histogram_score
     return combined_score
 
 def detect_scene_transitions(image_folder, output_folder, similarity_threshold=0.6):
@@ -85,8 +85,8 @@ def detect_scene_transitions(image_folder, output_folder, similarity_threshold=0
 
 if __name__ == "__main__":
     # 예제 실행 코드
-    image_folder = "result/오징어게임시즌2/오징어게임시즌2_images_output"  # 입력 이미지 폴더 경로
-    output_folder = "result/오징어게임시즌2/오징어게임_classify"  # 출력 폴더 경로
-    similarity_threshold = 0.6  # 유사도 임계값
+    image_folder = "result/써니/써니_images_output"  # 입력 이미지 폴더 경로
+    output_folder = "result/써니/써니_classify"  # 출력 폴더 경로
+    similarity_threshold = 0.4  # 유사도 임계값
 
     detect_scene_transitions(image_folder, output_folder, similarity_threshold)
