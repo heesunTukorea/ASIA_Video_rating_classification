@@ -5,7 +5,7 @@ import json
 import os
 from collections import Counter
 
-def classify_images_sexual(folder_path, threshold=0.3, display_image=False, output_json_path=None):
+def classify_images_sexuality(folder_path, threshold=0.3, display_image=False, output_json_path=None):
     text_candidates = {
         "sexual": [
             'They are having sex',
