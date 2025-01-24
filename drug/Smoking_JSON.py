@@ -3,14 +3,9 @@ from PIL import Image
 import matplotlib.pyplot as plt
 import json
 import os
+from collections import Counter
 
-# CLIP 모델 및 프로세서 초기화
-clip = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
-processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
-
-# CLIP 모델을 이용해 이미지에서 흡연 장면을 판단하는 함수
-def detect_smoking_scene(image_path, threshold=0.3, display_image=True, output_json_path=None):
-    # 텍스트 후보군 정의
+def classify_images_smoking(folder_path, threshold=0.3, display_image=False, output_json_path=None):
     text_candidates = [
         "A person with smoke coming from their mouth",
         "A lit cigarette",
@@ -20,58 +15,36 @@ def detect_smoking_scene(image_path, threshold=0.3, display_image=True, output_j
         "A person holding a lighter and cigarette",
         "A person holding a cigarette"
     ]
-    
-    # 이미지 불러오기
-    if not os.path.exists(image_path):
-        raise FileNotFoundError(f"이미지 경로를 찾을 수 없습니다: {image_path}")
 
-    img = Image.open(image_path)
+    # CLIP 모델 및 프로세서 초기화
+    clip = CLIPModel.from_pretrained("openai/clip-vit-large-patch14")
+    processor = CLIPProcessor.from_pretrained("openai/clip-vit-large-patch14")
 
-    # 입력 데이터 전처리
-    inputs = processor(text=text_candidates, images=img, return_tensors="pt", padding=True)
+    def detect_smoking_scene(image_path):
+        if not os.path.exists(image_path):
+            raise FileNotFoundError(f"이미지 경로를 찾을 수 없습니다: {image_path}")
 
-    # 모델 추론
-    outputs = clip(**inputs)
+        img = Image.open(image_path)
+        inputs = processor(text=text_candidates, images=img, return_tensors="pt", padding=True)
+        outputs = clip(**inputs)
 
-    # 이미지-텍스트 유사도 계산
-    logits_per_image = outputs.logits_per_image  # 이미지-텍스트 유사도
-    probs = logits_per_image.softmax(dim=1)  # 소프트맥스 확률 계산
+        logits_per_image = outputs.logits_per_image
+        probs = logits_per_image.softmax(dim=1)
 
-    # 가장 높은 유사도를 가진 텍스트와 해당 확률
-    best_match_idx = probs.argmax()  # 가장 높은 확률의 텍스트 인덱스
-    best_caption_candidate = text_candidates[best_match_idx]  # 가장 유사한 텍스트
-    highest_prob = probs[0, best_match_idx].item()  # 해당 텍스트의 유사도 점수
+        best_match_idx = probs.argmax()
+        best_caption_candidate = text_candidates[best_match_idx]
+        highest_prob = probs[0, best_match_idx].item()
 
-    # 흡연 장면 여부 확인
-    is_smoking_scene = highest_prob >= threshold
+        is_smoking_scene = highest_prob >= threshold
+        best_caption = best_caption_candidate if is_smoking_scene else "흡연 장면이 없습니다."
 
-    # best_caption 설정
-    best_caption = best_caption_candidate if is_smoking_scene else "흡연 장면이 없습니다."
+        return {
+            "image_name": f"frame_{os.path.splitext(os.path.basename(image_path))[0].split('_')[-1]}.png",
+            "best_caption": best_caption,
+            "highest_prob": highest_prob,
+            "classification": is_smoking_scene
+        }
 
-    # 결과 출력
-    if display_image:
-        plt.axis('off')
-        plt.imshow(img)
-        plt.show()
-
-    result = {
-        "image_name": f"frame_{os.path.splitext(os.path.basename(image_path))[0].split('_')[-1]}.png",
-        "best_caption": best_caption,
-        "highest_prob": highest_prob,
-        "classification": is_smoking_scene
-    }
-
-    if result["classification"]:
-        print(f"\U0001F6AC 흡연 장면 감지됨")
-        print(f"Generated Caption: {best_caption}")
-        print(f"Similarity Score: {highest_prob}")
-    else:
-        print("\u2705 흡연 장면 없음")
-
-    return result
-
-# 폴더 내 모든 이미지를 분석하고 결과를 JSON 파일로 저장하는 함수
-def analyze_smoking_folder(folder_path, threshold=0.3, display_image=False, output_json_path=None):
     if not os.path.exists(folder_path):
         raise FileNotFoundError(f"폴더 경로를 찾을 수 없습니다: {folder_path}")
 
@@ -81,16 +54,31 @@ def analyze_smoking_folder(folder_path, threshold=0.3, display_image=False, outp
     ]
 
     results = []
+
     for image_path in image_files:
         print(f"분석 중: frame_{os.path.splitext(os.path.basename(image_path))[0].split('_')[-1]}.png")
-        result = detect_smoking_scene(
-            image_path,
-            threshold=threshold,
-            display_image=display_image
-        )
+        result = detect_smoking_scene(image_path)
         results.append(result)
 
-    # JSON 파일로 저장
+    total_pages = len(results)
+    caption_counts = Counter(item['best_caption'] for item in results)
+    smoking_caption_counts = {caption: caption_counts.get(caption, 0) for caption in text_candidates}
+
+    true_count = sum(1 for item in results if item['classification'] is True)
+    false_count = total_pages - true_count
+
+    true_rate = round(true_count / total_pages, 2) if total_pages > 0 else 0
+    false_rate = round(false_count / total_pages, 2) if total_pages > 0 else 0
+
+    summary = {
+        "total_scenes": total_pages,
+        "smoking_best_caption": smoking_caption_counts,
+        "non-smoking": caption_counts.get("흡연 장면이 없습니다.", 0),
+        "smoking_rate_true": true_rate,
+        "smoking_rate_false": false_rate
+    }
+    results.append(summary)
+
     if output_json_path:
         with open(output_json_path, "w", encoding="utf-8") as json_file:
             json.dump(results, json_file, ensure_ascii=False, indent=4)
@@ -98,22 +86,17 @@ def analyze_smoking_folder(folder_path, threshold=0.3, display_image=False, outp
 
     return results
 
-if __name__ == "__main__":
-    # 폴더 경로
-    folder_path = "video2imgs/흡연/국내배우흡연모음_video2imgs"
+# if __name__ == "__main__":
+#     folder_path = "video2imgs/흡연/국내배우흡연모음_video2imgs"
+#     output_json_path = "./smoking_detection_results.json"
 
-    # JSON 저장 경로
-    output_json_path = "./smoking_detection_results.json"
-
-    # 함수 호출
-    try:
-        results = analyze_smoking_folder(
-            folder_path,
-            threshold=0.3,
-            display_image=False,
-            output_json_path=output_json_path
-        )
-        # 결과 출력
-        print(f"총 {len(results)}개의 이미지가 분석되었습니다.")
-    except FileNotFoundError as e:
-        print(e)
+#     try:
+#         results = classify_images_smoking(
+#             folder_path,
+#             threshold=0.3,
+#             display_image=False,
+#             output_json_path=output_json_path
+#         )
+#         print(f"총 {len(results)}개의 이미지가 분석되었습니다.")
+#     except FileNotFoundError as e:
+#         print(e)
