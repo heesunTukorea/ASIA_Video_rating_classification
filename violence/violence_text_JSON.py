@@ -1,141 +1,114 @@
-from transformers import CLIPProcessor, CLIPModel
+import openai
+from openai import OpenAI
 import os
 import json
-from PIL import Image
-from collections import Counter 
+from dotenv import load_dotenv
 
-def violence(image_folder_path, output_file, threshold=0.45):
-    
-    # 모델 및 프로세서 로드
-    model_name = "openai/clip-vit-large-patch14"
-    model = CLIPModel.from_pretrained(model_name)
-    processor = CLIPProcessor.from_pretrained(model_name)
+### .env file 로드
+load_dotenv()
 
-    # 텍스트 후보군 생성
-    text_candidates = [
-        # 폭력
-        "a scene of physical violence",
-        "a scene of rape",
-        "a scene of a person bleeding",
-        "a scene of an animal bleeding",
-        "the scene of a corpses",
-        "a murderous scene",
-        "a scene using knives, guns, bats, etc. to pose a threat",
+### API Key 불러오기
+openai_api_key = os.getenv('OPENAI_API_KEY')
 
-        # 기타
-        "A picture of a person standing",
-        "A peaceful scene",
-        "A person walking in the street",
-        "A lot of people walking in the street",
-        "A calm conversation between people",
-        "A person smiling and laughing",
-        "The scene that people are talking about",
-        "a picture of a person sitting",
-        "a photo of a drinking",
-        "a picture of someone kissing",
-        "a picture of someone taking off his clothes",
-        "a photo of a smoking",
-        "a photo of someone on drugs",
-    ]
+### OpenAI 함수 호출
+client = OpenAI(api_key=openai_api_key)
 
-    # 출력 테스트 타깃 설정
-    target_captions = {
-        "a scene of physical violence",
-        "a scene of rape",
-        "a scene of a person bleeding",
-        "a scene of an animal bleeding",
-        "the scene of a corpses",
-        "a murderous scene",
-        "a scene using knives, guns, bats, etc. to pose a threat"
-    }
+# 1. 텍스트 파일 읽기
+def load_texts(file_path):
+    """텍스트 파일에서 데이터를 읽어 리스트로 반환"""
+    with open(file_path, 'r', encoding='utf-8') as file:
+        return file.readlines()
 
-    # 결과 저장
+# 2. GPT-4o를 사용하여 폭력성 판단
+def detect_violence(texts):
+    """
+    텍스트 리스트를 받아 GPT-4o를 사용하여 폭력성 판단.
+    :param texts: 분석할 텍스트 리스트
+    :return: 분석 결과 리스트
+    """
     results = []
-    caption_counts = Counter() 
-
-    # 폴더 내 모든 이미지 파일 가져오기
-    image_files = os.listdir(image_folder_path)
-    image_files.sort()
-
-    # 폴더 내 모든 이미지 파일 처리
-    for idx, image_name in enumerate(image_files, start=1):
-        image_path = os.path.join(image_folder_path, image_name)
-
+    for text in texts:
         try:
-            # 이미지 처리 상황 출력
-            print(f"처리 중: [{idx}/{len(image_files)}] {image_name}")
-
-            # 이미지 로드
-            image = Image.open(image_path).convert("RGB")
-
-            # 입력 데이터 전처리
-            inputs = processor(text=text_candidates, images=image, return_tensors="pt", padding=True)
-
-            # 모델 추론
-            outputs = model(**inputs)
-
-            # 이미지-텍스트 유사도 계산
-            logits_per_image = outputs.logits_per_image
-            probs = logits_per_image.softmax(dim=1)
-
-            # 가장 높은 유사도를 가진 텍스트와 해당 확률
-            best_match_idx = probs.argmax()
-            best_caption = text_candidates[best_match_idx]
-            highest_prob = probs[0, best_match_idx].item()
-
-            # 조건에 따른 출력
-            if highest_prob >= threshold and best_caption in target_captions:
-                display_caption = best_caption
-                caption_counts[best_caption] += 1  
+            # GPT-4o에 요청
+            response = client.chat.completions.create(  # 최신 API 호출 방식
+                model="gpt-4o",  # 사용할 모델 이름
+                messages=[
+                    {
+                        "role": "system",
+                        "content": (
+                            "당신은 주어진 대사에서 폭력성을 분석하는 전문가입니다. "
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": 
+                         f"""
+                            다음 대사에서 폭력성이 있는지 JSON 형식으로 알려주세요. 한글로 대답해 주세요. 문장으로 대답해 주세요.
+                            {{
+                            "text": "대사 내용"
+                            "is_violent: "False" 또는 "True"
+                            "explanation": "폭력성 여부에 대한 이유"                          
+                            }}
+                            대사: {text}
+                            """}
+                    ],
+                max_tokens=800,  # 응답의 최대 토큰 수
+                temperature=0.7  # 창의성 조정
+            )
+            # GPT-4o 응답 파싱
+            print(text +' 완료')
+            answer = response.choices[0].message.content.strip()  # 응답에서 텍스트 추출
+            if answer:
+                try:
+                    json_start = answer.find('{')
+                    json_end = answer.rfind('}') + 1
+                    if json_start != -1 and json_end != -1:
+                        json_output = answer[json_start:json_end]
+                        parsed_json = json.loads(json_output)
+                        results.append(parsed_json) 
+                    else:
+                        print("API 응답에서 JSON 형식을 찾을 수 없습니다.")
+                        print(f"API 텍스트 응답: {answer}")
+                        return answer
+                except (ValueError, json.JSONDecodeError) as e:
+                    print(f"JSON 파싱 오류: {e}")
+                    print(f"API 텍스트 응답: {answer}") # 전체 텍스트 응답 출력
+                    return None
             else:
-                display_caption = "폭력적인 장면이 없습니다."
-
-            # 결과 저장
-            results.append({
-                "image_name": image_name,
-                "best_caption": display_caption,
-                "highest_prob": highest_prob
-            })
-
+                print("API 응답에 텍스트가 없습니다.")
+                return None
         except Exception as e:
-            print(f"Error processing {image_name}: {e}")
+            print(f"텍스트 처리 중 오류 발생: {text.strip()} - {e}")
+            results.append({
+                "text": text.strip(),
+                "is_violent": None,
+                "explanation": f"오류 발생: {str(e)}"
+            })
+    return results
 
-    # 폭력 관련 요약 추가
-    total_scenes = len(image_files)
-    violence_count = sum(caption_counts[caption] for caption in target_captions)
-    non_violence_count = total_scenes - violence_count
-    violence_rate_true = violence_count / total_scenes if total_scenes > 0 else 0
-    violence_rate_false = non_violence_count / total_scenes if total_scenes > 0 else 0
+# 3. 결과를 JSON 파일로 저장
+def save_results(results, output_path):
+    """결과 리스트를 JSON 파일로 저장"""
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, ensure_ascii=False, indent=4)
+    print(f"분석 결과가 {output_path}에 저장되었습니다.")
 
-    summary_stats = {
-        "total_scenes": total_scenes,
-        "violence_best_caption": {
-            caption: caption_counts[caption] for caption in target_captions
-        },
-        "non-violence": non_violence_count,
-        "violence_rate_true": violence_rate_true,
-        "violence_rate_false": violence_rate_false
-    }
+# 4. 메인 함수
+def violence_text_main(text_path,output_path):
+    """메인 실행 함수"""
+ 
+    # 파일 경로 설정
+    #text_path = "result/범죄도시4/범죄도시4_text_output/범죄도시4_text.txt"  # 텍스트 파일 경로
+    #output_path = "result/범죄도시4/result_json/범죄도시4_violence_text_json.json"  # 분석 결과 저장 경로
 
-    # JSON으로 저장
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump({"results": results, "summary": summary_stats}, f, indent=4, ensure_ascii=False)
+     # Whisper로 추출된 텍스트 로드
+    texts = load_texts(text_path)
+    
+    # GPT-4o를 사용한 폭력성 분석
+    results = detect_violence(texts)
+    
+    # 결과 저장
+    save_results(results, output_path)
 
-    # caption_counts와 results 출력
-    print("\n폭력적인 장면 빈도:")
-    for caption, count in caption_counts.items():
-        print(f"{caption}: {count}")
-
-    print("\n분석 결과:")
-    for result in results:
-        print(result)
-
-    print(f"\n모든 결과가 {output_file}에 저장되었습니다.")
-
-    # 결과와 각 폭력성 빈도 리턴
-    return results, summary_stats
-
-# 실행
-# image_path = '이미지 폴더 경로'
-# output_file = '결과 저장 경로'
-# violence(image_path, output_file, threshold=0.45)
+# if __name__ == "__main__":
+#     violence_text_main(text_path,output_path)
