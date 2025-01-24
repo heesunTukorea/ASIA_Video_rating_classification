@@ -87,6 +87,6 @@ if __name__ == "__main__":
     # 예제 실행 코드
     image_folder = "result/써니/써니_images_output"  # 입력 이미지 폴더 경로
     output_folder = "result/써니/써니_classify"  # 출력 폴더 경로
-    similarity_threshold = 0.4  # 유사도 임계값
+    similarity_threshold = 0.5  # 유사도 임계값
 
     detect_scene_transitions(image_folder, output_folder, similarity_threshold)
