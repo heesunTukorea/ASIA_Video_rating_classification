@@ -72,7 +72,7 @@ def process_matching(image_folder, text_file_path):
     base_name = base_path.split('result/')[1]  
     classify_folder = base_path+ f"/{base_name}_classify"
     output_file_path = base_path+ f"/{base_name}_matched.json"
-    detect_scene_transitions(image_folder, classify_folder, base_orb_threshold=0.3, base_ssim_threshold0=0.5)
+    detect_scene_transitions(image_folder, classify_folder, base_orb_threshold=0.3, base_ssim_threshold=0.5)
     
     """이미지와 대사를 매칭하고 결과를 저장"""
     # 텍스트 파일에서 대사 파싱
