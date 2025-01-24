@@ -4,7 +4,6 @@ import numpy as np
 from skimage.metrics import structural_similarity as ssim
 from PIL import Image
 
-
 def pil_to_numpy(image):
     """PIL 이미지를 NumPy 배열로 변환"""
     return np.array(image)
@@ -64,7 +63,7 @@ def detect_scene_transitions(image_folder, output_folder, similarity_threshold=0
         first_image = images[0]
         first_filename = filenames[0]
         first_save_path = os.path.join(output_folder, first_filename)
-        first_image.save(first_save_path)
+        first_image.resize((224, 224)).save(first_save_path)  # 저장 시 리사이즈
         print(f"첫 번째 이미지 저장: {first_filename}")
 
     # 이미지 간 유사도를 계산하여 장면 전환 탐지
@@ -80,15 +79,14 @@ def detect_scene_transitions(image_folder, output_folder, similarity_threshold=0
     # 장면 전환 이미지를 저장
     for img, filename in zip(scene_transition_images, scene_transition_filenames):
         save_path = os.path.join(output_folder, filename)
-        img.save(save_path)
+        img.resize((224, 224)).save(save_path)  # 저장 시 리사이즈
 
     print(f"장면 전환 이미지가 {len(scene_transition_images)+1}개 저장되었습니다. 경로: {output_folder}")
 
 if __name__ == "__main__":
     # 예제 실행 코드
     image_folder = "result/오징어게임시즌2/오징어게임시즌2_images_output"  # 입력 이미지 폴더 경로
-    output_folder = "result/오징어게임시즌2//오징어게임_classify"  # 출력 폴더 경로
+    output_folder = "result/오징어게임시즌2/오징어게임_classify"  # 출력 폴더 경로
     similarity_threshold = 0.6  # 유사도 임계값
 
     detect_scene_transitions(image_folder, output_folder, similarity_threshold)
-
