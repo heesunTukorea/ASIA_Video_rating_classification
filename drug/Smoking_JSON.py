@@ -2,7 +2,6 @@ import os
 import json
 from PIL import Image
 from transformers import CLIPProcessor, CLIPModel
-from collections import Counter
 
 def classify_images_smoking(folder_path, output_json_path, threshold=0.3, display_image=False):
     """
@@ -38,11 +37,9 @@ def classify_images_smoking(folder_path, output_json_path, threshold=0.3, displa
         highest_prob = probs[0, best_match_idx].item()
 
         is_smoking_scene = highest_prob >= threshold
-        best_caption = best_caption_candidate if is_smoking_scene else "흡연 장면이 없습니다."
 
         return {
             "image_name": f"frame_{os.path.splitext(os.path.basename(image_path))[0].split('_')[-1]}.png",
-            "best_caption": best_caption,
             "highest_prob": highest_prob,
             "classification": is_smoking_scene
         }
@@ -62,31 +59,27 @@ def classify_images_smoking(folder_path, output_json_path, threshold=0.3, displa
         result = detect_smoking_scene(image_path)
         results.append(result)
 
-    total_pages = len(results)
-    caption_counts = Counter(item['best_caption'] for item in results)
-    smoking_caption_counts = {caption: caption_counts.get(caption, 0) for caption in text_candidates}
+    # 통계 요약 생성
+    total_scenes = len(results)
+    smoking_true_count = sum(1 for item in results if item['classification'] is True)
+    smoking_false_count = total_scenes - smoking_true_count
+    true_rate = round(smoking_true_count / total_scenes, 2) if total_scenes > 0 else 0
+    false_rate = round(smoking_false_count / total_scenes, 2) if total_scenes > 0 else 0
 
-    true_count = sum(1 for item in results if item['classification'] is True)
-    false_count = total_pages - true_count
-
-    true_rate = round(true_count / total_pages, 2) if total_pages > 0 else 0
-    false_rate = round(false_count / total_pages, 2) if total_pages > 0 else 0
-
-    summary = {
-        "total_scenes": total_pages,
-        "smoking_best_caption": smoking_caption_counts,
-        "non-smoking": caption_counts.get("흡연 장면이 없습니다.", 0),
-        "smoking_rate_true": true_rate,
-        "smoking_rate_false": false_rate
+    summary_data = {
+        "total_scenes": total_scenes,
+        "smoking_true": smoking_true_count,
+        "smoking_false": smoking_false_count,
+        "true_rate": true_rate,
+        "false_rate": false_rate
     }
-    results.append(summary)
+    results.append(summary_data)
 
     # 결과 저장
     with open(output_json_path, "w", encoding="utf-8") as json_file:
         json.dump(results, json_file, ensure_ascii=False, indent=4)
 
     print(f"Results saved to {output_json_path}")
-
 
 # folder_path = 'video_data/흡연_images_output'
 # output_json_path = 'smoking_predictions.json'
