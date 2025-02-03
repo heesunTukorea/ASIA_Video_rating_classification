@@ -18,10 +18,10 @@ def analyze_drug_rating(openai_client, drug_data, smoking_data, alcohol_data):
     """
     rating_criteria = """
     Classifications for drug-related ratings:
-    - **All Ages (전체관람가)**: No or very low frequency depiction of drinking/smoking, no youth drinking/smoking, no direct or suggestive promotion, no depiction of illegal drug manufacturing/use.
-    - **12+ (12세이상관람가)**: Mild and brief depictions of drinking/smoking, low level youth drinking, no illegal drug depictions, no glorification of substance use.
-    - **15+ (15세이상관람가)**: Drinking/smoking is not continuous or glorified, illegal drugs are not shown in detailed or realistic ways, no justification of substance abuse.
-    - **Adults Only (청소년관람불가)**: Continuous and repeated depiction of drinking/smoking, detailed and realistic depiction of illegal drugs, glorification of substance abuse, depiction of illegal activities due to drugs.
+    - All Ages: No or very low frequency depiction of drinking/smoking, no youth drinking/smoking, no direct or suggestive promotion, no depiction of illegal drug manufacturing/use.
+    - 12+: Mild and brief depictions of drinking/smoking, low level youth drinking, no illegal drug depictions, no glorification of substance use.
+    - 15+: Drinking/smoking is not continuous or glorified, illegal drugs are not shown in detailed or realistic ways, no justification of substance abuse.
+    - Adults Only: Continuous and repeated depiction of drinking/smoking, detailed and realistic depiction of illegal drugs, glorification of substance abuse, depiction of illegal activities due to drugs.
     """
     
     input_data = {
@@ -35,7 +35,7 @@ def analyze_drug_rating(openai_client, drug_data, smoking_data, alcohol_data):
         Provide the response strictly in JSON format with the following structure:
         {{
             \"rating\": \"관람 등급 (전체관람가, 12세이상관람가, 15세이상관람가, 청소년관람불가)\",
-            \"reasoning\": \"간단한 설명 한 줄\"
+            \"reasoning\": \"한글로 간단한 설명 한 줄\"
         }}
         
         Criteria:
@@ -54,7 +54,6 @@ def analyze_drug_rating(openai_client, drug_data, smoking_data, alcohol_data):
     ai_response = ai_response.replace("json","")
     ai_response = ai_response.replace("```","")
     return ai_response
-    # return response.choices[0].message.content.strip()
 
 def save_json_result(output_json_path, result):
     """결과를 JSON 파일로 저장합니다."""
