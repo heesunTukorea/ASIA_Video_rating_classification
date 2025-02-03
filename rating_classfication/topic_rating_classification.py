@@ -88,8 +88,8 @@ def classify_topic_rating(json_file_path, result_file_path):
     # 3. 결과 저장
     final_rating, rating_reason = parse_rating_response(rating_result)
     result_json = {
-        "최종 등급": final_rating,
-        "등급 판정 이유": rating_reason
+        "rating": final_rating,
+        "reasoning": rating_reason
     }
     
     # 4. 결과 JSON 파일 저장 (한글 출력 유지)
