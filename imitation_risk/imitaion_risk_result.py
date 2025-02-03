@@ -43,7 +43,8 @@ def process_scene_data(scene_text, image_path):
     """
     # 이미지 파일을 Base64로 인코딩
     base64_image = encode_image(image_path)
-
+    # 이미지 파일 이름에서 확장자 제거
+    image_name = os.path.splitext(os.path.basename(image_path))[0]
     # 사용자 메시지 생성
     user_message = [
         {"type": "text", "text": f"""
@@ -53,19 +54,14 @@ def process_scene_data(scene_text, image_path):
         
         Generate the result in JSON format:
         {{
-          "scene": {{
+          "{image_name}": {{
             "context": "[Describe the main context of the scene based on the text and image.]",
             "risk_behavior": "[Describe any risk behaviors that could encourage mimicry.]",
-            "mimicry_risk": "[Select one: Low/Medium/High. Provide a brief explanation.]",
-            "tools_environment": {{
-              "tools": ["[List any tools used in the scene.]"],
-              "location": "[Describe the setting or environment.]"
-            }},
-            "message_tone": "[Indicate whether the message conveyed is Positive, Neutral, or Negative.]"
+            "mimicry_risk": "[Select one: Low/Medium/High]",
           }}
         }}
         output is only json
-        Please respond in Korean. 
+        Please respond in English. 
         """},
         {"type": "image_url", "image_url": {"url": f"data:image/png;base64,{base64_image}"}}
     ]
@@ -133,9 +129,9 @@ def imitation_risk_api(image_folder,text_file_path):
     result,input_file= process_matching(image_folder, text_file_path)
     input_file = input_file
     #input_file = "test.json"  # 입력 JSON 파일 경로
-    output_file = f"{base_path}/result_json/{base_name}_imitation_json.json"  # 출력 JSON 파일 경로
+    output_file = f"{base_path}/result_json/{base_name}_imitation_json3.json"  # 출력 JSON 파일 경로
     process_input_file(input_file, output_file)
 
-# image_folder = "result/오징어게임시즌2/오징어게임시즌2_images_output" #이미지 폴더 경로
-# text_file_path = "result/오징어게임시즌2/오징어게임시즌2_text_output/오징어게임시즌2_text.txt"#대사 경로
+# image_folder = "result/아저씨/아저씨_images_output" #이미지 폴더 경로
+# text_file_path = "result/아저씨/아저씨_text_output/아저씨_text.txt"#대사 경로
 # imitation_risk_api(image_folder,text_file_path) # result_json 폴더에 자동으로 파일 생성
