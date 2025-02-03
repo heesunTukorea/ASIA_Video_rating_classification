@@ -29,6 +29,7 @@ openai.api_key = OPENAI_API_KEY
             # 4. **도구 및 장소(Tools & Environment)**: 장면에서 사용된 도구나 물체를 명시하고 환경을 설명하세요.
             # 5. **메시지 성격(Message Tone)**: 전달되는 메시지가 긍정적, 중립적, 부정적인지 명시하세요.
 # 이미지 파일을 Base64로 인코딩하는 함수
+
 def encode_image(image_path):
     """
     이미지 파일 경로를 받아 Base64로 인코딩된 문자열을 반환합니다.
