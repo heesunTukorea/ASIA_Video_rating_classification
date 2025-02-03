@@ -129,7 +129,7 @@ def imitation_risk_api(image_folder,text_file_path):
     result,input_file= process_matching(image_folder, text_file_path)
     input_file = input_file
     #input_file = "test.json"  # 입력 JSON 파일 경로
-    output_file = f"{base_path}/result_json/{base_name}_imitation_json3.json"  # 출력 JSON 파일 경로
+    output_file = f"{base_path}/result_json/{base_name}_imitation_json.json"  # 출력 JSON 파일 경로
     process_input_file(input_file, output_file)
 
 # image_folder = "result/아저씨/아저씨_images_output" #이미지 폴더 경로
