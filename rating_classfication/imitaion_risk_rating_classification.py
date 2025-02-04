@@ -57,8 +57,9 @@ def process_imitaion_rating(lines_data):
 
         "rating": <one of ["전체관람가", "12세이상관람가", "15세이상관람가", "청소년관람불가", "상영제한가"]>, "reasoning": "<brief reason in Korean>"
 
-        Input:
-        "dialogue":{lines_data}
+        Input:{lines_data}
+        
+        input_information:
         It is data on the part where the scene is switched by extracting one image per second from the image consisting of context, risk behavior, and mimicability
         """},
     ]
@@ -71,7 +72,7 @@ def process_imitaion_rating(lines_data):
         ],
         max_tokens=500
     )
-    print(f'응답 확인 : \n{response.choices[0].message.content}')
+    # print(f'응답 확인 : \n{response.choices[0].message.content}')
     result_text = response.choices[0].message.content
     result_text = result_text.replace("json","")
     result_text = result_text.replace("```","")

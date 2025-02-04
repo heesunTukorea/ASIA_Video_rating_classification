@@ -60,8 +60,8 @@ def process_lines_rating(lines_data):
 
         "rating": <one of ["전체관람가", "12세이상관람가", "15세이상관람가", "청소년관람불가", "상영제한가"]>, "reasoning": "<brief reason in Korean>"
 
-        Input:
-        "dialogue":{lines_data}
+        Input:{lines_data}
+        
         When you convert an image to one cut per second
         Strong_abusive_percent is the ratio of strong swear words
         Weak_abusive_percent is the rate of weak profanity
@@ -76,7 +76,7 @@ def process_lines_rating(lines_data):
         ],
         max_tokens=500
     )
-    print(f'응답 확인 : \n{response.choices[0].message.content}')
+    # print(f'응답 확인 : \n{response.choices[0].message.content}')
     result_text = response.choices[0].message.content
     result_text = result_text.replace("json","")
     result_text = result_text.replace("```","")
