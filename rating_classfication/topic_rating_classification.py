@@ -1,3 +1,4 @@
+## 한국어 프롬프트 
 import openai
 import json
 import os
@@ -18,11 +19,13 @@ def classify_topic_rating(json_file_path, result_file_path):
     # JSON 파일 로드
     with open(json_file_path, "r", encoding="utf-8") as file:
         json_data = json.load(file)
+
+    data = json.dumps(json_data, ensure_ascii=False, indent=2)
     
-    # 첫 번째 프롬프트 (분류 기준 학습)
-    prompt_1 = """
-    다음은 영등위의 분류 기준인 주제, 대사, 폭력성, 약물, 선정성, 공포, 모방위험 7가지 중, '주제'를 전체관람가, 12세이상 관람가, 15세이상 관람가, 청소년관람불가, 제한상영가 이렇게 5가지 등급으로 나누는 각 기준이다.
-    <주제>
+    # 분류 기준
+    rating_criteria = """
+    다음은 영등위의 분류 기준 중 '주제'를 전체관람가, 12세이상 관람가, 15세이상 관람가, 청소년관람불가, 제한상영가 5가지 등급으로 나누는 각 기준이다.
+    
     - [전체관람가]
         - 사회나 가족의 긍정적 가치나 의미 등을 알려주고, 건전한 가징악적 결말 등을 통해 긍정적 가치를 최종적으로 확인하는 내용인 것(유·아동이 이해할 수 있는 가치관 형성에 도움을 주는 것
         - 아동에게 위협이나 위험을 느끼게 하는 유해한 내용이 없는 것
@@ -43,58 +46,50 @@ def classify_topic_rating(json_file_path, result_file_path):
         - 청소년에게 유해한 영향을 끼칠 수 있는 자극적인 주제와 내용을 다룬 것
         - 일반적인 성인이 이해하고 수용할 수 있는 수준으로 사회적 질서를 지나치게 문란하게 하지 않는 것
             - 청소년에게 유해한 영향을 끼칠 수 있는 자극적인 주제와 내용을 다룬 것  
+    
     """
     
-    # 두 번째 프롬프트 (JSON 데이터 입력 후 등급 판정)
-    prompt_2_template = """
-    당신은 영상물 등급 분류 위원이다.
-    영상의 '주제'에 해당하는 데이터를 보고 영상물의 등급과 등급 판정의 이유를 출력하시오.
-    반드시 아래 형식을 지켜서 출력하시오오:
+    # 프롬프트 (JSON 데이터 입력 후 등급 판정)
+    prompt = f"""    
+    아래 제시한 데이터를 보고 분류 기준에 따라 영상물의 등급을 판정하고, 등급 판정의 이유를 출력하시오.
+    반드시 아래 형식을 지켜서 json 형식으로 결과를 출력하시오:
 
-    최종 등급: [등급]
-    등급 판정 이유: [한 문장으로 간단히 설명]
-
-    데이터:
+    
+    데이터 :
     {data}
+
+    분류 기준 :
+    {rating_criteria}
+
+    형식 :
+    {{
+            \"rating\": \"관람 등급 (전체관람가, 12세이상관람가, 15세이상관람가, 청소년관람불가)\",
+            \"reasoning\": \"한글로 간단한 설명 한 줄\"
+        }}  
+
     """
     
     def get_chatgpt_response(prompt):
         """ 최신 OpenAI ChatGPT API 호출 """
         response = client.chat.completions.create(
             model="gpt-4o",
-            messages=[{"role": "system", "content": prompt}]
+            messages=[{"role": "system", "content": "당신은 영상물 등급 분류 위원이다. 전문가로써 정확한 답변만 해야한다." },
+                      {"role": "user", "content": prompt}]
         )
         return response.choices[0].message.content.strip()
 
-    def parse_rating_response(response):
-        """ GPT 응답에서 최종 등급과 이유를 추출하는 함수 """
-        rating, reason = "", ""
-        for line in response.split("\n"):
-            if "최종 등급:" in line:
-                rating = line.replace("최종 등급:", "").strip()
-            elif "등급 판정 이유:" in line:
-                reason = line.replace("등급 판정 이유:", "").strip()
-        return rating, reason
-    
-    # 1. ChatGPT에 '주제' 기준 학습시키기
-    get_chatgpt_response(prompt_1)
-    print("'주제' 기준 학습 완료")
-    
-    # 2. 등급 판정 요청
-    topic_data = json.dumps(json_data, ensure_ascii=False, indent=2)
-    prompt_2 = prompt_2_template.format(data=topic_data)
-    rating_result = get_chatgpt_response(prompt_2)
-    
-    # 3. 결과 저장
-    final_rating, rating_reason = parse_rating_response(rating_result)
-    result_json = {
-        "rating": final_rating,
-        "reasoning": rating_reason
-    }
-    
-    # 4. 결과 JSON 파일 저장 (한글 출력 유지)
+    # 함수 실행, 결과물을 JSON 파일 저장 (한글 출력 유지)
+    response = get_chatgpt_response(prompt)
+    response = response.replace("json","")
+    response = response.replace("```","")
+    parsed_result = json.loads(response)
     with open(result_file_path, "w", encoding="utf-8") as outfile:
-        json.dump(result_json, outfile, ensure_ascii=False, indent=2)
+        json.dump(parsed_result, outfile, ensure_ascii=False, indent=2)
     
     print(f"결과 저장 완료 : '{result_file_path}'")
-    return result_json
+    return parsed_result
+
+# # 파일 로드 및 직접 실행
+# json_file_path = "github_test_v5_total/result/인간중독/result_json/인간중독_topic_json.json"
+# result_file_path = "github_test_v5_total/result/인간중독/rating_result/인간중독_topic_rating.json"
+# classify_topic_rating(json_file_path, result_file_path)
