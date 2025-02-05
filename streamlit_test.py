@@ -88,7 +88,7 @@ if "uploaded_file" not in st.session_state:  # 🔥 오류 방지를 위해 초�
 if page == "":
     st.title("비디오 등급 분류 시스템")
     try:
-        image = Image.open("C:/Users/chloeseo/Downloads/서비스이미지.png")  # 실제 이미지 파일 경로로 변경
+        image = Image.open("C:/Users/chloeseo/ms_project/서비스이미지.png")  # 실제 이미지 파일 경로로 변경
         st.image(image, use_container_width=True)
     except FileNotFoundError:
         st.write(" ")
