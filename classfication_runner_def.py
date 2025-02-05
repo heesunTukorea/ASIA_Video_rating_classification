@@ -133,8 +133,9 @@ def classify_run(video_path,title,synopsis,genre,start_time=None,duration=None,l
     final_result_rating = [key for key, value in rating_dict.items() if rating_num[value] == video_rating_num ]
     #----------------------------------------- 결과 출력 -----------------------------------
     #결과
-    print([key for key,value in rating_num.items() if value==video_rating_num][0])# 최종 분류 등급 기준
-    print(final_result_rating)# 최종 분류 등급
+    rating_value=[key for key,value in rating_num.items() if value==video_rating_num][0]
+    print(rating_value)# 최종 분류 등급 (ex 전체이용가)
+    print(final_result_rating)# 최종 분류 등급(ex [폭력,주제])
     
     #판정 이유 나열
     reason_list=[]
@@ -142,6 +143,7 @@ def classify_run(video_path,title,synopsis,genre,start_time=None,duration=None,l
         reason_text = f'{key}: {value}'
         reason_list.append
         print(reason_text)# 판정 이유들 출력
+    return rating_value, final_result_rating, reason_list
         
     
     
@@ -161,4 +163,4 @@ if __name__ == "__main__":
     #영상 그대로 쓸거면 시간 값 None
     #경로,이름,시놉시스,장르,시작시간,시작시간부터 지속 시간,언어         
     video_data_lists=['video_data/악마를보았다.mp4','악마를보았다','악마 같은 연쇄살인마, 그리고 그에게 약혼녀를 잃고 그 고통을 뼛속 깊이 되갚아 주려는 한 남자 그들의 광기 어린 대결','범죄, 스릴러, 느와르, 복수, 고어, 공포, 액션, 하드보일드, 피카레스크, 드라마',None,None,"ko"]  
-    total_classification_run(video_data_lists)
+    rating_value, final_result_rating, reason_list = total_classification_run(video_data_lists)#최종등급(ex '전체이용가')(text),최종등급기준(ex ['폭력','공포'])(list),분류 이유(ex ['폭력: .....','공포:.....'])(list)
