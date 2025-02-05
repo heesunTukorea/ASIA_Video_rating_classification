@@ -21,9 +21,7 @@ from dotenv import load_dotenv
 import json
 
 #경로,이름,시놉시스,장르,시작시간,시작시간부터 지속 시간,언어    
-def classify_run(video_path,title,synopsis,genre,start_time=None,duration=None,language='ko'):
-   
-    
+def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     ### .env file 로드
     load_dotenv()
     ### API Key 불러오기
@@ -31,9 +29,10 @@ def classify_run(video_path,title,synopsis,genre,start_time=None,duration=None,l
     ### OpenAI 함수 호출
     client = OpenAI(api_key=openai_api_key)
     #경로 및 폴더 이름 설정
-    base_path = video_path.split("video_data/")[1]
+    # base_path = video_path.split("C:/Users/chloeseo/ms_project/test_v6/video_data/")[1] # main함수 실행시
+    base_path = video_path.split("C:/Users/chloeseo/ms_project/test_v6/st_upload_file/")[1] # streamlit 실행시
     base_name = os.path.splitext(base_path)[0] # 오징어게임
-    result_folder_path = f"./result/{base_name}"
+    result_folder_path = f"C:/Users/chloeseo/ms_project/test_v6/result/{base_name}"
     json_result_path = f'{result_folder_path}/result_json'
     images_path = f'{result_folder_path}/{base_name}_images_output'
     text_path=f'{result_folder_path}/{base_name}_text_output/{base_name}_text.txt'
@@ -48,7 +47,7 @@ def classify_run(video_path,title,synopsis,genre,start_time=None,duration=None,l
                     '약물_마약':f'{json_result_path}/{base_name}_drug_json.json',
                     '폭력_이미지':f'{json_result_path}/{base_name}_violence_img_json.json',
                     '폭력_텍스트':f'{json_result_path}/{base_name}_violence_text_json.json',
-                    '모방위험':f'{json_result_path}/{base_name}_imitaion_json.json',
+                    '모방위험':f'{json_result_path}/{base_name}_imitation_json.json',
                     '공포':f'{json_result_path}/{base_name}_horror_json.json',
                     '선정성_이미지':f'{json_result_path}/{base_name}_sexuality_img_json.json',
                     '선정성_텍스트':f'{json_result_path}/{base_name}_sexuality_text_json.json',
@@ -114,6 +113,7 @@ def classify_run(video_path,title,synopsis,genre,start_time=None,duration=None,l
     imitaion_risk_classify(input_file=json_class_name['모방위험'], output_file=json_class_name['모방위험_등급'])
     print('모방 위험 등급 판정 완료')
 
+
     #최종 등급 계산
     rating_dict,reason_dict={},{}# 등급 딕셔너리, 이유 딕셔너리
     #각 json을 불러와서 등급과 이유를 할당
@@ -143,25 +143,35 @@ def classify_run(video_path,title,synopsis,genre,start_time=None,duration=None,l
         reason_text = f'{key}: {value}'
         reason_list.append
         print(reason_text)# 판정 이유들 출력
+    
     return rating_value, final_result_rating, reason_list
-        
-    
-    
 
 def total_classification_run(video_data_lists):
-    for video_data_list in video_data_lists:
-        video_path=video_data_list[0]
-        title=video_data_list[1]
-        synopsis=video_data_list[2]
-        genre=video_data_list[3]
-        start_time=video_data_list[4]
-        duration=video_data_list[5]
-        language=video_data_list[6]
-        classify_run(video_path,title,synopsis,genre,start_time,duration,language)
-        
-if __name__ == "__main__":
+    try:
+        # 리스트 언패킹 오류 방지를 위해 직접 변수 할당
+        video_path = video_data_lists[0]
+        title = video_data_lists[1]
+        synopsis = video_data_lists[2]
+        genre = video_data_lists[3]
+        start_time = video_data_lists[4] if video_data_lists[4] is not None else 0
+        duration = video_data_lists[5] if video_data_lists[5] is not None else 0
+        language = video_data_lists[6]
+
+        # `classify_run()` 실행
+        rating_value, final_result_rating, reason_list = classify_run(video_path, title, synopsis, genre, start_time, duration, language)
+
+        return rating_value, final_result_rating, reason_list
+
+    except Exception as e:
+        print(f"total_classification_run() 실행 중 오류 발생: {e}")
+        return None, None, None
     
-    #영상 그대로 쓸거면 시간 값 None
-    #경로,이름,시놉시스,장르,시작시간,시작시간부터 지속 시간,언어         
-    video_data_lists=['video_data/악마를보았다.mp4','악마를보았다','악마 같은 연쇄살인마, 그리고 그에게 약혼녀를 잃고 그 고통을 뼛속 깊이 되갚아 주려는 한 남자 그들의 광기 어린 대결','범죄, 스릴러, 느와르, 복수, 고어, 공포, 액션, 하드보일드, 피카레스크, 드라마',None,None,"ko"]  
-    rating_value, final_result_rating, reason_list = total_classification_run(video_data_lists)#최종등급(ex '전체이용가')(text),최종등급기준(ex ['폭력','공포'])(list),분류 이유(ex ['폭력: .....','공포:.....'])(list)
+# # if __name__ == "__main__":
+# #     #영상 그대로 쓸거면 시간 값 None
+# #     #경로,이름,시놉시스,장르,시작시간,시작시간부터 지속 시간,언어         
+# #     video_data_lists=['C:/Users/chloeseo/ms_project/test_v6/video_data/술꾼도시여자들.mp4',
+# #                       '술꾼도시여자들',
+# #                       '하루 끝의 술 한잔이 인생의 신념인 세 여자의 일상과 과거를 코믹하게 그려낸 본격 기승전 술 드라마',
+# #                       '로맨틱코미디, 우정, 드라마'
+# #                       ,None,None,"ko"]  
+# #     rating_value, final_result_rating, reason_list = total_classification_run(video_data_lists)#최종등급(ex '전체이용가')(text),최종등급기준(ex ['폭력','공포'])(list),분류 이유(ex ['폭력: .....','공포:.....'])(list)
