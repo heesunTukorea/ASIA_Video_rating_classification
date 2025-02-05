@@ -17,10 +17,10 @@ def load_json(file_path):
     with open(file_path, "r", encoding="utf-8") as file:
         data = json.load(file)
     
-    # JSON이 리스트 형식이면 첫 번째 요소 선택
+    # JSON이 리스트 형식이면 마지막 요소 선택
     if isinstance(data, list):
-        return data[-1]  # 첫 번째 객체 선택
-    return data  # 객체 그대로 반환
+        return data[-1] 
+    return data  
 
 # JSON 데이터를 파일로 저장하는 함수
 def save_json_raw(data, file_path):
