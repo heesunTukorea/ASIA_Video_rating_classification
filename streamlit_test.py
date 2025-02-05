@@ -4,7 +4,6 @@ from PIL import Image
 from classification_runner_def import total_classification_run
 import os
 
-
 # base64 인코딩 함수
 def image_to_base64(image_path):
     try:
