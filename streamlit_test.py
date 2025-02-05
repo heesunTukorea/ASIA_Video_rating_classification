@@ -97,7 +97,6 @@ if page == "":
     if st.button("등급 분류 시작"):
         st.query_params["page"] = "upload"
         st.rerun()
-    print('1')
 
 # 업로드 및 메타데이터 입력 페이지
 elif page == "upload":
