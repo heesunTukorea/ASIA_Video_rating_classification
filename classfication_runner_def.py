@@ -20,7 +20,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 import json
 
-    
+#경로,이름,시놉시스,장르,시작시간,시작시간부터 지속 시간,언어    
 def classify_run(video_path,title,synopsis,genre,start_time=None,duration=None,language='ko'):
    
     
@@ -158,5 +158,7 @@ def total_classification_run(video_data_lists):
         classify_run(video_path,title,synopsis,genre,start_time,duration,language)
         
 if __name__ == "__main__":
+    #영상 그대로 쓸거면 시간 값 None
+    #경로,이름,시놉시스,장르,시작시간,시작시간부터 지속 시간,언어         
     video_data_lists=['video_data/악마를보았다.mp4','악마를보았다','악마 같은 연쇄살인마, 그리고 그에게 약혼녀를 잃고 그 고통을 뼛속 깊이 되갚아 주려는 한 남자 그들의 광기 어린 대결','범죄, 스릴러, 느와르, 복수, 고어, 공포, 액션, 하드보일드, 피카레스크, 드라마',None,None,"ko"]  
     total_classification_run(video_data_lists)
