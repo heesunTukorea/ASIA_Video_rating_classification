@@ -46,35 +46,34 @@ elif page == "upload":
     st.write("비디오 등급 분류에 필요한 정보를 입력해주세요.")
 
     category = st.selectbox("구분 *", ["선택하세요", "영화", "드라마", "애니메이션", "기타"])
-    applicant = st.text_input("신청사 *")
-    director_nationality = st.selectbox("감독 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
     title = st.text_input("제목 *")
-    lead_actor_nationality = st.selectbox("주연 배우 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
+    applicant = st.text_input("신청사 *")
     representative = st.text_input("대표 *")
-    video_language = st.selectbox("영상 언어 *", ["선택하세요", "한국어", "영어", "일본어", "중국어", "기타"])
     director = st.text_input("감독 *")
+    director_nationality = st.selectbox("감독 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
     lead_actor = st.text_input("주연 배우 *")
-
+    lead_actor_nationality = st.selectbox("주연 배우 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
+    video_language = st.selectbox("영상 언어 *", ["선택하세요", "한국어", "영어", "일본어", "중국어", "기타"])
     uploaded_file = st.file_uploader("비디오 업로드 *", type=["mp4", "mov", "avi"], help="MP4, MOV 또는 AVI 형식, 최대 2GB")
 
     if uploaded_file is not None:
         st.write("파일 업로드 완료!")
 
-    if st.button("등급 분류 제출"):
+    if st.button("등급 분류 요청"):
         if not all([category, applicant, director_nationality, title, lead_actor_nationality, representative, video_language, director, lead_actor, uploaded_file]):
             st.error("모든 필수 항목을 입력해주세요.")
         else:
             # 입력 데이터 저장
             st.session_state["input_data"] = {
                 "구분": category,
-                "신청사": applicant,
-                "감독 국적": director_nationality,
                 "제목": title,
+                "신청사": applicant,
+                "감독": director,
+                "감독 국적": director_nationality,
+                "주연 배우": lead_actor,
                 "주연 배우 국적": lead_actor_nationality,
                 "대표": representative,
                 "영상 언어": video_language,
-                "감독": director,
-                "주연 배우": lead_actor,
                 "업로드 파일": uploaded_file.name if uploaded_file else None
             }
             # 분석 결과 생성 (임시, 실제 분석 로직으로 대체해야 함)
@@ -94,13 +93,13 @@ elif page == "upload":
                 "정당한권리자": st.session_state["input_data"]["신청사"],
                 "제작년도": "2024-02-01",
                 "내용정보": {
-                    "주제": "적절",
-                    "폭력성": "낮음",
-                    "선정성": "없음",
-                    "공포": "없음",
-                    "약물": "없음",
-                    "모방위험": "낮음",
-                    "대사": "일부 부적절",
+                    "주제": "12세이상관람가",
+                    "폭력성": "12세이상관람가",
+                    "선정성": "12세이상관람가",
+                    "공포": "12세이상관람가",
+                    "약물": "12세이상관람가",
+                    "모방위험": "12세이상관람가",
+                    "대사": "12세이상관람가",
                 },
                 "서술적 내용기술": f"<{st.session_state['input_data']['제목']}>에 대한 분석 결과입니다.",
             }
