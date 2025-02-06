@@ -17,18 +17,18 @@ def load_dialogue_texts(file_path):
         texts = f.read().splitlines()
     return texts
 
-def classify_topic_rating(json_file_path, result_file_path, dialogue_file_path): # dialog_file_path 인자 추가함
+def classify_sexuality_combined(image_json_file_path, text_file_path, output_file): 
     """ 이미지 분석 및 대사 데이터 기반 영상물 선정성 등급 판정 및 결과 저장 """
-    result_folder_path = os.path.dirname(result_file_path)
+    result_folder_path = os.path.dirname(output_file)
     os.makedirs(result_folder_path, exist_ok=True)
 
     # 이미지 데이터 로드
-    with open(json_file_path, "r", encoding="utf-8") as file:
+    with open(image_json_file_path, "r", encoding="utf-8") as file:
         image_data = json.load(file)
     image_data_str = json.dumps(image_data, ensure_ascii=False, indent=2)
 
     # 대사 텍스트 로드
-    dialogue_texts = load_dialogue_texts(dialogue_file_path)
+    dialogue_texts = load_dialogue_texts(text_file_path)
     dialogue_data_json = json.dumps({"dialogues": dialogue_texts}, ensure_ascii=False, indent=2) # 키 이름 변경: "dialogues"
 
     # 분류 기준 (기존과 동일)
@@ -75,15 +75,15 @@ def classify_topic_rating(json_file_path, result_file_path, dialogue_file_path):
     response = get_chatgpt_response(prompt)
     response = response.replace("`json", "").replace("`", "")
     parsed_result = json.loads(response)
-    with open(result_file_path, "w", encoding="utf-8") as outfile:
+    with open(output_file, "w", encoding="utf-8") as outfile:
         json.dump(parsed_result, outfile, ensure_ascii=False, indent=2)
     
-    print(f"결과 저장 완료 : '{result_file_path}'")
+    print(f"결과 저장 완료 : '{output_file}'")
     return parsed_result
 
-# 파일 로드 및 직접 실행
-base_name = "연애 빠진 로맨스" # 비디오 파일 이름 (확장자 제외)
-json_file_path = f'result/{base_name}/result_json/{base_name}_sexuality_img_json.json' # 이미지 데이터 JSON 파일 경로
-dialogue_file_path = f'result/{base_name}/{base_name}_text_output/{base_name}_text.txt' # 대사 텍스트 파일 경로
-result_file_path = f'result/{base_name}/result_json/{base_name}_sexuality_rating_result(06_1).json'
-classify_topic_rating(json_file_path, result_file_path, dialogue_file_path)
+if __name__ == "__main__":
+    base_name = "연애 빠진 로맨스" # 비디오 파일 이름 (확장자 제외)
+    image_json_file_path = f'result/{base_name}/result_json/{base_name}_sexuality_img_json.json' # 이미지 데이터 JSON 파일 경로
+    text_file_path = f'result/{base_name}/{base_name}_text_output/{base_name}_text.txt' # 대사 텍스트 파일 경로
+    output_file = f'result/{base_name}/result_json/{base_name}_sexuality_combined_json.json' # 결과 파일 경로
+    classify_sexuality_combined(image_json_file_path, text_file_path, output_file) # 함수 호출
