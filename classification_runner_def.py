@@ -5,7 +5,7 @@ from horror.horror_classfication import classify_images_horror
 from sexuality.Sexuality_img_JSON import classify_images_sexuality
 from imitation_risk.imitaion_risk_result import imitation_risk_api
 from topic.Topic_JSON import process_topic
-from lines.Lines_SwearWord_JSON import process_lines
+from lines.lines_JSON import process_script
 from violence.violence_JSON import violence
 from violence.violence_text_JSON import violence_text_main
 from sexuality.Sexuality_text_JSON import sexuality_text_main
@@ -66,7 +66,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     process_video(input_video_path=video_path,start_time=start_time,duration=duration,language=language) # 이미지 텍스트 추출 whisper api포함
     print('전처리 완료')
     #대사
-    process_lines(script_path= text_path, output_path=json_class_name['대사'])
+    process_script(script_path= text_path, output_path=json_class_name['대사'])
     print('대사 완료')
     #마약
     drug(image_folder_path=images_path, output_file = json_class_name['약물_마약'], threshold=0.3) #클립 마약

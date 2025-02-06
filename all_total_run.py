@@ -5,7 +5,7 @@ from horror.horror_classfication import classify_images_horror
 from sexuality.Sexuality_img_JSON import classify_images_sexuality
 from imitation_risk.imitaion_risk_result import imitation_risk_api
 from topic.Topic_JSON import process_topic
-from lines.Lines_SwearWord_JSON import process_lines
+from lines.lines_JSON import process_script
 from violence.violence_JSON import violence
 from violence.violence_text_JSON import violence_text_main
 from sexuality.Sexuality_text_JSON import sexuality_text_main
@@ -16,11 +16,11 @@ from dotenv import load_dotenv
 
 #알코올이 포함된 코드입니다
 #인풋데이터
-video_path='video_data/오징어게임시즌2.mp4'#영상경로
+video_path='video_data/수상한 그녀.mp4'#영상경로
 #주제의 인풋데이터
-title = '써니' #영상제목
-synopsis = '7공주 써니의 멤버였던 주인공 나미가 어른이 되어 옛 친구들을 찾아 나서는 이야기와, 어릴 적 나미가 7공주 써니의 멤버였을 때의 이야기를 복합적으로 다루고 있다.'#개요
-genre='코미디, 드라마, 성장, 학원, 워맨스'#장르
+title = '수상한 그녀' #영상제목
+synopsis = '스무살 꽃처녀가 된 칠순 할매의 빛나는 전성기가 시작된다!'#개요
+genre='판타지'#장르
 
 #설정할꺼면 process_video에 변수 추가
 start_time="00:00:30"#시작시간
@@ -61,7 +61,7 @@ json_class_name={'주제':f'{json_result_path}/{base_name}_topic_json.json',
 process_video(input_video_path=video_path) # 이미지 텍스트 추출 whisper api포함
 print('전처리 완료')
 #대사
-process_lines(script_path= text_path, output_path=json_class_name['대사'])
+process_script(script_path= text_path, output_path=json_class_name['대사'])
 print('대사 완료')
 #마약
 drug(image_folder_path=images_path, output_file = json_class_name['약물_마약'], threshold=0.3) #클립 마약
