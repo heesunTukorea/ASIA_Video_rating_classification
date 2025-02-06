@@ -59,13 +59,13 @@ def get_horror_rating(input_json_path, output_json_path):
 
     prompt = f"""
         
-        아래의 데이터는 영화의 장면 중 공포와 관련된 데이터이고, 분류 기준은 영상물등급위원회의 영상등급판정 기준이야. 분류 기준에 따라 공포 부분 등급을 판정하고, 판정 근거를 1줄로 서술해.
-        반드시 JSON 형식으로 출력하고, 코드 블록을 포함하지 말고 순수 JSON만 출력해. 키는 "rating"과 "reasoning" 두 개만 사용해. reasoning은 한글로 답변해.
-
-        데이터 :
+        The following data is related to horror elements in movie scenes, and the classification criteria are based on the rating standards of the Korea Media Rating Board (KMRB).
+        Determine the horror rating according to the classification criteria and provide the reasoning in one concise sentence. The output must be in pure JSON format without code blocks.
+        Use only two keys: "rating" and "reasoning". The "reasoning" must be written in Korean.        
+        data :
         {json_data}
 
-        분류기준 : 
+        criteria : 
         {criteria}
     """
 
