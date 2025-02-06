@@ -115,6 +115,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
 
     print('전처리 해뒀던 결과 불러오기 완료')
 
+
     #최종 등급 계산
     rating_dict,reason_dict={},{}# 등급 딕셔너리, 이유 딕셔너리
     #각 json을 불러와서 등급과 이유를 할당
@@ -132,11 +133,14 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     rating_num={'전체관람가':0, '12세이상관람가':12, '15세이상관람가':15, '청소년관람불가':19, '상영제한가':100}# max값 비교를 위한 딕셔너리
     video_rating_num = max([rating_num[i] for i in rating_dict.values()])        
     final_result_rating = [key for key, value in rating_dict.items() if rating_num[value] == video_rating_num ]
+    
+    
     #----------------------------------------- 결과 출력 -----------------------------------
     #결과
     rating_value=[key for key,value in rating_num.items() if value==video_rating_num][0]
     print(rating_value)# 최종 분류 등급 (ex 전체이용가)
-    print(final_result_rating)# 최종 분류 등급(ex [폭력,주제])
+    print(final_result_rating)# 최종 등급 받은 기준 (ex [폭력,주제])
+    print(rating_dict)# 각 기준별 등급 (ex {'주제': '12세이상관람가', '대사': '12세이상관람가', '약물': '12세이상관람가', '폭력': '12세이상관람가', '모방위험': '12세이상관람가', '공포': '12세이상관람가', '선정성': '12세이상관람가'})
     
     ### 모든 항목에 대한 판정 이유 출력됨
     # #판정 이유 나열
@@ -156,7 +160,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
 
     print("최종 reason_list:", reason_list)  # ✅ 최종 리스트 확인 -> streamlit 전달 확인용
     
-    return rating_value, final_result_rating, reason_list
+    return rating_value, final_result_rating, reason_list, rating_dict # 각 기준별 등급도 반환되게 추가
 
 def total_classification_run(video_data_lists):
     try:
@@ -170,14 +174,13 @@ def total_classification_run(video_data_lists):
         language = video_data_lists[6]
 
         # `classify_run()` 실행
-        rating_value, final_result_rating, reason_list = classify_run(video_path, title, synopsis, genre, start_time, duration, language)
+        rating_value, final_result_rating, reason_list, rating_dict = classify_run(video_path, title, synopsis, genre, start_time, duration, language)
 
-        return rating_value, final_result_rating, reason_list
-
+        return rating_value, final_result_rating, reason_list, rating_dict
     except Exception as e:
         print(f"total_classification_run() 실행 중 오류 발생: {e}")
         return None, None, None
-    
+
 # # if __name__ == "__main__":
 # #     #영상 그대로 쓸거면 시간 값 None
 # #     #경로,이름,시놉시스,장르,시작시간,시작시간부터 지속 시간,언어         
