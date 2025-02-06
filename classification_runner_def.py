@@ -112,7 +112,9 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     print('공포 등급 판정 완료')
     imitaion_risk_classify(input_file=json_class_name['모방위험'], output_file=json_class_name['모방위험_등급'])
     print('모방 위험 등급 판정 완료')
-
+    classify_violence_rating(input_img_path=json_class_name['폭력이미지'], input_text_path=json_class_name['폭력텍스트'], result_json_path=json_class_name['폭력_등급'])
+    print('폭력 등급 판정 완료')
+    
     #최종 등급 계산
     rating_dict,reason_dict={},{}# 등급 딕셔너리, 이유 딕셔너리
     #각 json을 불러와서 등급과 이유를 할당
