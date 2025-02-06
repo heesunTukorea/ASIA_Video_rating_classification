@@ -7,6 +7,7 @@ import datetime
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+import time
 
 # base64 인코딩 함수
 def image_to_base64(image_path):
@@ -44,49 +45,56 @@ def process_video_classification():
         video_data_lists = [
             video_path,
             input_data["제목"],
-            input_data["시놉시스"],  
+            input_data["소개"],  
             input_data["장르"],
             input_data["분석 시작 시간"],
             input_data["분석 지속 시간"],
             input_data["영상 언어"][:2]
         ]
-        
-        # 🔹 `total_classification_run()` 실행하여 분석 결과 얻기
-        try:
-            rating_value, final_result_rating, reason_list, rating_dict = total_classification_run(video_data_lists)
-            # ✅ `None`이 반환되었을 경우 오류 메시지 출력
-            if rating_value is None or final_result_rating is None or reason_list is None:
-                st.error("🚨 등급 분석 실행 중 오류 발생: 분석 결과가 없습니다.")
+        # 🔹 Streamlit 상태 표시 (로딩 시작)
+        with st.status("🎬 등급 분석 중입니다. 잠시만 기다려 주세요.", expanded=False) as status:
+            # st.write("🔄 AI 모델이 영상을 분석하고 있습니다.")
+            time.sleep(2)  
+
+            # 🔹 `total_classification_run()` 실행하여 분석 결과 얻기
+            try:
+                rating_value, final_result_rating, reason_list, rating_dict = total_classification_run(video_data_lists)
+                # ✅ `None`이 반환되었을 경우 오류 메시지 출력
+                if rating_value is None or final_result_rating is None or reason_list is None:
+                    st.error("🚨 등급 분석 실행 중 오류 발생: 분석 결과가 없습니다.")
+                    return
+            except Exception as e:
+                st.error(f"등급 분류 실행 중 오류 발생: {e}")
                 return
-        except Exception as e:
-            st.error(f"등급 분류 실행 중 오류 발생: {e}")
-            return
-        
-        # 📌 현재 날짜 가져오기 (YYYY-MM-DD 형식)
-        today_date = datetime.date.today().strftime("%Y-%m-%d")
-        
-        # 🔹 분석 결과 저장
-        st.session_state["analysis_results"] = {
-            "구분": input_data["구분"],
-            "한글제명/원재명": input_data["제목"],
-            "신청사": input_data["신청사"],
-            "시놉시스": input_data["시놉시스"],
-            "등급분류일자": today_date,  # 현재 날짜 자동 설정
-            "접수일자" : today_date,
-            "관람등급": rating_value,
-            "감독": input_data["감독"],  
-            "감독 국적": input_data["감독 국적"],  
-            "주연 배우": input_data["주연 배우"],  
-            "주연 배우 국적": input_data["주연 배우 국적"],  
-            "내용정보 탑3": {criterion: rating_value for criterion in final_result_rating},
-            "내용정보": rating_dict,  # ✅ 모든 기준별 등급 포함
-            "서술적 내용기술": "\n".join(reason_list) if reason_list else "데이터 없음",
-            "대표" : input_data["대표"]
-        }
-        # 🔹 결과 페이지로 이동
-        st.write("등급 분류 요청이 제출되었습니다!")
-        st.query_params["page"] = "result"
-        st.rerun()
+            
+            # 📌 현재 날짜 가져오기 (YYYY-MM-DD 형식)
+            today_date = datetime.date.today().strftime("%Y-%m-%d")
+            
+            # 🔹 분석 결과 저장
+            st.session_state["analysis_results"] = {
+                "구분": input_data["구분"],
+                "한글제명/원재명": input_data["제목"],
+                "신청사": input_data["신청사"],
+                "소개": input_data["소개"],
+                "등급분류일자": today_date,  # 현재 날짜 자동 설정
+                "접수일자" : today_date,
+                "관람등급": rating_value,
+                "감독": input_data["감독"],  
+                "감독 국적": input_data["감독 국적"],  
+                "주연 배우": input_data["주연 배우"],  
+                "주연 배우 국적": input_data["주연 배우 국적"],  
+                "내용정보 탑3": {criterion: rating_value for criterion in final_result_rating},
+                "내용정보": rating_dict,  # ✅ 모든 기준별 등급 포함
+                "서술적 내용기술": "\n".join(reason_list) if reason_list else "데이터 없음",
+                "대표" : input_data["대표"]
+            }
+            # 🔹 로딩 완료 메시지
+            status.update(label="✅ 등급 분석 완료! 결과 페이지로 이동합니다.", state="complete", expanded=False)
+
+            # 🔹 결과 페이지로 이동
+            st.write("등급 분류 요청이 제출되었습니다!")
+            st.query_params["page"] = "result"
+            st.rerun()
 
 # 페이지 상태 관리 및 세션 상태 초기화
 page = st.query_params.get("page", "")
@@ -97,16 +105,51 @@ if "analysis_results" not in st.session_state:
 if "uploaded_file" not in st.session_state:  # 🔥 오류 방지를 위해 초기화
     st.session_state["uploaded_file"] = None
 
-# 메인 페이지
+# # 메인 페이지
+# if page == "":
+#     st.title("영상물 등급 분류 시스템")
+#     try:
+#         image = Image.open("C:/Users/chloeseo/Downloads/메인이미지.png")  # 실제 이미지 파일 경로로 변경
+#         st.image(image, use_container_width=True)
+#     except FileNotFoundError:
+#         st.write(" ")
+#     st.write("비디오 콘텐츠에 적절한 등급을 지정하는 시스템입니다. 아래 버튼을 클릭하여 시작하세요.")
+
+#     if st.button("등급 분류 시작"):
+#         st.query_params["page"] = "upload"
+#         st.rerun()
+
+# 메인 페이지 - 가운데정렬
 if page == "":
-    st.title("비디오 등급 분류 시스템")
+    # 전체 중앙 정렬 스타일 적용
+    st.markdown(
+        """
+        <style>
+        .centered {
+            text-align: center;
+        }
+        .stButton>button {
+            display: block;
+            margin: 0 auto;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # 제목 가운데 정렬
+    st.markdown("<h1 class='centered'>영상물 등급 분류 시스템</h1>", unsafe_allow_html=True)
+
     try:
-        image = Image.open("C:/Users/chloeseo/Downloads/서비스이미지.png")  # 실제 이미지 파일 경로로 변경
-        st.image(image, use_container_width=True)
+        image = Image.open("C:/Users/chloeseo/Downloads/메인이미지.png")  # 실제 이미지 파일 경로
+        st.image(image, use_container_width=True)  # 이미지를 전체 너비로 맞추기
     except FileNotFoundError:
         st.write(" ")
-    st.write("비디오 콘텐츠에 적절한 등급을 지정하는 시스템입니다. 아래 버튼을 클릭하여 시작하세요.")
 
+    # 설명 텍스트 가운데 정렬
+    st.markdown("<p class='centered'>비디오 콘텐츠에 적절한 등급을 지정하는 시스템입니다.<br>공정하고 신뢰할 수 있는 등급 분류를 경험해보세요.<br>아래 버튼을 클릭하여 시작하세요.</p>", unsafe_allow_html=True)
+
+    # 버튼 중앙 정렬
     if st.button("등급 분류 시작"):
         st.query_params["page"] = "upload"
         st.rerun()
@@ -121,7 +164,7 @@ elif page == "upload":
     category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
     title = st.text_input("제목 *")
     genre = st.selectbox("장르 *", ["선택하세요", "범죄", "액션", "드라마", "코미디", "공포", "로맨스", "SF", "판타지", "기타"])
-    synopsis = st.text_input("시놉시스 *")
+    synopsis = st.text_input("소개 *")
     applicant = st.text_input("신청사 *")
     representative = st.text_input("대표 *")
     director = st.text_input("감독 *")
@@ -152,7 +195,7 @@ elif page == "upload":
                 "구분": category,
                 "장르" : genre,
                 "제목": title,
-                "시놉시스" : synopsis,
+                "소개" : synopsis,
                 "신청사": applicant,
                 "감독": director,
                 "감독 국적": director_nationality,
@@ -169,18 +212,18 @@ elif page == "upload":
 
 elif page == "result":
     
-    # 🔹 아이콘 경로 설정 (업로드된 파일이 저장된 경로)
-    icon_dir = "C:/Users/chloeseo/ms_project/영등위png/내용정보"
+    # # 🔹 아이콘 경로 설정 (업로드된 파일이 저장된 경로)
+    # icon_dir = "C:/Users/chloeseo/ms_project/영등위png/내용정보"
 
-    icon_map = {
-        "주제": os.path.join(icon_dir, "주제.png"),
-        "선정성": os.path.join(icon_dir, "선정성.png"),
-        "폭력성": os.path.join(icon_dir, "폭력성.png"),
-        "공포": os.path.join(icon_dir, "공포.png"),
-        "대사": os.path.join(icon_dir, "대사.png"),
-        "약물": os.path.join(icon_dir, "약물.png"),
-        "모방위험": os.path.join(icon_dir, "모방위험.png")
-    }
+    # icon_map = {
+    #     "주제": os.path.join(icon_dir, "주제.png"),
+    #     "선정성": os.path.join(icon_dir, "선정성.png"),
+    #     "폭력성": os.path.join(icon_dir, "폭력성.png"),
+    #     "공포": os.path.join(icon_dir, "공포.png"),
+    #     "대사": os.path.join(icon_dir, "대사.png"),
+    #     "약물": os.path.join(icon_dir, "약물.png"),
+    #     "모방위험": os.path.join(icon_dir, "모방위험.png")
+    # }
 
     # 🔹 등급별 색상 매핑
     rating_color_map = {
@@ -191,7 +234,39 @@ elif page == "result":
         "제한상영가": "gray"
     }
 
+    # st.title("비디오 등급 분류 결과")
+
+    # # 분석 결과 가져오기
+    # analysis_results = st.session_state.get("analysis_results", {})
+
+    # if not analysis_results:
+    #     st.error("🚨 분석 결과가 없습니다. 먼저 비디오 등급 분류를 수행해주세요.")
+    #     st.stop()
+
+
+    # 🔹 연령 등급별 색상 및 아이콘 매핑
+    rating_assets = {
+        "전체관람가": {"color": "green", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/1. ALL.png"},
+        "12세이상관람가": {"color": "yellow", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/12.png"},
+        "15세이상관람가": {"color": "orange", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/15.png"},
+        "청소년관람불가": {"color": "red", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/18.png"},
+        "제한상영가": {"color": "gray", "icon": None}  # 제한상영가 이미지 없을 경우 None
+    }
+
+    # 🔹 내용정보 아이콘 매핑
+    icon_dir = "C:/Users/chloeseo/ms_project/영등위png/내용정보"
+    icon_map = {
+        "주제": os.path.join(icon_dir, "주제.png"),
+        "선정성": os.path.join(icon_dir, "선정성.png"),
+        "폭력성": os.path.join(icon_dir, "폭력성.png"),
+        "공포": os.path.join(icon_dir, "공포.png"),
+        "대사": os.path.join(icon_dir, "대사.png"),
+        "약물": os.path.join(icon_dir, "약물.png"),
+        "모방위험": os.path.join(icon_dir, "모방위험.png")
+    }
+
     st.title("비디오 등급 분류 결과")
+    st.write("### 🎬 비디오 등급 분류 정보")
 
     # 분석 결과 가져오기
     analysis_results = st.session_state.get("analysis_results", {})
@@ -200,6 +275,22 @@ elif page == "result":
         st.error("🚨 분석 결과가 없습니다. 먼저 비디오 등급 분류를 수행해주세요.")
         st.stop()
 
+    # 🔹 연령 등급 출력 (아이콘 + 텍스트)
+    rating = analysis_results.get("관람등급", "데이터 없음")
+    rating_info = rating_assets.get(rating, {"color": "black", "icon": None})  # 기본값 설정
+
+    col1, col2 = st.columns([1, 4])  # 아이콘과 텍스트를 나누어 배치
+    with col1:
+        if rating_info["icon"]:
+            st.image(rating_info["icon"], width=80)  # 아이콘 크기 조절
+
+    with col2:
+        st.markdown(
+            f"<p style='color:{rating_info['color']}; font-weight:bold; font-size:24px;'>{rating}</p>",
+            unsafe_allow_html=True
+        )
+
+    
     # 🔹 분석 결과를 표로 정리
     result_data = {
         "구분": analysis_results.get("구분", "데이터 없음"),
@@ -216,18 +307,6 @@ elif page == "result":
         # "서술적 내용기술": analysis_results.get("서술적 내용기술", "데이터 없음")
     }
 
-    st.write("### 🎬 비디오 등급 분류 정보")
-
-    # 관람등급 가져오기
-    rating = result_data["관람등급"]
-    rating_color = rating_color_map.get(rating, "black")  # 기본값: 검정색
-
-    # 관람등급 출력 (HTML 스타일 적용)
-    st.markdown(
-        f"<p style='color:{rating_color}; font-weight:bold; font-size:24px;'>{rating}</p>",
-        unsafe_allow_html=True
-    )
-
     st.table(result_data)
 
 
@@ -240,13 +319,7 @@ elif page == "result":
     
 
     ### 내용정보 
-    # # 🔹 등급 기준별 결과 출력
-    # st.write("### 📊 내용정보")
-    # rating_data = [
-    #     {"항목": key, "등급": value} for key, value in analysis_results.get("내용정보", {}).items()
-    # ]
-    # st.table(rating_data)
-
+    # 표
     st.write("### 📊 내용정보")
 
     # 🔹 모든 기준별 등급을 표로 표시 (내용정보)
@@ -256,6 +329,50 @@ elif page == "result":
         content_info_list = [{"항목": key, "등급": value} for key, value in content_info.items()]
         st.table(content_info_list)  # ✅ Streamlit의 기본 table 기능 활용
 
+    # ## 그래프
+    # st.write("### 📊 내용정보")
+    # # 🔹 등급별 점수 매핑 (그래프 표현을 위해 숫자로 변환)
+    # rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
+    # rating_labels = list(rating_score.keys())  # Y축 라벨 (등급)
+    # rating_positions = list(rating_score.values())  # Y축 위치 (0,1,2,3,4)
+
+    # # 🔹 모든 기준별 등급을 그래프로 표시 (내용정보)
+    # content_info = analysis_results.get("내용정보", {})
+
+    # if content_info:
+    #     categories = list(content_info.keys())  # X축 (각 기준)
+    #     ratings = [rating_score[value] for value in content_info.values()]  # 등급을 숫자로 변환
+
+    #     # 🔹 전체관람가(0)도 최소 높이를 가지도록 조정
+    #     ratings_adjusted = [v if v > 0 else 0.5 for v in ratings]  # 전체관람가도 보이게 최소 0.5 설정
+
+    #     # 그래프 크기 설정
+    #     fig, ax = plt.subplots(figsize=(10, 5))
+
+    #     # 가로 막대 그래프 생성 (X축이 기준, Y축이 등급)
+    #     ax.bar(categories, ratings_adjusted, color='skyblue')
+
+    #     # Y축 (등급) 라벨을 '전체관람가' ~ '제한상영가'로 변경
+    #     ax.set_yticks(rating_positions)
+    #     ax.set_yticklabels(rating_labels, fontsize=12)
+
+    #     # X축 (기준) 라벨 회전
+    #     ax.set_xticklabels(categories, rotation=30, ha='right', fontsize=12)
+
+    #     # 제목 및 라벨 설정
+    #     ax.set_xlabel("", fontsize=14, fontweight='bold')
+    #     ax.set_ylabel("", fontsize=14, fontweight='bold')
+    #     ax.set_title("", fontsize=16, fontweight='bold')
+
+    #     # 값 표시 (막대 위에 해당 등급 라벨 표시)
+    #     for i, v in enumerate(ratings):
+    #         ax.text(i, ratings_adjusted[i] + 0.1, rating_labels[v], ha='center', fontsize=10, color='black', fontweight='bold')
+
+    #     # 스트림릿에서 그래프 출력
+    #     st.pyplot(fig)
+
+
+    ### 내용정보 top3
     # 🔹 내용정보 top3 가져오기
     content_info_top = analysis_results.get("내용정보 탑3", {})
 
@@ -282,7 +399,7 @@ elif page == "result":
                 else:
                     st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
 
-
+    st.write(' ')
     # 🔹 분석 사유 출력
     st.write("### 📝 서술적 내용기술")
     reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
@@ -295,6 +412,7 @@ elif page == "result":
         st.write("데이터 없음")
 
     
+    st.write('')
     # 🔹 메인 페이지로 돌아가는 버튼
     if st.button("🔄 시작 화면으로 돌아가기"):
         st.query_params["page"] = ""
