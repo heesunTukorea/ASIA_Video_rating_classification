@@ -255,7 +255,7 @@ elif page == "result":
         # 🔹 상위 3개 항목 선택
         top_3 = sorted_content[:3]
 
-# 🔹 상위 3개 항목 강조 (PNG 아이콘 표시)
+        # 🔹 상위 3개 항목 강조 (PNG 아이콘 표시)
         st.write("### 📌 내용정보 표시항목 (Top 3)")
         col1, col2, col3 = st.columns(3)
 
@@ -264,10 +264,9 @@ elif page == "result":
                 icon_path = icon_map.get(category)
                 if icon_path and os.path.exists(icon_path):
                     image = Image.open(icon_path)
-                    st.image(image, caption=f"{category}: {rating}", use_container_width=True)
+                    st.image(image, caption=f"{category}: {rating}", use_container_width=True) # 이렇게하면 st 특성상 너비 자동으로 맞춰져서 너무 커짐..                
                 else:
                     st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
-
 
     # 🔹 분석 사유 출력
     st.write("### 📝 서술적 내용 기술")
@@ -280,104 +279,8 @@ elif page == "result":
     else:
         st.write("데이터 없음")
 
-
+    
     # 🔹 메인 페이지로 돌아가는 버튼
     if st.button("🔄 시작 화면으로 돌아가기"):
         st.query_params["page"] = ""
         st.rerun()
-
-############
-
-elif page == "result":
-    # 🔹 아이콘 경로 설정 (업로드된 파일이 저장된 경로)
-    icon_dir = "C:/Users/chloeseo/ms_project/영등위png/내용정보"
-
-    icon_map = {
-        "주제": os.path.join(icon_dir, "주제.png"),
-        "선정성": os.path.join(icon_dir, "선정성.png"),
-        "폭력성": os.path.join(icon_dir, "폭력성.png"),
-        "공포": os.path.join(icon_dir, "공포.png"),
-        "대사": os.path.join(icon_dir, "대사.png"),
-        "약물": os.path.join(icon_dir, "약물.png"),
-        "모방위험": os.path.join(icon_dir, "모방위험.png")
-    }
-
-    # 🔹 등급별 색상 매핑
-    rating_color_map = {
-        "전체관람가": "green",
-        "12세이상관람가": "yellow",
-        "15세이상관람가": "orange",
-        "청소년관람불가": "red",
-        "제한상영가": "gray"
-    }
-
-    # 🔹 Streamlit 페이지 설정
-    st.title("🎬 비디오 등급 분류 결과")
-
-    # 🔹 분석 결과 가져오기
-    analysis_results = st.session_state.get("analysis_results", {})
-
-    # 🔹 관람등급 표시 (색상 적용)
-    final_rating = analysis_results.get("관람등급", "데이터 없음")
-    st.markdown(f"### 🏆 **관람등급: <span style='color:{rating_color_map.get(final_rating, 'black')}; font-weight:bold;'>{final_rating}</span>**", unsafe_allow_html=True)
-
-    # 🔹 영상 기본 정보 표시
-    st.write("### 🎞️ 비디오 등급 분류 정보")
-    st.table({key: value for key, value in analysis_results.items() if key not in ["내용정보", "서술적 내용기술"]})
-
-    # 🔹 내용정보 가져오기
-    content_info = analysis_results.get("내용정보", {})
-
-    if content_info:
-        # 🔹 등급별 점수화 (높은 등급일수록 높은 값)
-        rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
-        
-        # 🔹 데이터 변환 (높은 등급순 정렬)
-        sorted_content = sorted(content_info.items(), key=lambda x: rating_score[x[1]], reverse=True)
-
-        # 🔹 상위 3개 항목 선택
-        top_3 = sorted_content[:3]
-
-        # 🔹 등급별 그래프 생성
-        st.write("### 📊 내용정보")
-
-        fig, ax = plt.subplots(figsize=(6, 4))
-        categories = [k for k, v in sorted_content]
-        scores = [rating_score[v] for k, v in sorted_content]
-        colors = [rating_color_map[v] for k, v in sorted_content]
-
-        ax.barh(categories, scores, color=colors)
-        ax.set_xlabel("Content Rating")
-        ax.set_ylabel("Category")
-        ax.set_xlim(0, 4)
-        ax.set_xticks([0, 1, 2, 3, 4])
-        ax.set_xticklabels(["전체", "12", "15", "19", "제한"])
-        ax.invert_yaxis()
-        st.pyplot(fig)
-
-        # 🔹 상위 3개 항목 강조 (PNG 아이콘 표시)
-        st.write("### 📌 내용정보 표시항목 (Top 3)")
-        col1, col2, col3 = st.columns(3)
-
-        for idx, (category, rating) in enumerate(top_3):
-            with [col1, col2, col3][idx]:
-                icon_path = icon_map.get(category)
-                if icon_path and os.path.exists(icon_path):
-                    image = Image.open(icon_path)
-                    st.image(image, caption=f"{category}: {rating}", use_column_width=True)
-                else:
-                    st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
-
-    # 🔹 서술적 내용기술 출력
-    st.write("### 📝 서술적 내용 기술")
-
-    reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
-
-    if reason_text and reason_text != "데이터 없음":
-        formatted_text = reason_text.replace("\n", "<br>")  
-        st.markdown(f"<p style='font-size:18px; line-height:1.6;'>{formatted_text}</p>", unsafe_allow_html=True)
-    else:
-        st.write("데이터 없음")
-
-    # 🔹 시작 화면으로 돌아가기 버튼
-    st.button("🏠 시작 화면으로 돌아가기", on_click=lambda: st.session_state.update({"page": "home"}))
