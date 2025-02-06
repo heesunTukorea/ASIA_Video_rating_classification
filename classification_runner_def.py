@@ -10,7 +10,7 @@ from violence.violence_JSON import violence
 from violence.violence_text_JSON import violence_text_main
 from sexuality.Sexuality_text_JSON import sexuality_text_main
 from drug.alcohol_classfication import detect_alcohol_in_images
-from rating_classfication.topic_rating_classification import classify_topic_rating  # ✅ 추가된 부분
+from rating_classfication.topic_rating_classification import classify_topic_rating 
 from rating_classfication.lines_rating_classification import lines_classify
 from rating_classfication.drugs_rating_classification import process_drug_rating
 from rating_classfication.horror_rating_classification import get_horror_rating
@@ -113,7 +113,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     print('공포 등급 판정 완료')
     imitaion_risk_classify(input_file=json_class_name['모방위험'], output_file=json_class_name['모방위험_등급'])
     print('모방 위험 등급 판정 완료')
-    classify_violence_rating(input_img_path=json_class_name['폭력이미지'], input_text_path=json_class_name['폭력텍스트'], result_json_path=json_class_name['폭력_등급'])
+    classify_violence_rating(input_img_path=json_class_name['폭력_이미지'], input_text_path=json_class_name['폭력_텍스트'], result_json_path=json_class_name['폭력_등급'])
     print('폭력 등급 판정 완료')
     
     #최종 등급 계산
