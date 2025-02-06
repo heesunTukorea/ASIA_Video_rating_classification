@@ -5,6 +5,8 @@ from classification_runner_def import total_classification_run
 import os
 import datetime
 import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
 
 # base64 인코딩 함수
 def image_to_base64(image_path):
@@ -51,7 +53,7 @@ def process_video_classification():
         
         # 🔹 `total_classification_run()` 실행하여 분석 결과 얻기
         try:
-            rating_value, final_result_rating, reason_list = total_classification_run(video_data_lists)
+            rating_value, final_result_rating, reason_list, rating_dict = total_classification_run(video_data_lists)
             # ✅ `None`이 반환되었을 경우 오류 메시지 출력
             if rating_value is None or final_result_rating is None or reason_list is None:
                 st.error("🚨 등급 분석 실행 중 오류 발생: 분석 결과가 없습니다.")
@@ -76,7 +78,8 @@ def process_video_classification():
             "감독 국적": input_data["감독 국적"],  
             "주연 배우": input_data["주연 배우"],  
             "주연 배우 국적": input_data["주연 배우 국적"],  
-            "내용정보": {criterion: rating_value for criterion in final_result_rating},
+            "내용정보 탑3": {criterion: rating_value for criterion in final_result_rating},
+            "내용정보": rating_dict,  # ✅ 모든 기준별 등급 포함
             "서술적 내용기술": "\n".join(reason_list) if reason_list else "데이터 없음",
             "대표" : input_data["대표"]
         }
@@ -235,22 +238,33 @@ elif page == "result":
     # st.markdown(f"**관람등급:** <span style='color:red; font-weight:bold;'>{result_data['관람등급']}</span>", unsafe_allow_html=True)
     # st.table(result_data)
     
-    # 🔹 등급 기준별 결과 출력
-    st.write("### 📊 내용정보")
-    rating_data = [
-        {"항목": key, "등급": value} for key, value in analysis_results.get("내용정보", {}).items()
-    ]
-    st.table(rating_data)
 
-    # 🔹 내용정보 가져오기
+    ### 내용정보 
+    # # 🔹 등급 기준별 결과 출력
+    # st.write("### 📊 내용정보")
+    # rating_data = [
+    #     {"항목": key, "등급": value} for key, value in analysis_results.get("내용정보", {}).items()
+    # ]
+    # st.table(rating_data)
+
+    st.write("### 📊 내용정보")
+
+    # 🔹 모든 기준별 등급을 표로 표시 (내용정보)
     content_info = analysis_results.get("내용정보", {})
 
     if content_info:
+        content_info_list = [{"항목": key, "등급": value} for key, value in content_info.items()]
+        st.table(content_info_list)  # ✅ Streamlit의 기본 table 기능 활용
+
+    # 🔹 내용정보 top3 가져오기
+    content_info_top = analysis_results.get("내용정보 탑3", {})
+
+    if content_info_top:
         # 🔹 등급별 점수화 (높은 등급일수록 높은 값)
         rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
         
         # 🔹 데이터 변환 (높은 등급순 정렬)
-        sorted_content = sorted(content_info.items(), key=lambda x: rating_score[x[1]], reverse=True)
+        sorted_content = sorted(content_info_top.items(), key=lambda x: rating_score[x[1]], reverse=True)
 
         # 🔹 상위 3개 항목 선택
         top_3 = sorted_content[:3]
@@ -268,8 +282,9 @@ elif page == "result":
                 else:
                     st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
 
+
     # 🔹 분석 사유 출력
-    st.write("### 📝 서술적 내용 기술")
+    st.write("### 📝 서술적 내용기술")
     reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
 
     if reason_text and reason_text != "데이터 없음":
