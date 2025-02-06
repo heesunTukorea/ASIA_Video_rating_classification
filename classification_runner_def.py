@@ -15,6 +15,7 @@ from rating_classfication.lines_rating_classification import lines_classify
 from rating_classfication.drugs_rating_classification import process_drug_rating
 from rating_classfication.horror_rating_classification import get_horror_rating
 from rating_classfication.imitaion_risk_rating_classification import imitaion_risk_classify
+from rating_classfication.violence_rating_classification import classify_violence_rating
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
