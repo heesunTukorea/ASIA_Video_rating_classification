@@ -17,7 +17,7 @@ def load_dialogue_texts(file_path):
         texts = f.read().splitlines()
     return texts
 
-def classify_sexuality_combined(image_json_file_path, text_file_path, output_file): 
+def classify_sexuality_rating(image_json_file_path, text_file_path, output_file): 
     """ 이미지 분석 및 대사 데이터 기반 영상물 선정성 등급 판정 및 결과 저장 """
     result_folder_path = os.path.dirname(output_file)
     os.makedirs(result_folder_path, exist_ok=True)
@@ -86,4 +86,4 @@ if __name__ == "__main__":
     image_json_file_path = f'result/{base_name}/result_json/{base_name}_sexuality_img_json.json' # 이미지 데이터 JSON 파일 경로
     text_file_path = f'result/{base_name}/{base_name}_text_output/{base_name}_text.txt' # 대사 텍스트 파일 경로
     output_file = f'result/{base_name}/result_json/{base_name}_sexuality_combined_json.json' # 결과 파일 경로
-    classify_sexuality_combined(image_json_file_path, text_file_path, output_file) # 함수 호출
+    classify_sexuality_rating(image_json_file_path, text_file_path, output_file) # 함수 호출
