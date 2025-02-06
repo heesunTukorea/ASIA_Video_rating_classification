@@ -5,7 +5,7 @@ from horror.horror_classfication import classify_images_horror
 from sexuality.Sexuality_img_JSON import classify_images_sexuality
 from imitation_risk.imitaion_risk_result import imitation_risk_api
 from topic.Topic_JSON import process_topic
-from lines.lines_JSON import process_script
+from lines.Lines_SwearWord_JSON import process_lines
 from violence.violence_JSON import violence
 from violence.violence_text_JSON import violence_text_main
 from sexuality.Sexuality_text_JSON import sexuality_text_main
@@ -66,7 +66,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     process_video(input_video_path=video_path,start_time=start_time,duration=duration,language=language) # 이미지 텍스트 추출 whisper api포함
     print('전처리 완료')
     #대사
-    process_script(script_path= text_path, output_path=json_class_name['대사'])
+    process_lines(script_path= text_path, output_path=json_class_name['대사'])
     print('대사 완료')
     #마약
     drug(image_folder_path=images_path, output_file = json_class_name['약물_마약'], threshold=0.3) #클립 마약
@@ -113,6 +113,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     imitaion_risk_classify(input_file=json_class_name['모방위험'], output_file=json_class_name['모방위험_등급'])
     print('모방 위험 등급 판정 완료')
 
+    print('전처리 해뒀던 결과 불러오기 완료')
 
     #최종 등급 계산
     rating_dict,reason_dict={},{}# 등급 딕셔너리, 이유 딕셔너리
@@ -137,12 +138,23 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     print(rating_value)# 최종 분류 등급 (ex 전체이용가)
     print(final_result_rating)# 최종 분류 등급(ex [폭력,주제])
     
-    #판정 이유 나열
-    reason_list=[]
-    for key,value in reason_dict.items():
-        reason_text = f'{key}: {value}'
-        reason_list.append
-        print(reason_text)# 판정 이유들 출력
+    ### 모든 항목에 대한 판정 이유 출력됨
+    # #판정 이유 나열
+    # reason_list=[]
+    # for key,value in reason_dict.items():
+    #     reason_text = f'{key}: {value}'
+    #     reason_list.append(reason_text)
+    #     print(reason_text)# 판정 이유들 출력
+
+    ### 최종 등급에 해당하는 항목만 이유 출력되도록
+    # 판정 이유 나열 (최종 등급에 해당하는 항목만 reason_list에 추가)
+    reason_list = []
+    for key, value in reason_dict.items():
+        if key in final_result_rating:  # ✅ 최종 등급에 해당하는 항목만 reason_list에 포함
+            reason_text = f'{key}: {value}'
+            reason_list.append(reason_text)
+
+    print("최종 reason_list:", reason_list)  # ✅ 최종 리스트 확인 -> streamlit 전달 확인용
     
     return rating_value, final_result_rating, reason_list
 
