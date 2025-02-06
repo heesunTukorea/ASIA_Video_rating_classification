@@ -4,10 +4,10 @@ from PIL import Image
 from classification_runner_def import total_classification_run
 import os
 import datetime
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
 import time
+import matplotlib.pyplot as plt
+# import pandas as pd # 내용등급 그래프용
+# import numpy as np # 내용등급 그래프용
 
 # base64 인코딩 함수
 def image_to_base64(image_path):
@@ -102,22 +102,8 @@ if "input_data" not in st.session_state:
     st.session_state["input_data"] = {}
 if "analysis_results" not in st.session_state:
     st.session_state["analysis_results"] = {}
-if "uploaded_file" not in st.session_state:  # 🔥 오류 방지를 위해 초기화
+if "uploaded_file" not in st.session_state:  # 오류 방지를 위해 초기화
     st.session_state["uploaded_file"] = None
-
-# # 메인 페이지
-# if page == "":
-#     st.title("영상물 등급 분류 시스템")
-#     try:
-#         image = Image.open("C:/Users/chloeseo/Downloads/메인이미지.png")  # 실제 이미지 파일 경로로 변경
-#         st.image(image, use_container_width=True)
-#     except FileNotFoundError:
-#         st.write(" ")
-#     st.write("비디오 콘텐츠에 적절한 등급을 지정하는 시스템입니다. 아래 버튼을 클릭하여 시작하세요.")
-
-#     if st.button("등급 분류 시작"):
-#         st.query_params["page"] = "upload"
-#         st.rerun()
 
 # 메인 페이지 - 가운데정렬
 if page == "":
@@ -211,19 +197,6 @@ elif page == "upload":
             process_video_classification()
 
 elif page == "result":
-    
-    # # 🔹 아이콘 경로 설정 (업로드된 파일이 저장된 경로)
-    # icon_dir = "C:/Users/chloeseo/ms_project/영등위png/내용정보"
-
-    # icon_map = {
-    #     "주제": os.path.join(icon_dir, "주제.png"),
-    #     "선정성": os.path.join(icon_dir, "선정성.png"),
-    #     "폭력성": os.path.join(icon_dir, "폭력성.png"),
-    #     "공포": os.path.join(icon_dir, "공포.png"),
-    #     "대사": os.path.join(icon_dir, "대사.png"),
-    #     "약물": os.path.join(icon_dir, "약물.png"),
-    #     "모방위험": os.path.join(icon_dir, "모방위험.png")
-    # }
 
     # 🔹 등급별 색상 매핑
     rating_color_map = {
@@ -233,16 +206,6 @@ elif page == "result":
         "청소년관람불가": "red",
         "제한상영가": "gray"
     }
-
-    # st.title("비디오 등급 분류 결과")
-
-    # # 분석 결과 가져오기
-    # analysis_results = st.session_state.get("analysis_results", {})
-
-    # if not analysis_results:
-    #     st.error("🚨 분석 결과가 없습니다. 먼저 비디오 등급 분류를 수행해주세요.")
-    #     st.stop()
-
 
     # 🔹 연령 등급별 색상 및 아이콘 매핑
     rating_assets = {
@@ -290,7 +253,6 @@ elif page == "result":
             unsafe_allow_html=True
         )
 
-    
     # 🔹 분석 결과를 표로 정리
     result_data = {
         "구분": analysis_results.get("구분", "데이터 없음"),
@@ -308,16 +270,7 @@ elif page == "result":
     }
 
     st.table(result_data)
-
-
-    # # 나머지 정보 테이블로 출력
-    # st.table({k: v for k, v in result_data.items() if k != "관람등급"})  
-
-    # # 🔥 관람등급만 빨간색 굵은 글씨로 출력
-    # st.markdown(f"**관람등급:** <span style='color:red; font-weight:bold;'>{result_data['관람등급']}</span>", unsafe_allow_html=True)
-    # st.table(result_data)
     
-
     ### 내용정보 
     # 표
     st.write("### 📊 내용정보")
