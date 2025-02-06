@@ -3,6 +3,8 @@ import base64
 from PIL import Image
 from classification_runner_def import total_classification_run
 import os
+import datetime
+import matplotlib.pyplot as plt
 
 # base64 인코딩 함수
 def image_to_base64(image_path):
@@ -57,19 +59,27 @@ def process_video_classification():
         except Exception as e:
             st.error(f"등급 분류 실행 중 오류 발생: {e}")
             return
-
+        
+        # 📌 현재 날짜 가져오기 (YYYY-MM-DD 형식)
+        today_date = datetime.date.today().strftime("%Y-%m-%d")
+        
         # 🔹 분석 결과 저장
         st.session_state["analysis_results"] = {
             "구분": input_data["구분"],
             "한글제명/원재명": input_data["제목"],
             "신청사": input_data["신청사"],
             "시놉시스": input_data["시놉시스"],
-            "등급분류일자": "2024-02-21",
+            "등급분류일자": today_date,  # 현재 날짜 자동 설정
+            "접수일자" : today_date,
             "관람등급": rating_value,
+            "감독": input_data["감독"],  
+            "감독 국적": input_data["감독 국적"],  
+            "주연 배우": input_data["주연 배우"],  
+            "주연 배우 국적": input_data["주연 배우 국적"],  
             "내용정보": {criterion: rating_value for criterion in final_result_rating},
-            "서술적 내용기술": "\n".join(reason_list)
+            "서술적 내용기술": "\n".join(reason_list) if reason_list else "데이터 없음",
+            "대표" : input_data["대표"]
         }
-
         # 🔹 결과 페이지로 이동
         st.write("등급 분류 요청이 제출되었습니다!")
         st.query_params["page"] = "result"
@@ -88,7 +98,7 @@ if "uploaded_file" not in st.session_state:  # 🔥 오류 방지를 위해 초�
 if page == "":
     st.title("비디오 등급 분류 시스템")
     try:
-        image = Image.open("C:/Users/chloeseo/ms_project/서비스이미지.png")  # 실제 이미지 파일 경로로 변경
+        image = Image.open("C:/Users/chloeseo/Downloads/서비스이미지.png")  # 실제 이미지 파일 경로로 변경
         st.image(image, use_container_width=True)
     except FileNotFoundError:
         st.write(" ")
@@ -98,13 +108,14 @@ if page == "":
         st.query_params["page"] = "upload"
         st.rerun()
 
+
 # 업로드 및 메타데이터 입력 페이지
 elif page == "upload":
     st.title("비디오 정보 입력")
     st.write("비디오 등급 분류에 필요한 정보를 입력해주세요.")
 
     # 필수 입력
-    category = st.selectbox("구분 *", ["선택하세요", "영화", "드라마", "애니메이션", "기타"])
+    category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
     title = st.text_input("제목 *")
     genre = st.selectbox("장르 *", ["선택하세요", "범죄", "액션", "드라마", "코미디", "공포", "로맨스", "SF", "판타지", "기타"])
     synopsis = st.text_input("시놉시스 *")
@@ -119,7 +130,7 @@ elif page == "upload":
     start_time = st.text_input("분석 시작 시간 (HH:MM:SS, 선택사항)", value="")
     duration = st.text_input("분석 지속 시간 (HH:MM:SS, 선택사항)", value="")
     # 파일 업로드
-    uploaded_file = st.file_uploader("비디오 업로드 *", type=["mp4", "mov", "avi"], help="MP4, MOV 또는 AVI 형식, 최대 2GB")
+    uploaded_file = st.file_uploader("비디오 업로드 *", type=["mp4", "mov", "avi"], help="MP4, MOV 또는 AVI 형식, 최대 3GB")
 
     if uploaded_file is not None:
         st.session_state["uploaded_file"] = uploaded_file
@@ -154,31 +165,219 @@ elif page == "upload":
             process_video_classification()
 
 elif page == "result":
+    
+    # 🔹 아이콘 경로 설정 (업로드된 파일이 저장된 경로)
+    icon_dir = "C:/Users/chloeseo/ms_project/영등위png/내용정보"
+
+    icon_map = {
+        "주제": os.path.join(icon_dir, "주제.png"),
+        "선정성": os.path.join(icon_dir, "선정성.png"),
+        "폭력성": os.path.join(icon_dir, "폭력성.png"),
+        "공포": os.path.join(icon_dir, "공포.png"),
+        "대사": os.path.join(icon_dir, "대사.png"),
+        "약물": os.path.join(icon_dir, "약물.png"),
+        "모방위험": os.path.join(icon_dir, "모방위험.png")
+    }
+
+    # 🔹 등급별 색상 매핑
+    rating_color_map = {
+        "전체관람가": "green",
+        "12세이상관람가": "yellow",
+        "15세이상관람가": "orange",
+        "청소년관람불가": "red",
+        "제한상영가": "gray"
+    }
+
     st.title("비디오 등급 분류 결과")
 
+    # 분석 결과 가져오기
     analysis_results = st.session_state.get("analysis_results", {})
 
     if not analysis_results:
         st.error("🚨 분석 결과가 없습니다. 먼저 비디오 등급 분류를 수행해주세요.")
         st.stop()
 
-    st.write(f"### 🎬 최종 등급: {analysis_results['관람등급']}")
-    st.write(f"**📌 신청사:** {analysis_results['신청사']}")
-    st.write(f"**📌 한글제명:** {analysis_results['한글제명/원재명']}")
-    st.write(f"**📌 시놉시스:** {analysis_results['시놉시스']}")
-    
+    # 🔹 분석 결과를 표로 정리
+    result_data = {
+        "구분": analysis_results.get("구분", "데이터 없음"),
+        "접수일자": analysis_results.get("접수일자", "데이터 없음"), 
+        "한글제명/원재명": analysis_results.get("한글제명/원재명", "데이터 없음"),
+        "신청사": analysis_results.get("신청사", "데이터 없음"),
+        "대표": analysis_results.get("대표", "데이터 없음"),
+        "등급분류일자": analysis_results.get("등급분류일자", "데이터 없음"),
+        "관람등급": analysis_results.get("관람등급", "데이터 없음"),
+        "감독": analysis_results.get("감독", "데이터 없음"),
+        "감독 국적": analysis_results.get("감독 국적", "데이터 없음"),
+        "주연 배우": analysis_results.get("주연 배우", "데이터 없음"),
+        "주연 배우 국적": analysis_results.get("주연 배우 국적", "데이터 없음"),
+        # "서술적 내용기술": analysis_results.get("서술적 내용기술", "데이터 없음")
+    }
 
+    st.write("### 🎬 비디오 등급 분류 정보")
+
+    # 관람등급 가져오기
+    rating = result_data["관람등급"]
+    rating_color = rating_color_map.get(rating, "black")  # 기본값: 검정색
+
+    # 관람등급 출력 (HTML 스타일 적용)
+    st.markdown(
+        f"<p style='color:{rating_color}; font-weight:bold; font-size:24px;'>{rating}</p>",
+        unsafe_allow_html=True
+    )
+
+    st.table(result_data)
+
+
+    # # 나머지 정보 테이블로 출력
+    # st.table({k: v for k, v in result_data.items() if k != "관람등급"})  
+
+    # # 🔥 관람등급만 빨간색 굵은 글씨로 출력
+    # st.markdown(f"**관람등급:** <span style='color:red; font-weight:bold;'>{result_data['관람등급']}</span>", unsafe_allow_html=True)
+    # st.table(result_data)
+    
     # 🔹 등급 기준별 결과 출력
-    st.write("### 📊 등급 기준")
-    for key, value in analysis_results["내용정보"].items():
-        st.write(f"**{key}:** {value}")
+    st.write("### 📊 내용정보")
+    rating_data = [
+        {"항목": key, "등급": value} for key, value in analysis_results.get("내용정보", {}).items()
+    ]
+    st.table(rating_data)
+
+    # 🔹 내용정보 가져오기
+    content_info = analysis_results.get("내용정보", {})
+
+    if content_info:
+        # 🔹 등급별 점수화 (높은 등급일수록 높은 값)
+        rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
+        
+        # 🔹 데이터 변환 (높은 등급순 정렬)
+        sorted_content = sorted(content_info.items(), key=lambda x: rating_score[x[1]], reverse=True)
+
+        # 🔹 상위 3개 항목 선택
+        top_3 = sorted_content[:3]
+
+# 🔹 상위 3개 항목 강조 (PNG 아이콘 표시)
+        st.write("### 📌 내용정보 표시항목 (Top 3)")
+        col1, col2, col3 = st.columns(3)
+
+        for idx, (category, rating) in enumerate(top_3):
+            with [col1, col2, col3][idx]:
+                icon_path = icon_map.get(category)
+                if icon_path and os.path.exists(icon_path):
+                    image = Image.open(icon_path)
+                    st.image(image, caption=f"{category}: {rating}", use_container_width=True)
+                else:
+                    st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
+
 
     # 🔹 분석 사유 출력
     st.write("### 📝 서술적 내용 기술")
-    st.write(analysis_results["서술적 내용기술"])
+    reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
+
+    if reason_text and reason_text != "데이터 없음":
+        # 줄바꿈 적용하여 출력
+        formatted_text = reason_text.replace("\n", "<br>")  
+        st.markdown(f"<p style='font-size:18px; line-height:1.6;'>{formatted_text}</p>", unsafe_allow_html=True)
+    else:
+        st.write("데이터 없음")
+
 
     # 🔹 메인 페이지로 돌아가는 버튼
     if st.button("🔄 시작 화면으로 돌아가기"):
         st.query_params["page"] = ""
         st.rerun()
 
+############
+
+elif page == "result":
+    # 🔹 아이콘 경로 설정 (업로드된 파일이 저장된 경로)
+    icon_dir = "C:/Users/chloeseo/ms_project/영등위png/내용정보"
+
+    icon_map = {
+        "주제": os.path.join(icon_dir, "주제.png"),
+        "선정성": os.path.join(icon_dir, "선정성.png"),
+        "폭력성": os.path.join(icon_dir, "폭력성.png"),
+        "공포": os.path.join(icon_dir, "공포.png"),
+        "대사": os.path.join(icon_dir, "대사.png"),
+        "약물": os.path.join(icon_dir, "약물.png"),
+        "모방위험": os.path.join(icon_dir, "모방위험.png")
+    }
+
+    # 🔹 등급별 색상 매핑
+    rating_color_map = {
+        "전체관람가": "green",
+        "12세이상관람가": "yellow",
+        "15세이상관람가": "orange",
+        "청소년관람불가": "red",
+        "제한상영가": "gray"
+    }
+
+    # 🔹 Streamlit 페이지 설정
+    st.title("🎬 비디오 등급 분류 결과")
+
+    # 🔹 분석 결과 가져오기
+    analysis_results = st.session_state.get("analysis_results", {})
+
+    # 🔹 관람등급 표시 (색상 적용)
+    final_rating = analysis_results.get("관람등급", "데이터 없음")
+    st.markdown(f"### 🏆 **관람등급: <span style='color:{rating_color_map.get(final_rating, 'black')}; font-weight:bold;'>{final_rating}</span>**", unsafe_allow_html=True)
+
+    # 🔹 영상 기본 정보 표시
+    st.write("### 🎞️ 비디오 등급 분류 정보")
+    st.table({key: value for key, value in analysis_results.items() if key not in ["내용정보", "서술적 내용기술"]})
+
+    # 🔹 내용정보 가져오기
+    content_info = analysis_results.get("내용정보", {})
+
+    if content_info:
+        # 🔹 등급별 점수화 (높은 등급일수록 높은 값)
+        rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
+        
+        # 🔹 데이터 변환 (높은 등급순 정렬)
+        sorted_content = sorted(content_info.items(), key=lambda x: rating_score[x[1]], reverse=True)
+
+        # 🔹 상위 3개 항목 선택
+        top_3 = sorted_content[:3]
+
+        # 🔹 등급별 그래프 생성
+        st.write("### 📊 내용정보")
+
+        fig, ax = plt.subplots(figsize=(6, 4))
+        categories = [k for k, v in sorted_content]
+        scores = [rating_score[v] for k, v in sorted_content]
+        colors = [rating_color_map[v] for k, v in sorted_content]
+
+        ax.barh(categories, scores, color=colors)
+        ax.set_xlabel("Content Rating")
+        ax.set_ylabel("Category")
+        ax.set_xlim(0, 4)
+        ax.set_xticks([0, 1, 2, 3, 4])
+        ax.set_xticklabels(["전체", "12", "15", "19", "제한"])
+        ax.invert_yaxis()
+        st.pyplot(fig)
+
+        # 🔹 상위 3개 항목 강조 (PNG 아이콘 표시)
+        st.write("### 📌 내용정보 표시항목 (Top 3)")
+        col1, col2, col3 = st.columns(3)
+
+        for idx, (category, rating) in enumerate(top_3):
+            with [col1, col2, col3][idx]:
+                icon_path = icon_map.get(category)
+                if icon_path and os.path.exists(icon_path):
+                    image = Image.open(icon_path)
+                    st.image(image, caption=f"{category}: {rating}", use_column_width=True)
+                else:
+                    st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
+
+    # 🔹 서술적 내용기술 출력
+    st.write("### 📝 서술적 내용 기술")
+
+    reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
+
+    if reason_text and reason_text != "데이터 없음":
+        formatted_text = reason_text.replace("\n", "<br>")  
+        st.markdown(f"<p style='font-size:18px; line-height:1.6;'>{formatted_text}</p>", unsafe_allow_html=True)
+    else:
+        st.write("데이터 없음")
+
+    # 🔹 시작 화면으로 돌아가기 버튼
+    st.button("🏠 시작 화면으로 돌아가기", on_click=lambda: st.session_state.update({"page": "home"}))
