@@ -35,7 +35,7 @@ def save_json_raw(data, file_path):
         json.dump(data, file, ensure_ascii=False, indent=4) 
 
 # 등급판정 및 결과 저장 함수
-def classify_horror_rating(input_img_path, input_text_path, result_json_path):
+def classify_violence_rating(input_img_path, input_text_path, result_json_path):
     # JSON 데이터 불러오기
     img_data = load_imgjson(input_img_path)
     text_data = load_textjson(input_text_path)
@@ -103,4 +103,4 @@ def classify_horror_rating(input_img_path, input_text_path, result_json_path):
 # img_file_path = "input 이미지 json파일 경로"
 # text_file_path = "input 대사 text파일 경로"
 # result_file_path = "결과 저장 파일 경로"
-# classify_horror_rating(img_file_path, text_file_path, result_file_path)
+# classify_violence_rating(img_file_path, text_file_path, result_file_path)
