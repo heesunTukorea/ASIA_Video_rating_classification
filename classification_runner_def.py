@@ -113,9 +113,6 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     imitaion_risk_classify(input_file=json_class_name['모방위험'], output_file=json_class_name['모방위험_등급'])
     print('모방 위험 등급 판정 완료')
 
-    print('전처리 해뒀던 결과 불러오기 완료')
-
-
     #최종 등급 계산
     rating_dict,reason_dict={},{}# 등급 딕셔너리, 이유 딕셔너리
     #각 json을 불러와서 등급과 이유를 할당
