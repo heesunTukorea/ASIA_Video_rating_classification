@@ -5,7 +5,7 @@ from horror.horror_classfication import classify_images_horror
 from sexuality.Sexuality_img_JSON import classify_images_sexuality
 from imitation_risk.imitaion_risk_result import imitation_risk_api
 from topic.Topic_JSON import process_topic
-from lines.Lines_SwearWord_JSON import process_lines
+from lines.lines_JSON import process_script
 from violence.violence_JSON import violence
 from violence.violence_text_JSON import violence_text_main
 from sexuality.Sexuality_text_JSON import sexuality_text_main
@@ -29,8 +29,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     ### OpenAI 함수 호출
     client = OpenAI(api_key=openai_api_key)
     #경로 및 폴더 이름 설정
-    # base_path = video_path.split("C:/Users/chloeseo/ms_project/test_v6/video_data/")[1] # main함수 실행시
-    base_path = video_path.split("C:/Users/chloeseo/ms_project/test_v6/st_upload_file/")[1] # streamlit 실행시
+    base_path = video_path.split("./video_data/")[1] # main함수 실행시
     base_name = os.path.splitext(base_path)[0] # 오징어게임
     result_folder_path = f"C:/Users/chloeseo/ms_project/test_v6/result/{base_name}"
     json_result_path = f'{result_folder_path}/result_json'
@@ -66,7 +65,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     process_video(input_video_path=video_path,start_time=start_time,duration=duration,language=language) # 이미지 텍스트 추출 whisper api포함
     print('전처리 완료')
     #대사
-    process_lines(script_path= text_path, output_path=json_class_name['대사'])
+    process_script(script_path= text_path, output_path=json_class_name['대사'])
     print('대사 완료')
     #마약
     drug(image_folder_path=images_path, output_file = json_class_name['약물_마약'], threshold=0.3) #클립 마약
@@ -83,6 +82,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     #폭력 이미지
     violence(image_folder_path=images_path, output_file=json_class_name['폭력_이미지'], threshold=0.45)#클립 폭력성
     print('폭력 이미지 완료')
+    #술
     detect_alcohol_in_images(images_path=images_path, output_path=json_class_name['약물_술'], checkpoint="google/owlv2-base-patch16-ensemble", score_threshold=0.1)
     print('술 완료')
     #'---------------------------------------gpt-------------------------------------------------------------------------------'
