@@ -5,9 +5,11 @@ from classification_runner_def import total_classification_run
 import os
 import datetime
 import time
-import matplotlib.pyplot as plt
-import pandas as pd # 내용등급 그래프용
-import numpy as np # 내용등급 그래프용
+import sys 
+# import matplotlib.pyplot as plt # 내용등급 그래프용
+# import pandas as pd # 내용등급 그래프용
+# import numpy as np # 내용등급 그래프용
+# import io # 로그출력용
 
 # base64 인코딩 함수
 def image_to_base64(image_path):
@@ -41,6 +43,7 @@ def process_video_classification():
                 f.write(uploaded_file.getbuffer())
 
         print(f"✅ 업로드된 파일 저장 완료: {video_path}")
+
         # 🔹 `total_classification_run()`에 전달할 입력값 구성
         video_data_lists = [
             video_path,
@@ -51,6 +54,7 @@ def process_video_classification():
             input_data["분석 지속 시간"],
             input_data["영상 언어"][:2]
         ]
+
         # 🔹 Streamlit 상태 표시 (로딩 시작)
         with st.status("🎬 등급 분석 중입니다. 잠시만 기다려 주세요.", expanded=False) as status:
             # st.write("🔄 AI 모델이 영상을 분석하고 있습니다.")
@@ -88,14 +92,14 @@ def process_video_classification():
                 "서술적 내용기술": "\n".join(reason_list) if reason_list else "데이터 없음",
                 "대표" : input_data["대표"]
             }
-            # 🔹 로딩 완료 메시지
-            status.update(label="✅ 등급 분석 완료! 결과 페이지로 이동합니다.", state="complete", expanded=False)
+                
+        # ✅ 등급 분석이 끝났다는 상태 업데이트
+        st.session_state["analysis_done"] = True  
+        st.rerun()  # 다시 렌더링하여 버튼이 표시되도록 함
 
-            # 🔹 결과 페이지로 이동
-            st.write("등급 분류 요청이 제출되었습니다!")
-            st.query_params["page"] = "result"
-            st.rerun()
-
+    # 🔹 표준 출력 원래대로 복구
+    sys.stdout = sys.__stdout__
+    
 # 페이지 상태 관리 및 세션 상태 초기화
 page = st.query_params.get("page", "")
 if "input_data" not in st.session_state:
@@ -104,9 +108,14 @@ if "analysis_results" not in st.session_state:
     st.session_state["analysis_results"] = {}
 if "uploaded_file" not in st.session_state:  # 오류 방지를 위해 초기화
     st.session_state["uploaded_file"] = None
+if "analysis_done" not in st.session_state:  # ✅ 분석 완료 상태 초기화
+    st.session_state["analysis_done"] = False  
 
 # 메인 페이지 - 가운데정렬
 if page == "":
+     # 🔹 메인 페이지에 들어오면 `analysis_done` 초기화
+    st.session_state["analysis_done"] = False  # ✅ 분석 상태 초기화
+
     # 전체 중앙 정렬 스타일 적용
     st.markdown(
         """
@@ -127,7 +136,7 @@ if page == "":
     st.markdown("<h1 class='centered'>영상물 등급 분류 시스템</h1>", unsafe_allow_html=True)
 
     try:
-        image = Image.open("C:/Users/chloeseo/ms_project/서비스이미지.png")  # 실제 이미지 파일 경로
+        image = Image.open("C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/메인이미지/메인이미지.png")  # 실제 이미지 파일 경로
         st.image(image, use_container_width=True)  # 이미지를 전체 너비로 맞추기
     except FileNotFoundError:
         st.write(" ")
@@ -149,7 +158,8 @@ elif page == "upload":
     # 필수 입력
     category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
     title = st.text_input("제목 *")
-    genre = st.selectbox("장르 *", ["선택하세요", "범죄", "액션", "드라마", "코미디", "공포", "로맨스", "SF", "판타지", "기타"])
+    # genre = st.selectbox("장르 *", ["선택하세요", "범죄", "액션", "드라마", "코미디", "공포", "로맨스", "SF", "판타지", "기타"])
+    genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스", "SF", "느와르", "판타지", "기타"])
     synopsis = st.text_input("소개 *")
     applicant = st.text_input("신청사 *")
     representative = st.text_input("대표 *")
@@ -162,7 +172,7 @@ elif page == "upload":
     start_time = st.text_input("분석 시작 시간 (HH:MM:SS, 선택사항)", value="")
     duration = st.text_input("분석 지속 시간 (HH:MM:SS, 선택사항)", value="")
     # 파일 업로드
-    uploaded_file = st.file_uploader("비디오 업로드 *", type=["mp4", "mov", "avi"], help="MP4, MOV 또는 AVI 형식, 최대 3GB")
+    uploaded_file = st.file_uploader("비디오 업로드 *", type=["mp4", "mov", "avi"], help="MP4, MOV 또는 AVI 형식, 최대 5GB")
 
     if uploaded_file is not None:
         st.session_state["uploaded_file"] = uploaded_file
@@ -196,6 +206,13 @@ elif page == "upload":
             # 🔹 등급 분석 실행
             process_video_classification()
 
+    # ✅ 등급 분석이 완료되었을 때만 버튼 표시
+    if st.session_state["analysis_done"]:
+        st.write("등급 분류가 완료되었습니다! 아래 버튼을 눌러 결과 페이지로 이동하세요.")
+        if st.button("📊 결과 페이지로 이동"):
+            st.query_params["page"] = "result"
+            st.rerun()
+
 elif page == "result":
 
     # 🔹 등급별 색상 매핑
@@ -209,15 +226,15 @@ elif page == "result":
 
     # 🔹 연령 등급별 색상 및 아이콘 매핑
     rating_assets = {
-        "전체관람가": {"color": "green", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/ALL.png"},
-        "12세이상관람가": {"color": "yellow", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/12.png"},
-        "15세이상관람가": {"color": "orange", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/15.png"},
-        "청소년관람불가": {"color": "red", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/18.png"},
+        "전체관람가": {"color": "green", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/ALL.png"},
+        "12세이상관람가": {"color": "yellow", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/12.png"},
+        "15세이상관람가": {"color": "orange", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/15.png"},
+        "청소년관람불가": {"color": "red", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/18.png"},
         "제한상영가": {"color": "gray", "icon": None}  # 제한상영가 이미지 없을 경우 None
     }
 
     # 🔹 내용정보 아이콘 매핑
-    icon_dir = "C:/Users/chloeseo/ms_project/영등위png/내용정보"
+    icon_dir = "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/내용정보"
     icon_map = {
         "주제": os.path.join(icon_dir, "주제.png"),
         "선정성": os.path.join(icon_dir, "선정성.png"),
@@ -270,6 +287,14 @@ elif page == "result":
     }
 
     st.table(result_data)
+    
+    
+    # # 나머지 정보 테이블로 출력
+    # st.table({k: v for k, v in result_data.items() if k != "관람등급"})  
+
+    # # 🔥 관람등급만 빨간색 굵은 글씨로 출력
+    # st.markdown(f"**관람등급:** <span style='color:red; font-weight:bold;'>{result_data['관람등급']}</span>", unsafe_allow_html=True)
+    # st.table(result_data)
     
     ### 내용정보 
     # 표
