@@ -20,7 +20,7 @@ def load_texts(file_path):
         return file.readlines()
 
 # 2. GPT-4o를 사용하여 선정성 판단
-def detect_violence(texts):
+def detect_sexuality(texts):
     """
     텍스트 리스트를 받아 GPT-4o를 사용하여 선정성 판단.
     :param texts: 분석할 텍스트 리스트
@@ -105,7 +105,7 @@ def sexuality_text_main(text_path,output_path):
     texts = load_texts(text_path)
     
     # GPT-4o를 사용한 선정성 분석
-    results = detect_violence(texts)
+    results = detect_sexuality(texts)
     
     # 결과 저장
     save_results(results, output_path)
