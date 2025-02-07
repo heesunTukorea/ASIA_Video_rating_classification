@@ -16,6 +16,7 @@ from rating_classfication.drugs_rating_classification import process_drug_rating
 from rating_classfication.horror_rating_classification import get_horror_rating
 from rating_classfication.imitaion_risk_rating_classification import imitaion_risk_classify
 from rating_classfication.violence_rating_classification import classify_violence_rating
+from rating_classfication.sexuality_rating_classification import classify_sexuality_rating
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -115,6 +116,9 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     print('모방 위험 등급 판정 완료')
     classify_violence_rating(input_img_path=json_class_name['폭력_이미지'], input_text_path=json_class_name['폭력_텍스트'], result_json_path=json_class_name['폭력_등급'])
     print('폭력 등급 판정 완료')
+    classify_sexuality_rating(input_img_path=json_class_name['선정성_이미지'], input_text_path=text_path, output_file=json_class_name['선정성_종합'])
+    print('선정성 등급 판정 완료')
+
     
     #최종 등급 계산
     rating_dict,reason_dict={},{}# 등급 딕셔너리, 이유 딕셔너리
