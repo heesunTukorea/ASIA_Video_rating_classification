@@ -116,7 +116,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     print('모방 위험 등급 판정 완료')
     classify_violence_rating(input_img_path=json_class_name['폭력_이미지'], input_text_path=json_class_name['폭력_텍스트'], result_json_path=json_class_name['폭력_등급'])
     print('폭력 등급 판정 완료')
-    classify_sexuality_rating(input_img_path=json_class_name['선정성_이미지'], input_text_path=text_path, output_file=json_class_name['선정성_종합'])
+    classify_sexuality_rating(input_img_path=json_class_name['선정성_이미지'], input_text_path=text_path, output_file=json_class_name['선정성_등급'])
     print('선정성 등급 판정 완료')
 
     
