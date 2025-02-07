@@ -44,7 +44,7 @@ def predict_hate(model, tokenizer, sentence, device):
     probs = F.softmax(outputs.logits, dim=-1)
     
     # 모든 카테고리별로 0.5 이상이면 혐오로 판단
-    predicted_labels = (probs > 0.5).tolist()[0]  # [True, False, False, True, ...] 형태로 변환
+    predicted_labels = (probs > 0.9).tolist()[0]  # [True, False, False, True, ...] 형태로 변환
 
     # 카테고리별 혐오 여부 판단
     result = {category: "혐오" if pred else "비혐오" for category, pred in zip(categories, predicted_labels)}
@@ -62,7 +62,7 @@ def analyze_script(abuse_model_path, hate_model_path, script_path):
     
     total_sentences = 0
     strong_abusive, weak_abusive = 0, 0
-    hate_counts = {"여성/가족": 0, "남성": 0, "성소수자": 0, "인종/국적": 0, "연령": 0, "지역": 0, "종교": 0, "기타 혐오": 0}
+    hate_counts = {category: 0 for category in ["여성/가족", "남성", "성소수자", "인종/국적", "연령", "지역", "종교"]}  # "기타 혐오" 제거
     
     with open(script_path, "r", encoding="utf-8") as f:
         script = f.read()
@@ -117,6 +117,6 @@ def process_script(script_path, output_path):
 # # 예제 실행
 # if __name__ == "__main__":
 #     process_script(
-#         "result/수상한 그녀/수상한 그녀_text_output/수상한 그녀_text.txt",
-#         "result/수상한 그녀/result_json/수상한 그녀_totallines_json.json"
+#         "텍스트/아저씨_text.txt",
+#         "텍스트 결과/아저씨_lines_json.json"
 #     )

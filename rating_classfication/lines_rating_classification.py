@@ -1,112 +1,103 @@
-import openai
+import os
 import json
 from dotenv import load_dotenv
-import os
-# OpenAI API 키 설정
-# .env 파일 로드
+from openai import OpenAI
 
+def load_env():
+    """Load OpenAI API key from .env file."""
+    load_dotenv()
+    return os.getenv('OPENAI_API_KEY')
 
-load_dotenv()
+def initialize_openai_client(api_key):
+    """Initialize OpenAI client with the provided API key."""
+    return OpenAI(api_key=api_key)
 
-# 환경 변수 사용
+def analyze_dialogue_rating(openai_client, dialogue_data):
+    """
+    Analyze dialogue data to determine an appropriate age rating.
+    """
+    rating_criteria = """
+    Classification criteria for dialogue-based ratings:**  
+    All Ages (전체관람가): No or minimal use of profanity, vulgarity, or offensive language. No violent or suggestive dialogue. No discriminatory or demeaning expressions.  
+    - 강한 욕설과 약한 욕설이 전혀 없거나 극히 미미함 (0~1% 이하)  
+    - 혐오 표현(인종, 지역, 성소수자, 여성/가족 등)이 없음  
+    - 아동과 청소년의 언어 습관에 부정적인 영향을 주지 않는 대사  
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-openai.api_key = OPENAI_API_KEY
+    12+ (12세이상관람가): Mild profanity, slang, or low-frequency offensive language. No significant impact on youth language habits. Minimal discriminatory or insulting expressions.  
+    - 강한 욕설이 없거나 거의 없음 (0% 수준)  
+    - 약한 욕설 비율이 낮음 (약 5% 이하)  
+    - 혐오 표현(인종, 지역 등)이 일부 포함되었으나 경미한 수준  
 
+    15+ (15세이상관람가): Strong profanity, vulgarity, or offensive language used but not continuously repeated. Some aggressive or humiliating expressions, but within acceptable narrative context.  
+    - 강한 욕설이 일부 포함되었으나 빈도가 낮음 (약 0.5% 이상)  
+    - 약한 욕설 비율이 중간 정도 (약 2~10%)  
+    - 혐오 표현이 일부 포함되었으나 지속적이지 않음  
 
-
-# GPT 호출 함수
-def process_lines_rating(lines_data):
-
-
-    # 사용자 메시지 생성
-    user_message = [
-        {"type": "text", "text": f"""
+    Adults Only (청소년관람불가): Frequent and repetitive use of harsh profanity, vulgarity, or offensive language. Explicitly demeaning, humiliating, or violent dialogue. Continuous discrimination or personal attacks.  
+    - 강한 욕설이 빈번하게 등장 (약 9% 이상)  
+    - 약한 욕설 비율이 매우 높음 (약 36% 이상)  
+    - 성소수자, 인종, 지역 등 특정 대상에 대한 혐오 표현이 강하거나 지속적으로 포함됨  
+    """
+    
+    prompt = (
+        f"""Based on the following classification criteria and provided dialogue, determine the appropriate age rating for this media.
+        Respond strictly in JSON format with:
+        {{
+            \"rating\": \"관람 등급 (전체관람가, 12세이상관람가, 15세이상관람가, 청소년관람불가)\",
+            \"reasoning\": \"한글로 간단한 설명 한 줄\"
+        }}
         
-        Evaluate the given dialogue based on the Korean Media Rating Board's criteria for age classification.
-        ### Rating Criteria:
-
-        전체관람가: 
-        - No or minimal profanity, slang, or offensive language.
-        - No violent, sexual, or discriminatory expressions.
-        - No language harmful to children's linguistic habits.
-
-        12세이상관람가: 
-        - Light profanity or slang, used infrequently.
-        - Mild violent or suggestive language, but not harmful to teenagers.
-        - Minimal discriminatory expressions, brief and indirect insults.
-
-        15세이상관람가: 
-        - Moderate profanity, slang, or offensive language.
-        - Insults or aggressive expressions, but not excessively repeated.
-        - Some violent or suggestive dialogue, but not glorified.
-        - Limited discriminatory or degrading remarks.
-
-        청소년관람불가: 
-        - Strong and repeated profanity, vulgar or derogatory language.
-        - Repeatedly offensive, humiliating, or degrading expressions.
-        - Explicitly violent or sexual dialogue.
-        - Frequent discriminatory expressions.
-
-        상영제한가:
-        - Extreme profanity, sexually explicit or degrading speech.
-        - Strongly discriminatory language harming human dignity.
-        - Promotion of anti-social behavior or criminal acts.
-        - Violation of democratic values or extreme hate speech.
-
-        ### Task:
-        Analyze the provided dialogue and classify the content into one of the five categories.
-        Return the result in JSON format:
-
-        "rating": <one of ["전체관람가", "12세이상관람가", "15세이상관람가", "청소년관람불가", "상영제한가"]>, "reasoning": "<brief reason in Korean>"
-
-        Input:{lines_data}
+        Criteria:
+        {rating_criteria}
         
-        When you convert an image to one cut per second
-        Strong_abusive_percent is the ratio of strong swear words
-        Weak_abusive_percent is the rate of weak profanity
-        """},
-    ]
-
-    # GPT API 호출
-    response = openai.chat.completions.create(
+        Dialogue Data:
+        {json.dumps(dialogue_data, indent=4, ensure_ascii=False)}"""
+    )
+    
+    response = openai_client.chat.completions.create(
         model="gpt-4o",
-        messages=[
-            {"role": "user", "content": user_message}
-        ],
+        messages=[{"role": "user", "content": prompt}],
         max_tokens=500
     )
-    # print(f'응답 확인 : \n{response.choices[0].message.content}')
-    result_text = response.choices[0].message.content
-    result_text = result_text.replace("json","")
-    result_text = result_text.replace("```","")
-    json_result = json.loads(result_text)
-    # 응답 결과 반환
-    return json_result
-
-# 입력 데이터를 처리하는 함수
-def lines_classify(input_file, output_file):
-    """
-    JSON 파일로부터 입력 데이터를 읽어와 GPT로 처리하고 결과를 JSON 파일로 저장합니다.
-    """
-    # 입력 데이터 읽기
-    with open(input_file, "r", encoding="utf-8") as f:
-        lines_data = json.load(f)
-#     {
-#     "strong_abusive_percentage": 17.95,
-#     "weak_abusive_percentage": 7.69
-# }
-    result = process_lines_rating(lines_data)
-    print(result)
-
-    # 결과를 JSON 파일로 저장
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(result, f, ensure_ascii=False, indent=4)
     
-    print(f"Processing complete. Results saved to {output_file}")
+    response = response.choices[0].message.content
+    response = response.replace("json","")
+    response = response.replace("```","")
+    return response
 
-if __name__ == "__main__":
-    # 예제 실행 코드
-    input_file = "result/아저씨/result_json/아저씨_lines_json.json"  # 입력 이미지 폴더 경로
-    output_file = "아저씨_test.json"  # 출력 폴더 경로
-    lines_classify(input_file, output_file)
+def save_json_result(output_json_path, result):
+    """Save the result as a JSON file."""
+    try:
+        parsed_result = json.loads(result)
+        with open(output_json_path, "w", encoding="utf-8") as json_file:
+            json.dump(parsed_result, json_file, ensure_ascii=False, indent=4)
+        print(f"Analysis result saved at '{output_json_path}'")
+    except json.JSONDecodeError:
+        print("JSON decoding failed. Response:", result)
+
+def process_dialogue_rating(dialogue_json, output_json_path):
+    """Main function to process dialogue-based content rating."""
+    # Load API key
+    openai_api_key = load_env()
+    if not openai_api_key:
+        raise ValueError("OpenAI API key not found in .env file.")
+    
+    # Initialize OpenAI client
+    client = initialize_openai_client(openai_api_key)
+    
+    # Load JSON data
+    with open(dialogue_json, "r", encoding="utf-8") as f:
+        dialogue_data = json.load(f)
+    
+    # Perform analysis
+    analysis_result = analyze_dialogue_rating(client, dialogue_data)
+    
+    # 결과 저장
+    save_json_result(output_json_path, analysis_result)
+
+# # Example execution
+# if __name__ == "__main__":
+#     process_dialogue_rating(
+#         "result/브로큰/result_json/브로큰_lines_json.json",
+#         "텍스트 분류 결과/브로큰.json"
+#     )
