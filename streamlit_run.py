@@ -6,8 +6,8 @@ import os
 import datetime
 import time
 import matplotlib.pyplot as plt
-# import pandas as pd # 내용등급 그래프용
-# import numpy as np # 내용등급 그래프용
+import pandas as pd # 내용등급 그래프용
+import numpy as np # 내용등급 그래프용
 
 # base64 인코딩 함수
 def image_to_base64(image_path):
@@ -127,7 +127,7 @@ if page == "":
     st.markdown("<h1 class='centered'>영상물 등급 분류 시스템</h1>", unsafe_allow_html=True)
 
     try:
-        image = Image.open("C:/Users/chloeseo/Downloads/메인이미지.png")  # 실제 이미지 파일 경로
+        image = Image.open("C:/Users/chloeseo/ms_project/서비스이미지.png")  # 실제 이미지 파일 경로
         st.image(image, use_container_width=True)  # 이미지를 전체 너비로 맞추기
     except FileNotFoundError:
         st.write(" ")
@@ -209,7 +209,7 @@ elif page == "result":
 
     # 🔹 연령 등급별 색상 및 아이콘 매핑
     rating_assets = {
-        "전체관람가": {"color": "green", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/1. ALL.png"},
+        "전체관람가": {"color": "green", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/ALL.png"},
         "12세이상관람가": {"color": "yellow", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/12.png"},
         "15세이상관람가": {"color": "orange", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/15.png"},
         "청소년관람불가": {"color": "red", "icon": "C:/Users/chloeseo/ms_project/영등위png/연령등급/18.png"},
@@ -229,7 +229,7 @@ elif page == "result":
     }
 
     st.title("비디오 등급 분류 결과")
-    st.write("### 🎬 비디오 등급 분류 정보")
+    # st.write("### 🎬 비디오 등급 분류 정보")
 
     # 분석 결과 가져오기
     analysis_results = st.session_state.get("analysis_results", {})
@@ -245,11 +245,11 @@ elif page == "result":
     col1, col2 = st.columns([1, 4])  # 아이콘과 텍스트를 나누어 배치
     with col1:
         if rating_info["icon"]:
-            st.image(rating_info["icon"], width=80)  # 아이콘 크기 조절
+            st.image(rating_info["icon"], width=120)  # 아이콘 크기 조절
 
     with col2:
         st.markdown(
-            f"<p style='color:{rating_info['color']}; font-weight:bold; font-size:24px;'>{rating}</p>",
+            f"<p style='color:{rating_info['color']}; font-weight:bold; font-size:38px; line-height:120px;'>{rating}</p>",
             unsafe_allow_html=True
         )
 
@@ -340,7 +340,7 @@ elif page == "result":
         top_3 = sorted_content[:3]
 
         # 🔹 상위 3개 항목 강조 (PNG 아이콘 표시)
-        st.write("### 📌 내용정보 표시항목 (Top 3)")
+        st.write("### 📌 내용정보 표시항목 (Top3)")
         col1, col2, col3 = st.columns(3)
 
         for idx, (category, rating) in enumerate(top_3):
@@ -348,7 +348,9 @@ elif page == "result":
                 icon_path = icon_map.get(category)
                 if icon_path and os.path.exists(icon_path):
                     image = Image.open(icon_path)
-                    st.image(image, caption=f"{category}: {rating}", use_container_width=True) # 이렇게하면 st 특성상 너비 자동으로 맞춰져서 너무 커짐..                
+                    # st.image(image, caption=f"{category}: {rating}", use_container_width=True) # 이렇게하면 st 특성상 너비 자동으로 맞춰져서 너무 커짐..                
+                    # st.image(image, caption=f"{category}: {rating}", width=100)            
+                    st.image(image, width=120)   
                 else:
                     st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
 
