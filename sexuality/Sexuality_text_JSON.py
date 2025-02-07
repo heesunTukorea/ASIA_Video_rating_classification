@@ -81,7 +81,7 @@ def detect_sexuality(texts):
             print(f"텍스트 처리 중 오류 발생: {text.strip()} - {e}")
             results.append({
                 "text": text.strip(),
-                "is_violent": None,
+                "is_sexuality": None,
                 "explanation": f"오류 발생: {str(e)}"
             })
     return results
