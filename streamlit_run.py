@@ -141,7 +141,7 @@ if page == "":
 
     try:
         image = Image.open("C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/메인이미지/메인이미지.png") 
-        st.image(image, use_container_width=True)  # 이미지를 전체 너비로 맞추기
+        st.image(image, use_container_width=True)  
     except FileNotFoundError:
         st.write(" ")
 
@@ -161,16 +161,16 @@ if page == "":
 
 # 프로젝트 소개 페이지
 elif page == "project":
-    st.title("GRAB")
+    st.title("AI를 활용한 영상물 등금 판정 시스템 : GRAB")
     with st.expander("🔍 프로젝트 개요 보기"):
         st.write("AI를 활용하여 영상물의 등급을 잡아라!")
         st.write("영상물의 내용을 분석하여 적절한 등급을 판정하는 시스템입니다.")
 
     # 상위 메뉴 선택
-    main_menu = st.selectbox("📌 GRAB 정보", ["페이지 정보", "팀원 소개", "기타"])
+    main_menu = st.selectbox("💿 GRAB 정보", ["페이지 정보", "팀원 소개", "기타"])
 
     if main_menu == "페이지 정보":
-        # 하위 메뉴 (가로 정렬) --> 이거 아니다..
+        # 하위 메뉴 (가로 정렬) --> 이거 아니다........
         sub_menu = st.radio(
             "🔍 세부 정보", 
             ["1", "2", "3", "4"], 
@@ -194,7 +194,8 @@ elif page == "project":
     elif main_menu == "팀원 소개":
         st.header("👨‍💻 팀원 소개")
         image = Image.open("C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/팀원소개.png")
-        st.image(image, use_container_width=True)  # 이미지를 전체 너비로 맞추기
+        st.image(image, width=1500)  # wide
+        # st.image(image, use_container_width=True)  # centered
 
     elif main_menu == "기타":
         st.header("📌 기타 정보")
@@ -219,7 +220,6 @@ elif page == "upload":
     # 필수 입력
     category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
     title = st.text_input("제목 *")
-    # genre = st.selectbox("장르 *", ["선택하세요", "범죄", "액션", "드라마", "코미디", "공포", "로맨스", "SF", "판타지", "기타"])
     genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스", "SF", "느와르", "판타지", "기타"])
     synopsis = st.text_input("소개 *")
     applicant = st.text_input("신청사 *")
@@ -229,22 +229,7 @@ elif page == "upload":
     lead_actor = st.text_input("주연 배우 *")
     lead_actor_nationality = st.selectbox("주연 배우 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
     video_language = st.selectbox("영상 언어 *", ["선택하세요", "ko", "en", "ja", "cn", "es", "fr", "it"])
-    '''
-    languages = {
-    "한국어": "ko",
-    "영어": "en",
-    "일본어": "ja",
-    "중국어": "zh",
-    "스페인어": "es",
-    "프랑스어": "fr",
-    "독일어": "de",
-    "이탈리아어": "it",
-    "힌디어": "hi",
-    "아랍어": "ar",
-    "포르투갈어": "pt",
-    "러시아어": "ru"
-    }
-'''
+
     # 옵션 입력
     start_time = st.text_input("분석 시작 시간 (HH:MM:SS, 선택사항)", value="")
     duration = st.text_input("분석 지속 시간 (HH:MM:SS, 선택사항)", value="")
@@ -358,47 +343,7 @@ elif page == "result":
         content_info_list = [{"항목": key, "등급": value} for key, value in content_info.items()]
         st.table(content_info_list)  # ✅ Streamlit의 기본 table 기능 활용
 
-    # ## 그래프
-    # st.write("### 📊 내용정보")
-    # # 🔹 등급별 점수 매핑 (그래프 표현을 위해 숫자로 변환)
-    # rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
-    # rating_labels = list(rating_score.keys())  # Y축 라벨 (등급)
-    # rating_positions = list(rating_score.values())  # Y축 위치 (0,1,2,3,4)
-
-    # # 🔹 모든 기준별 등급을 그래프로 표시 (내용정보)
-    # content_info = analysis_results.get("내용정보", {})
-
-    # if content_info:
-    #     categories = list(content_info.keys())  # X축 (각 기준)
-    #     ratings = [rating_score[value] for value in content_info.values()]  # 등급을 숫자로 변환
-
-    #     # 🔹 전체관람가(0)도 최소 높이를 가지도록 조정
-    #     ratings_adjusted = [v if v > 0 else 0.5 for v in ratings]  # 전체관람가도 보이게 최소 0.5 설정
-
-    #     # 그래프 크기 설정
-    #     fig, ax = plt.subplots(figsize=(10, 5))
-
-    #     # 가로 막대 그래프 생성 (X축이 기준, Y축이 등급)
-    #     ax.bar(categories, ratings_adjusted, color='skyblue')
-
-    #     # Y축 (등급) 라벨을 '전체관람가' ~ '제한상영가'로 변경
-    #     ax.set_yticks(rating_positions)
-    #     ax.set_yticklabels(rating_labels, fontsize=12)
-
-    #     # X축 (기준) 라벨 회전
-    #     ax.set_xticklabels(categories, rotation=30, ha='right', fontsize=12)
-
-    #     # 제목 및 라벨 설정
-    #     ax.set_xlabel("", fontsize=14, fontweight='bold')
-    #     ax.set_ylabel("", fontsize=14, fontweight='bold')
-    #     ax.set_title("", fontsize=16, fontweight='bold')
-
-    #     # 값 표시 (막대 위에 해당 등급 라벨 표시)
-    #     for i, v in enumerate(ratings):
-    #         ax.text(i, ratings_adjusted[i] + 0.1, rating_labels[v], ha='center', fontsize=10, color='black', fontweight='bold')
-
-    #     # 스트림릿에서 그래프 출력
-    #     st.pyplot(fig)
+    # ## 그래프 --------
 
     st.write('')
     ### 내용정보 top3
@@ -460,6 +405,27 @@ elif page == "result":
         stream_text()  # 스트리밍 함수 호출
     else:
         st.warning("데이터 없음")
+
+    # ## st.write_stream 사용 - 한글자씩
+    # reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
+
+    # if reason_text and reason_text != "데이터 없음":
+    #     def stream_text():
+    #         # 텍스트를 줄바꿈을 기준으로 나누어서 리스트에 저장
+    #         lines = reason_text.split("\n")
+            
+    #         for line in lines:
+    #             # 한 줄씩 타이핑 효과 적용
+    #             for char in line:
+    #                 yield char  # 한 글자씩 스트리밍
+    #                 time.sleep(0.03)  # 타이핑 효과를 위해 딜레이 추가
+    #             yield "\n"  # 줄바꿈을 명확히 처리
+    #             time.sleep(0.1)  # 각 줄 사이에 약간의 딜레이 추가
+
+    #     # generator 객체를 st.write_stream에 넘겨줘야 함
+    #     st.write_stream(stream_text())  # generator를 전달하여 스트리밍
+    # else:
+    #     st.warning("데이터 없음")
 
     st.write('')
 # 🔹 분석 결과를 표로 정리 
