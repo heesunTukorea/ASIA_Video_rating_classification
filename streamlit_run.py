@@ -327,11 +327,11 @@ elif page == "result":
 
     with col2:
         st.markdown(
-            f"<p style='color:{rating_info['color']}; font-weight:bold; font-size:35px; line-height:120px;'>{rating}</p>",
+            f"<p style='color:{rating_info['color']}; font-weight:bold; font-size:35px; line-height:90px;'>{rating}</p>", # wide
+            # f"<p style='color:{rating_info['color']}; font-weight:bold; font-size:35px; line-height:120px;'>{rating}</p>", # centered
             unsafe_allow_html=True
         )
     
-    st.write('')
     ### 내용정보 
     # 표
     st.write("### 📊 내용정보")
