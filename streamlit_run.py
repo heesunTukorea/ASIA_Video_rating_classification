@@ -5,11 +5,13 @@ from classification_runner_def import total_classification_run
 import os
 import datetime
 import time
-import sys 
-# import matplotlib.pyplot as plt # 내용등급 그래프용
-# import pandas as pd # 내용등급 그래프용
-# import numpy as np # 내용등급 그래프용
-# import io # 로그출력용
+import matplotlib.pyplot as plt
+import sys
+import io
+
+# 페이지 설정 추가
+st.set_page_config(page_title="영상물 등급 분류 시스템", page_icon="🎬", layout="wide")
+# st.set_page_config(page_title="영상물 등급 분류 시스템", page_icon="🎬", layout="centered")
 
 # base64 인코딩 함수
 def image_to_base64(image_path):
@@ -99,7 +101,7 @@ def process_video_classification():
 
     # 🔹 표준 출력 원래대로 복구
     sys.stdout = sys.__stdout__
-    
+
 # 페이지 상태 관리 및 세션 상태 초기화
 page = st.query_params.get("page", "")
 if "input_data" not in st.session_state:
@@ -108,8 +110,10 @@ if "analysis_results" not in st.session_state:
     st.session_state["analysis_results"] = {}
 if "uploaded_file" not in st.session_state:  # 오류 방지를 위해 초기화
     st.session_state["uploaded_file"] = None
-if "analysis_done" not in st.session_state:  # ✅ 분석 완료 상태 초기화
-    st.session_state["analysis_done"] = False  
+# if "analysis_done" not in st.session_state:  # ✅ 분석 완료 상태 초기화
+#     st.session_state["analysis_done"] = False  
+if page == "upload" and "analysis_done" not in st.session_state:
+    st.session_state["analysis_done"] = False
 
 # 메인 페이지 - 가운데정렬
 if page == "":
@@ -136,7 +140,7 @@ if page == "":
     st.markdown("<h1 class='centered'>영상물 등급 분류 시스템</h1>", unsafe_allow_html=True)
 
     try:
-        image = Image.open("C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/메인이미지/메인이미지.png")  # 실제 이미지 파일 경로
+        image = Image.open("C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/메인이미지/메인이미지.png") 
         st.image(image, use_container_width=True)  # 이미지를 전체 너비로 맞추기
     except FileNotFoundError:
         st.write(" ")
@@ -147,6 +151,63 @@ if page == "":
     # 버튼 중앙 정렬
     if st.button("등급 분류 시작"):
         st.query_params["page"] = "upload"
+        st.rerun()
+
+    # 프로젝트 소개 페이지로 이동
+    if st.button("프로젝트 소개"):
+        st.query_params["page"] = "project"
+        st.rerun()
+
+
+# 프로젝트 소개 페이지
+elif page == "project":
+    st.title("GRAB")
+    with st.expander("🔍 프로젝트 개요 보기"):
+        st.write("AI를 활용하여 영상물의 등급을 잡아라!")
+        st.write("영상물의 내용을 분석하여 적절한 등급을 판정하는 시스템입니다.")
+
+    # 상위 메뉴 선택
+    main_menu = st.selectbox("📌 GRAB 정보", ["페이지 정보", "팀원 소개", "기타"])
+
+    if main_menu == "페이지 정보":
+        # 하위 메뉴 (가로 정렬) --> 이거 아니다..
+        sub_menu = st.radio(
+            "🔍 세부 정보", 
+            ["1", "2", "3", "4"], 
+            horizontal=True
+        )
+
+        # 선택한 하위 메뉴에 따라 다른 내용 출력
+        if sub_menu == "1":
+            st.header("📌 AI 활용 영상물 등급 판정")
+            st.write("어쩌구저쩌구")
+        elif sub_menu == "2":
+            st.header("📌 2")
+            st.write("어쩌구저쩌구")
+        elif sub_menu == "3":
+            st.header("📌 3")
+            st.write("어쩌구저쩌구")
+        elif sub_menu == "4":
+            st.header("🤖 4")
+            st.write("어쩌구저쩌구")
+
+    elif main_menu == "팀원 소개":
+        st.header("👨‍💻 팀원 소개")
+        image = Image.open("C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/팀원소개.png")
+        st.image(image, use_container_width=True)  # 이미지를 전체 너비로 맞추기
+
+    elif main_menu == "기타":
+        st.header("📌 기타 정보")
+        # 깔끔한 'GitHub 보러가기' 버튼 추가
+        st.markdown(
+            '📎[GitHub 보러가기](https://github.com/heesunTukorea/ASIA_Video_rating_classification.git)',
+            unsafe_allow_html=True
+        )
+        st.write("데이터 출처 등 기타 정보")
+
+    # 메인 화면으로 이동
+    if st.button("Main"):
+        st.query_params["page"] = ""
         st.rerun()
 
 
@@ -168,6 +229,22 @@ elif page == "upload":
     lead_actor = st.text_input("주연 배우 *")
     lead_actor_nationality = st.selectbox("주연 배우 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
     video_language = st.selectbox("영상 언어 *", ["선택하세요", "ko", "en", "ja", "cn", "es", "fr", "it"])
+    '''
+    languages = {
+    "한국어": "ko",
+    "영어": "en",
+    "일본어": "ja",
+    "중국어": "zh",
+    "스페인어": "es",
+    "프랑스어": "fr",
+    "독일어": "de",
+    "이탈리아어": "it",
+    "힌디어": "hi",
+    "아랍어": "ar",
+    "포르투갈어": "pt",
+    "러시아어": "ru"
+    }
+'''
     # 옵션 입력
     start_time = st.text_input("분석 시작 시간 (HH:MM:SS, 선택사항)", value="")
     duration = st.text_input("분석 지속 시간 (HH:MM:SS, 선택사항)", value="")
@@ -232,9 +309,8 @@ elif page == "result":
         "청소년관람불가": {"color": "red", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/18.png"},
         "제한상영가": {"color": "gray", "icon": None}  # 제한상영가 이미지 없을 경우 None
     }
-
     # 🔹 내용정보 아이콘 매핑
-    icon_dir = "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/내용정보"
+    icon_dir = "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/내용정보" # 노트북
     icon_map = {
         "주제": os.path.join(icon_dir, "주제.png"),
         "선정성": os.path.join(icon_dir, "선정성.png"),
@@ -246,7 +322,6 @@ elif page == "result":
     }
 
     st.title("비디오 등급 분류 결과")
-    # st.write("### 🎬 비디오 등급 분류 정보")
 
     # 분석 결과 가져오기
     analysis_results = st.session_state.get("analysis_results", {})
@@ -259,43 +334,19 @@ elif page == "result":
     rating = analysis_results.get("관람등급", "데이터 없음")
     rating_info = rating_assets.get(rating, {"color": "black", "icon": None})  # 기본값 설정
 
-    col1, col2 = st.columns([1, 4])  # 아이콘과 텍스트를 나누어 배치
+    col1, col2 = st.columns([1, 12])  # wide
+    # col1, col2 = st.columns([1, 4])  # centered
     with col1:
         if rating_info["icon"]:
             st.image(rating_info["icon"], width=120)  # 아이콘 크기 조절
 
     with col2:
         st.markdown(
-            f"<p style='color:{rating_info['color']}; font-weight:bold; font-size:38px; line-height:120px;'>{rating}</p>",
+            f"<p style='color:{rating_info['color']}; font-weight:bold; font-size:35px; line-height:120px;'>{rating}</p>",
             unsafe_allow_html=True
         )
-
-    # 🔹 분석 결과를 표로 정리
-    result_data = {
-        "구분": analysis_results.get("구분", "데이터 없음"),
-        "접수일자": analysis_results.get("접수일자", "데이터 없음"), 
-        "한글제명/원재명": analysis_results.get("한글제명/원재명", "데이터 없음"),
-        "신청사": analysis_results.get("신청사", "데이터 없음"),
-        "대표": analysis_results.get("대표", "데이터 없음"),
-        "등급분류일자": analysis_results.get("등급분류일자", "데이터 없음"),
-        "관람등급": analysis_results.get("관람등급", "데이터 없음"),
-        "감독": analysis_results.get("감독", "데이터 없음"),
-        "감독 국적": analysis_results.get("감독 국적", "데이터 없음"),
-        "주연 배우": analysis_results.get("주연 배우", "데이터 없음"),
-        "주연 배우 국적": analysis_results.get("주연 배우 국적", "데이터 없음"),
-        # "서술적 내용기술": analysis_results.get("서술적 내용기술", "데이터 없음")
-    }
-
-    st.table(result_data)
     
-    
-    # # 나머지 정보 테이블로 출력
-    # st.table({k: v for k, v in result_data.items() if k != "관람등급"})  
-
-    # # 🔥 관람등급만 빨간색 굵은 글씨로 출력
-    # st.markdown(f"**관람등급:** <span style='color:red; font-weight:bold;'>{result_data['관람등급']}</span>", unsafe_allow_html=True)
-    # st.table(result_data)
-    
+    st.write('')
     ### 내용정보 
     # 표
     st.write("### 📊 내용정보")
@@ -349,7 +400,7 @@ elif page == "result":
     #     # 스트림릿에서 그래프 출력
     #     st.pyplot(fig)
 
-
+    st.write('')
     ### 내용정보 top3
     # 🔹 내용정보 top3 가져오기
     content_info_top = analysis_results.get("내용정보 탑3", {})
@@ -364,34 +415,92 @@ elif page == "result":
         # 🔹 상위 3개 항목 선택
         top_3 = sorted_content[:3]
 
-        # 🔹 상위 3개 항목 강조 (PNG 아이콘 표시)
+        # # 🔹 상위 3개 항목 강조 (PNG 아이콘 표시)
         st.write("### 📌 내용정보 표시항목 (Top3)")
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16, col17 = st.columns(17) # wide
+        # col1, col2, col3, col4, col5, col6, col7 = st.columns(7) # centered
 
         for idx, (category, rating) in enumerate(top_3):
-            with [col1, col2, col3][idx]:
+            with [col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13, col14, col15, col16, col17][idx]: # wide
+            # with [col1, col2, col3, col4, col5, col6, col7][idx]: # centered
                 icon_path = icon_map.get(category)
                 if icon_path and os.path.exists(icon_path):
                     image = Image.open(icon_path)
-                    # st.image(image, caption=f"{category}: {rating}", use_container_width=True) # 이렇게하면 st 특성상 너비 자동으로 맞춰져서 너무 커짐..                
-                    # st.image(image, caption=f"{category}: {rating}", width=100)            
-                    st.image(image, width=120)   
+                    # st.image(image, caption=f"{category}: {rating}", width=95)            
+                    st.image(image, width=110)   
                 else:
                     st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
-
-    st.write(' ')
-    # 🔹 분석 사유 출력
+    
+    st.write('')
+    # # 🔹 분석 사유 출력
     st.write("### 📝 서술적 내용기술")
+    
+    # ## 기본 출력
+    # reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
+
+    # if reason_text and reason_text != "데이터 없음":
+    #     # 줄바꿈 적용하여 출력
+    #     formatted_text = reason_text.replace("\n", "<br>")  
+    #     st.markdown(f"<p style='font-size:18px; line-height:1.6;'>{formatted_text}</p>", unsafe_allow_html=True)
+    # else:
+    #     st.write("데이터 없음")
+
+    ## st.write_stream 사용 - 한줄씩
     reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
 
     if reason_text and reason_text != "데이터 없음":
-        # 줄바꿈 적용하여 출력
-        formatted_text = reason_text.replace("\n", "<br>")  
-        st.markdown(f"<p style='font-size:18px; line-height:1.6;'>{formatted_text}</p>", unsafe_allow_html=True)
-    else:
-        st.write("데이터 없음")
+        def stream_text():
+            # 텍스트를 줄바꿈을 기준으로 나눠서 리스트에 저장
+            lines = reason_text.split("\n")
+            
+            for line in lines:
+                st.text(line)  # 각 줄을 따로 출력
+                time.sleep(0.5)  # 각 줄 사이에 약간의 딜레이 추가
 
-    
+        stream_text()  # 스트리밍 함수 호출
+    else:
+        st.warning("데이터 없음")
+
+    # ## st.write_stream 사용 - 한글자씩
+    # reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
+
+    # if reason_text and reason_text != "데이터 없음":
+    #     def stream_text():
+    #         # 텍스트를 줄바꿈을 기준으로 나누어서 리스트에 저장
+    #         lines = reason_text.split("\n")
+            
+    #         for line in lines:
+    #             # 한 줄씩 타이핑 효과 적용
+    #             for char in line:
+    #                 yield char  # 한 글자씩 스트리밍
+    #                 time.sleep(0.03)  # 타이핑 효과를 위해 딜레이 추가
+    #             yield "\n"  # 줄바꿈을 명확히 처리
+    #             time.sleep(0.1)  # 각 줄 사이에 약간의 딜레이 추가
+
+    #     # generator 객체를 st.write_stream에 넘겨줘야 함
+    #     st.write_stream(stream_text())  # generator를 전달하여 스트리밍
+    # else:
+    #     st.warning("데이터 없음")
+
+    st.write('')
+# 🔹 분석 결과를 표로 정리 
+    result_data = {
+        "구분": analysis_results.get("구분", "데이터 없음"),
+        "접수일자": analysis_results.get("접수일자", "데이터 없음"), 
+        "한글제명/원재명": analysis_results.get("한글제명/원재명", "데이터 없음"),
+        "신청사": analysis_results.get("신청사", "데이터 없음"),
+        "대표": analysis_results.get("대표", "데이터 없음"),
+        "등급분류일자": analysis_results.get("등급분류일자", "데이터 없음"),
+        "관람등급": analysis_results.get("관람등급", "데이터 없음"),
+        "감독": analysis_results.get("감독", "데이터 없음"),
+        "감독 국적": analysis_results.get("감독 국적", "데이터 없음"),
+        "주연 배우": analysis_results.get("주연 배우", "데이터 없음"),
+        "주연 배우 국적": analysis_results.get("주연 배우 국적", "데이터 없음"),
+        "시놉시스" : analysis_results.get("소개", "데이터 없음"),
+        # "서술적 내용기술": analysis_results.get("서술적 내용기술", "데이터 없음")
+    }
+    st.expander("📜 분석 결과 요약", expanded=False).table(result_data)
+
     st.write('')
     # 🔹 메인 페이지로 돌아가는 버튼
     if st.button("🔄 시작 화면으로 돌아가기"):
