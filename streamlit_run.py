@@ -461,27 +461,6 @@ elif page == "result":
     else:
         st.warning("데이터 없음")
 
-    # ## st.write_stream 사용 - 한글자씩
-    # reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
-
-    # if reason_text and reason_text != "데이터 없음":
-    #     def stream_text():
-    #         # 텍스트를 줄바꿈을 기준으로 나누어서 리스트에 저장
-    #         lines = reason_text.split("\n")
-            
-    #         for line in lines:
-    #             # 한 줄씩 타이핑 효과 적용
-    #             for char in line:
-    #                 yield char  # 한 글자씩 스트리밍
-    #                 time.sleep(0.03)  # 타이핑 효과를 위해 딜레이 추가
-    #             yield "\n"  # 줄바꿈을 명확히 처리
-    #             time.sleep(0.1)  # 각 줄 사이에 약간의 딜레이 추가
-
-    #     # generator 객체를 st.write_stream에 넘겨줘야 함
-    #     st.write_stream(stream_text())  # generator를 전달하여 스트리밍
-    # else:
-    #     st.warning("데이터 없음")
-
     st.write('')
 # 🔹 분석 결과를 표로 정리 
     result_data = {
