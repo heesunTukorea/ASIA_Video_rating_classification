@@ -5,14 +5,17 @@ from classification_runner_def import total_classification_run
 import os
 import datetime
 import time
+import matplotlib.pyplot as plt
+import pandas as pd 
+import json 
 import sys
 import io
-import pandas as pd
+import plotly.express as px
 import altair as alt
 
 # ✅ 페이지 설정 추가
-st.set_page_config(page_title="영상물 등급 분류 시스템", page_icon="🎬", layout="wide")
-# st.set_page_config(page_title="영상물 등급 분류 시스템", page_icon="🎬", layout="centered")
+# st.set_page_config(page_title="영상물 등급 분류 시스템", page_icon="🎬", layout="wide")
+st.set_page_config(page_title="영상물 등급 분류 시스템", page_icon="🎬", layout="centered")
 
 # base64 인코딩 함수
 def image_to_base64(image_path):
@@ -80,7 +83,7 @@ def process_video_classification():
                 del st.session_state["analysis_results"]
 
             # 🔹 언어 코드 → 언어 이름 변환 확인
-            selected_language_name = {v: k for k, v in languages.items()}.get(input_data["영상 언어"], "데이터 없음") # 위 3개 코드 한줄로
+            selected_language_name = {v: k for k, v in languages.items()}.get(input_data["영상 언어"], "데이터 없음") 
 
             # 🔹 분석 결과 저장
             st.session_state["analysis_results"] = {
@@ -117,11 +120,8 @@ if "analysis_results" not in st.session_state:
     st.session_state["analysis_results"] = {}
 if "uploaded_file" not in st.session_state:  # 오류 방지를 위해 초기화
     st.session_state["uploaded_file"] = None
-# if "analysis_done" not in st.session_state:  # ✅ 분석 완료 상태 초기화
-#     st.session_state["analysis_done"] = False  
 if page == "upload" and "analysis_done" not in st.session_state:
     st.session_state["analysis_done"] = False
-
 
 # 메인 페이지 - 가운데정렬
 if page == "":
@@ -156,15 +156,18 @@ if page == "":
     # 설명 텍스트 가운데 정렬
     st.markdown("<p class='centered'>비디오 콘텐츠에 적절한 등급을 지정하는 시스템입니다.<br>공정하고 신뢰할 수 있는 등급 분류를 경험해보세요.<br>아래 버튼을 클릭하여 시작하세요.</p>", unsafe_allow_html=True)
 
-    # 버튼 중앙 정렬
-    if st.button("등급 분류 시작"):
-        st.query_params["page"] = "upload"
-        st.rerun()
+    # 두 개의 컬럼 생성 (가운데 정렬을 고려하여 비율 조정 가능)
+    col1, col2, col3, col4 = st.columns([1,1,1,1])  # 동일한 비율로 컬럼 생성
 
-    # 프로젝트 소개 페이지로 이동
-    if st.button("프로젝트 소개"):
-        st.query_params["page"] = "project"
-        st.rerun()
+    with col2:
+        if st.button("📖 프로젝트 소개"):
+            st.query_params["page"] = "project"
+            st.rerun()
+
+    with col3:
+        if st.button("🎬 등급 분류 시작"):
+            st.query_params["page"] = "upload"
+            st.rerun()
 
 
 # 프로젝트 소개 페이지
@@ -202,8 +205,8 @@ elif page == "project":
     elif main_menu == "팀원 소개":
         st.header("👨‍💻 팀원 소개")
         image = Image.open("C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/팀원소개.png")
-        st.image(image, width=1500)  # wide
-        # st.image(image, use_container_width=True)  # centered
+        # st.image(image, width=1500)  # wide
+        st.image(image, use_container_width=True)  # centered
 
     elif main_menu == "기타":
         st.header("📌 기타 정보")
@@ -214,87 +217,176 @@ elif page == "project":
         )
         st.write("데이터 출처 등 기타 정보")
 
-    # 메인 화면으로 이동
-    if st.button("Main"):
+    # 🔹 메인 페이지로 돌아가는 버튼
+    if st.button("🏠 Home"):
         st.query_params["page"] = ""
         st.rerun()
 
 
-# 업로드 및 메타데이터 입력 페이지
+### 업로드 및 메타데이터 입력 페이지
+## 한줄 입력
+# elif page == "upload":
+    
+#     st.title("비디오 정보 입력")
+#     st.write("비디오 등급 분류에 필요한 정보를 입력해주세요.")
+
+#     languages = {
+#     "한국어": "ko",
+#     "영어": "en",
+#     "일본어": "ja",
+#     "중국어": "zh",
+#     "스페인어": "es",
+#     "프랑스어": "fr",
+#     "독일어": "de",
+#     "이탈리아어": "it",
+#     "힌디어": "hi",
+#     "아랍어": "ar",
+#     "포르투갈어": "pt",
+#     "러시아어": "ru"
+#     }
+
+#     # 필수 입력
+#     category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
+#     title = st.text_input("제목 *")
+#     # genre = st.selectbox("장르 *", ["선택하세요", "범죄", "액션", "드라마", "코미디", "공포", "로맨스", "SF", "판타지", "기타"])
+#     genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스", "SF", "느와르", "판타지", "기타"])
+#     synopsis = st.text_input("소개 *")
+#     applicant = st.text_input("신청사 *")
+#     representative = st.text_input("대표 *")
+#     director = st.text_input("감독 *")
+#     director_nationality = st.selectbox("감독 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
+#     lead_actor = st.text_input("주연 배우 *")
+#     lead_actor_nationality = st.selectbox("주연 배우 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
+#     # video_language = st.selectbox("영상 언어 *", ["선택하세요", "ko", "en", "ja", "cn", "es", "fr", "it"])
+#     video_language = st.selectbox("영상 언어 *", ["선택하세요"] + list(languages.keys()))
+
+#     # 옵션 입력
+#     start_time = st.text_input("분석 시작 시간 (HH:MM:SS, 선택사항)", value="")
+#     duration = st.text_input("분석 지속 시간 (HH:MM:SS, 선택사항)", value="")
+#     # 파일 업로드
+#     uploaded_file = st.file_uploader("비디오 업로드 *", type=["mp4", "mov", "avi"], help="MP4, MOV 또는 AVI 형식, 최대 5GB")
+
+#     if uploaded_file is not None:
+#         st.session_state["uploaded_file"] = uploaded_file
+#         st.write("파일 업로드 완료!")
+
+#     if st.button("등급 분류 요청"):
+#         if not all([genre, category, applicant, director_nationality, title, lead_actor_nationality, representative, video_language, director, lead_actor, uploaded_file]):
+#             st.error("모든 필수 항목을 입력해주세요.")
+#         else:
+#             # 📌 start_time과 duration이 빈 문자열("")이면 None으로 변환
+#             start_time = start_time if start_time.strip() else None
+#             duration = duration if duration.strip() else None
+
+#             # 입력 데이터 저장
+#             st.session_state["input_data"] = {
+#                 "구분": category,
+#                 "장르" : genre,
+#                 "제목": title,
+#                 "소개" : synopsis,
+#                 "신청사": applicant,
+#                 "감독": director,
+#                 "감독 국적": director_nationality,
+#                 "주연 배우": lead_actor,
+#                 "주연 배우 국적": lead_actor_nationality,
+#                 "대표": representative,
+#                 # "영상 언어": video_language[:2],
+#                 "영상 언어": languages.get(video_language, None) if video_language != "선택하세요" else "데이터 없음",  # 선택한 언어의 코드 값 저장
+#                 "업로드 파일": uploaded_file.name if uploaded_file else None,
+#                 "분석 시작 시간": start_time,
+#                 "분석 지속 시간": duration
+#             }
+#             # 🔹 등급 분석 실행
+#             process_video_classification()
+
+#     # ✅ 등급 분석이 완료되었을 때만 버튼 표시
+#     if st.session_state["analysis_done"]:
+#         st.write("등급 분류가 완료되었습니다! 아래 버튼을 눌러 결과 페이지로 이동하세요.")
+#         if st.button("📊 결과 페이지로 이동"):
+#             st.query_params["page"] = "result"
+#             st.rerun()
+
+## 두줄 입력
 elif page == "upload":
+    
     st.title("비디오 정보 입력")
     st.write("비디오 등급 분류에 필요한 정보를 입력해주세요.")
 
     languages = {
-    "한국어": "ko",
-    "영어": "en",
-    "일본어": "ja",
-    "중국어": "zh",
-    "스페인어": "es",
-    "프랑스어": "fr",
-    "독일어": "de",
-    "이탈리아어": "it",
-    "힌디어": "hi",
-    "아랍어": "ar",
-    "포르투갈어": "pt",
-    "러시아어": "ru"
+        "한국어": "ko",
+        "영어": "en",
+        "일본어": "ja",
+        "중국어": "zh",
+        "스페인어": "es",
+        "프랑스어": "fr",
+        "독일어": "de",
+        "이탈리아어": "it",
+        "힌디어": "hi",
+        "아랍어": "ar",
+        "포르투갈어": "pt",
+        "러시아어": "ru"
     }
+# 🔹 두 개의 컬럼으로 나누기
+    col1, col2 = st.columns(2)
 
-    # 필수 입력
-    category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
-    title = st.text_input("제목 *")
-    genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스", "SF", "느와르", "판타지", "기타"])
-    synopsis = st.text_input("소개 *")
-    applicant = st.text_input("신청사 *")
-    representative = st.text_input("대표 *")
-    director = st.text_input("감독 *")
-    director_nationality = st.selectbox("감독 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
-    lead_actor = st.text_input("주연 배우 *")
-    lead_actor_nationality = st.selectbox("주연 배우 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
-    video_language = st.selectbox("영상 언어 *", ["선택하세요"] + list(languages.keys()))
+    with col1:  # ✅ 왼쪽 컬럼
+        category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
+        title = st.text_input("제목 *")
+        genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스", "SF", "느와르", "판타지", "기타"])
+        synopsis = st.text_input("소개 *")
+        applicant = st.text_input("신청사 *")
+        representative = st.text_input("대표 *")
+        director = st.text_input("감독 *")
 
-    # 옵션 입력
-    start_time = st.text_input("분석 시작 시간 (HH:MM:SS, 선택사항)", value="")
-    duration = st.text_input("분석 지속 시간 (HH:MM:SS, 선택사항)", value="")
-    # 파일 업로드
+    with col2:  # ✅ 오른쪽 컬럼
+        director_nationality = st.selectbox("감독 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
+        lead_actor = st.text_input("주연 배우 *")
+        lead_actor_nationality = st.selectbox("주연 배우 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
+        video_language = st.selectbox("영상 언어 *", ["선택하세요"] + list(languages.keys()))
+        start_time = st.text_input("분석 시작 시간 (HH:MM:SS, 선택사항)", value="")
+        duration = st.text_input("분석 지속 시간 (HH:MM:SS, 선택사항)", value="")
+
+    # 🔹 파일 업로드 (중앙 정렬)
     uploaded_file = st.file_uploader("비디오 업로드 *", type=["mp4", "mov", "avi"], help="MP4, MOV 또는 AVI 형식, 최대 5GB")
 
     if uploaded_file is not None:
         st.session_state["uploaded_file"] = uploaded_file
-        st.write("파일 업로드 완료!")
+        st.write("✅ 파일 업로드 완료!")
 
-    if st.button("등급 분류 요청"):
-        if not all([genre, category, applicant, director_nationality, title, lead_actor_nationality, representative, video_language, director, lead_actor, uploaded_file]):
-            st.error("모든 필수 항목을 입력해주세요.")
-        else:
-            # 📌 start_time과 duration이 빈 문자열("")이면 None으로 변환
-            start_time = start_time if start_time.strip() else None
-            duration = duration if duration.strip() else None
+    # 🔹 버튼 중앙 정렬
+    col_center = st.columns([2, 1, 2])  # 가운데 정렬을 위한 레이아웃 설정
+    with col_center[1]:
+        if st.button("등급 분류 요청"):
+            if not all([genre, category, applicant, director_nationality, title, lead_actor_nationality, representative, video_language, director, lead_actor, uploaded_file]):
+                st.error("🚨 모든 필수 항목을 입력해주세요.")
+            else:
+                # 📌 start_time과 duration이 빈 문자열("")이면 None으로 변환
+                start_time = start_time if start_time.strip() else None
+                duration = duration if duration.strip() else None
 
-            # 입력 데이터 저장
-            st.session_state["input_data"] = {
-                "구분": category,
-                "장르" : genre,
-                "제목": title,
-                "소개" : synopsis,
-                "신청사": applicant,
-                "감독": director,
-                "감독 국적": director_nationality,
-                "주연 배우": lead_actor,
-                "주연 배우 국적": lead_actor_nationality,
-                "대표": representative,
-                # "영상 언어": video_language[:2],
-                "영상 언어": languages.get(video_language, None) if video_language != "선택하세요" else "데이터 없음",  # 선택한 언어의 코드 값 저장
-                "업로드 파일": uploaded_file.name if uploaded_file else None,
-                "분석 시작 시간": start_time,
-                "분석 지속 시간": duration
-            }
-            # 🔹 등급 분석 실행
-            process_video_classification()
+                # 입력 데이터 저장
+                st.session_state["input_data"] = {
+                    "구분": category,
+                    "장르": genre,
+                    "제목": title,
+                    "소개": synopsis,
+                    "신청사": applicant,
+                    "감독": director,
+                    "감독 국적": director_nationality,
+                    "주연 배우": lead_actor,
+                    "주연 배우 국적": lead_actor_nationality,
+                    "대표": representative,
+                    "영상 언어": languages.get(video_language, None) if video_language != "선택하세요" else "데이터 없음",
+                    "업로드 파일": uploaded_file.name if uploaded_file else None,
+                    "분석 시작 시간": start_time,
+                    "분석 지속 시간": duration
+                }
+                # 🔹 등급 분석 실행
+                process_video_classification()
 
     # ✅ 등급 분석이 완료되었을 때만 버튼 표시
-    if st.session_state["analysis_done"]:
-        st.write("등급 분류가 완료되었습니다! 아래 버튼을 눌러 결과 페이지로 이동하세요.")
+    if st.session_state.get("analysis_done", False):
+        st.write("✅ 등급 분류가 완료되었습니다! 아래 버튼을 눌러 결과 페이지로 이동하세요.")
         if st.button("📊 결과 페이지로 이동"):
             st.query_params["page"] = "result"
             st.rerun()
@@ -302,19 +394,19 @@ elif page == "upload":
 elif page == "result":
     # 🔹 등급별 색상 매핑
     rating_color_map = {
-        "전체관람가": "green",
-        "12세이상관람가": "yellow",
-        "15세이상관람가": "orange",
-        "청소년관람불가": "red",
+        "전체관람가": "#2F9D27",
+        "12세이상관람가": "#FFCD12",
+        "15세이상관람가": "#F26F0D",
+        "청소년관람불가": "#E60000",
         "제한상영가": "gray"
     }
 
     # 🔹 연령 등급별 색상 및 아이콘 매핑
     rating_assets = {
-        "전체관람가": {"color": "green", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/ALL.png"},
-        "12세이상관람가": {"color": "yellow", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/12.png"},
-        "15세이상관람가": {"color": "orange", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/15.png"},
-        "청소년관람불가": {"color": "red", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/18.png"},
+        "전체관람가": {"color": "#2F9D27", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/ALL.png"},
+        "12세이상관람가": {"color": "#FFCD12", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/12.png"},
+        "15세이상관람가": {"color": "#F26F0D", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/15.png"},
+        "청소년관람불가": {"color": "#E60000", "icon": "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/영등위png/연령등급/18.png"},
         "제한상영가": {"color": "gray", "icon": None}  # 제한상영가 이미지 없을 경우 None
     }
     # 🔹 내용정보 아이콘 매핑
@@ -332,8 +424,17 @@ elif page == "result":
     # input 받은 제목 가져오기
     analysis_results = st.session_state.get("analysis_results", {})
     video_title = analysis_results.get("한글제명/원재명", "데이터 없음")
-    st.title(f"비디오 등급 분류 결과 : {video_title}")  
+    st.markdown(
+        f"""
+        <h1 style='text-align: center; font-weight: bold;'>
+            비디오 등급 분류 결과<br>
+            <span style='font-size: 30px; font-weight: bold;'>[{video_title}]</span>
+        </h1>
+        """,
+        unsafe_allow_html=True
+    )
 
+    st.write('')
     # 분석 결과 가져오기
     analysis_results = st.session_state.get("analysis_results", {})
 
@@ -341,29 +442,8 @@ elif page == "result":
         st.error("🚨 분석 결과가 없습니다. 먼저 비디오 등급 분류를 수행해주세요.")
         st.stop()
 
-    # 🔹 연령 등급 출력 (아이콘 + 텍스트)
-    rating = analysis_results.get("관람등급", "데이터 없음")
-    rating_info = rating_assets.get(rating, {"color": "black", "icon": None})  # 기본값 설정
-
-    col1, col2 = st.columns([1, 12])  # wide
-    # col1, col2 = st.columns([1, 4])  # centered
-    with col1:
-        if rating_info["icon"]:
-            st.image(rating_info["icon"], width=120)  # wide
-            # st.image(rating_info["icon"], width=120)  # centered
-
-    with col2:
-        st.markdown(
-            f"<p style='color:{rating_info['color']}; font-weight:bold; font-size:35px; line-height:95px;'>{rating}</p>", # wide
-            # f"<p style='color:{rating_info['color']}; font-weight:bold; font-size:35px; line-height:120px;'>{rating}</p>", # centeredf
-            unsafe_allow_html=True
-        )
-
-    st.write('')
-    ### 내용정보
     ## 그래프
     st.write("### 📊 내용정보")
-    st.write('')
     # 🔹 내용정보 데이터
     # 1) content_info 불러오기
     content_info = analysis_results.get("내용정보", {})
@@ -396,7 +476,7 @@ elif page == "result":
     df = pd.DataFrame(rows)
     df["start"] = 0  # 막대 시작점(0)
 
-    # 4) Altair 차트 설정
+    # 4) Altair 차트 설정 - 컨테이너x
     chart = (
         alt.Chart(df)
         .mark_bar(size=20)
@@ -405,7 +485,13 @@ elif page == "result":
                     sort=all_items,
                     axis=alt.Axis(title=None, 
                                   labelAngle=0,
-                                  labelFontSize=14)),
+                                  labelFontSize=14,
+                                labelColor="black",  # x축 라벨 진하게
+                                tickColor="black",  # x축 눈금 진하게
+                                domainColor="black",  # x축 선 진하게
+                                domainWidth=2,  # x축 선 두께
+                                tickWidth=2  # x축 눈금 두께
+                    )),
             y=alt.Y(
                 "start:Q",
                 scale=alt.Scale(domain=[0,5.8], nice=False),
@@ -419,7 +505,14 @@ elif page == "result":
                         "datum.value == 4 ? '청소년관람불가' : "
                         "'제한상영가'"
                     ),
-                    labelFontSize=14
+                    labelFontSize=14,
+                    labelColor="black",  # 축 라벨 색상 (진하게)
+                    domainColor="black",  # y축 선 진하게
+                domainWidth=2,  # y축 선 두께
+                tickWidth=2,  # y축 눈금 두께
+                grid=True,  # 가로선 활성화
+                gridColor="black",  # y축 가로선 검정색
+                gridWidth=0.1  # y축 가로선 두께 (1~2가 적당)
                 )
             ),
             y2="등급값:Q",   # 막대 끝점
@@ -430,53 +523,66 @@ elif page == "result":
     )
 
     # 5) 막대에 row별 color 적용
-    bars = chart.mark_bar(size=50).encode(
+    bars = chart.mark_bar(size=30).encode(
         color=alt.Color("color:N",scale=None, legend=None)
     )
     # 차트 배경색
     final_chart = bars.configure_view(
-        fill="gray",
-        fillOpacity=0.07
+        fill="#EDEAE4",
+        fillOpacity=0.5
     )
     st.altair_chart(final_chart, use_container_width=True)
 
 
     st.write('')
-    ### 내용정보 top3
-    # 🔹 내용정보 top3 가져오기
-    content_info_top = analysis_results.get("내용정보 탑3", {})
+    ## 내용정보 top3
+    # # 🔹 내용정보 top3 가져오기
+    ## 최종등급 - 내용정보top3 가로배열 col1 col2
+    # 🔹 최종 등급 및 내용정보 Top3를 가로 정렬
+    col1, col2 = st.columns([1, 2])  # col1 (최종 등급) - col2 (내용정보 Top3)
 
-    if content_info_top:
-        # 🔹 등급별 점수화 (높은 등급일수록 높은 값)
-        rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
-        
-        # 🔹 데이터 변환 (높은 등급순 정렬)
-        sorted_content = sorted(content_info_top.items(), key=lambda x: rating_score[x[1]], reverse=True)
+    # ✅ **col1: 최종 등급 (아이콘만 표시)**
+    with col1:
+        st.write("#### 최종 등급")  # 제목
+        rating = analysis_results.get("관람등급", "데이터 없음")
+        rating_info = rating_assets.get(rating, {"icon": None})  # 기본값 설정
 
-        # 🔹 상위 3개 항목 선택
-        top_3 = sorted_content[:3]
+        if rating_info["icon"]:
+            st.image(rating_info["icon"], width=100)  # 등급 아이콘 표시
 
-        # # 🔹 상위 3개 항목 강조 (PNG 아이콘 표시)
-        st.write("### 📌 내용정보 표시항목 (Top3)")
-        col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13 = st.columns(13) # wide
-        # col1, col2, col3, col4, col5, col6, col7 = st.columns(7) # centered
+    # ✅ **col2: 내용정보 Top3**
+    with col2:
+        st.write("#### 내용정보 표시항목 (Top3)")
 
-        for idx, (category, rating) in enumerate(top_3):
-            with [col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13][idx]: # wide
-            # with [col1, col2, col3, col4, col5, col6, col7][idx]: # centered
-                icon_path = icon_map.get(category)
-                if icon_path and os.path.exists(icon_path):
-                    image = Image.open(icon_path)
-                    st.image(image, width=120) # wide
-                    # st.image(image, caption=f"{category}: {rating}", width=95) # centered     
+        # 🔹 내용정보 top3 가져오기
+        content_info_top = analysis_results.get("내용정보 탑3", {})
 
-                else:
-                    st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
-    
+        if content_info_top:
+            # 🔹 등급별 점수화 (높은 등급일수록 높은 값)
+            rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
+            
+            # 🔹 데이터 변환 (높은 등급순 정렬)
+            sorted_content = sorted(content_info_top.items(), key=lambda x: rating_score[x[1]], reverse=True)
+
+            # 🔹 상위 3개 항목 선택
+            top_3 = sorted_content[:3]
+
+            # 🔹 상위 3개 항목 강조 (PNG 아이콘 표시)
+            col_icon1, col_icon2, col_icon3 = st.columns(3)
+
+            for idx, (category, rating) in enumerate(top_3):
+                with [col_icon1, col_icon2, col_icon3][idx]:  # 3개의 컬럼에 배치
+                    icon_path = icon_map.get(category)
+                    if icon_path and os.path.exists(icon_path):
+                        st.image(icon_path, width=100)  # 아이콘 크기 조절
+                    else:
+                        st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
+
     st.write('')
-    # 🔹 분석 사유 출력
+    st.write('')
+    # # 🔹 분석 사유 출력
     st.write("### 📝 서술적 내용기술")
-    
+
     ## st.write_stream 사용 - 한글자씩
     reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
     if reason_text and reason_text != "데이터 없음":
@@ -499,88 +605,6 @@ elif page == "result":
     else:
         st.warning("데이터 없음")
 
-    # ## 버튼형식
-    # reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
-    # if reason_text and reason_text != "데이터 없음":
-    #     with st.expander("# 📝 서술적 내용 기술", expanded=True):  # Expander 내부에 버튼 포함
-    #         if st.button("보기"):
-    #             def stream_text():
-    #                 lines = reason_text.split("\n")  # 줄 단위로 분리
-
-    #                 for line in lines:
-    #                     text_container = st.empty()  # 한 줄을 출력할 컨테이너
-    #                     output = ""  # 한 줄의 출력을 담을 변수
-                        
-    #                     for char in line:
-    #                         output += char  # 한 글자씩 추가
-    #                         text_container.text(output)  # 한 줄의 출력 업데이트
-    #                         time.sleep(0.02)  # 글자마다 짧은 딜레이
-                        
-    #                     time.sleep(0.2)  # 한 줄이 완성된 후 약간의 딜레이 추가
-    #                     st.write("")  # 줄 바꿈 (새로운 줄 시작)
-
-    #             stream_text()
-    # else:
-    #     st.warning("데이터 없음")
-
-    # ## top3 아이콘, 서술적 내용기술 col1 col2로 배치
-    # # 가로 레이아웃 설정 - 서술적 내용기술 더 넓게
-    # col1, col2 = st.columns([1, 2])
-
-    # # 🔹 Col1: 내용정보 탑3 아이콘 (가로 배치)
-    # with col1:
-    #     content_info_top = analysis_results.get("내용정보 탑3", {})
-
-    #     if content_info_top:
-    #         # 🔹 등급별 점수화 (높은 등급일수록 높은 값)
-    #         rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
-            
-    #         # 🔹 데이터 변환 (높은 등급순 정렬)
-    #         sorted_content = sorted(content_info_top.items(), key=lambda x: rating_score[x[1]], reverse=True)
-
-    #         # 🔹 상위 3개 항목 선택
-    #         top_3 = sorted_content[:3]
-
-    #         # 🔹 내용정보 아이콘을 가로 배치하기 위한 컬럼 나누기 
-    #         st.write("### 📌 내용정보 표시항목 (Top3)")
-    #         icon_cols = st.columns(4)  
-
-    #         # 🔹 상위 3개 항목 강조 (가로 배치)
-    #         for idx, (category, rating) in enumerate(top_3):
-    #             with icon_cols[idx]:  # 가로 배치
-    #                 icon_path = icon_map.get(category)
-    #                 if icon_path and os.path.exists(icon_path):
-    #                     image = Image.open(icon_path)
-    #                     st.image(image, width=120)  # 아이콘 크기 조절
-    #                 else:
-    #                     st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
-
-    # # 🔹 Col2: 서술적 내용 기술 Expander
-    # with col2:
-    #     reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
-
-    #     if reason_text and reason_text != "데이터 없음":
-    #         with st.expander("### 📝 서술적 내용 기술", expanded=True):  # Expander 내부에 버튼 포함
-    #             if st.button("보기", key="expander_button"):  # 고유한 key 추가
-    #                 def stream_text():
-    #                     lines = reason_text.split("\n")  # 줄 단위로 분리
-
-    #                     for line in lines:
-    #                         text_container = st.empty()  # 한 줄을 출력할 컨테이너
-    #                         output = ""  # 한 줄의 출력을 담을 변수
-                            
-    #                         for char in line:
-    #                             output += char  # 한 글자씩 추가
-    #                             text_container.text(output)  # 한 줄의 출력 업데이트
-    #                             time.sleep(0.02)  # 글자마다 짧은 딜레이
-                            
-    #                         time.sleep(0.2)  # 한 줄이 완성된 후 약간의 딜레이 추가
-    #                         st.write("")  # 줄 바꿈 (새로운 줄 시작)
-
-    #                 stream_text()
-    #     else:
-    #         st.warning("데이터 없음")
-
     st.write("")  
 # 🔹 분석 결과를 표로 정리 
     result_data = {
@@ -597,11 +621,94 @@ elif page == "result":
         "주연 배우 국적": analysis_results.get("주연 배우 국적", "데이터 없음"),
         "시놉시스" : analysis_results.get("소개", "데이터 없음"),
         "영상 언어" : analysis_results.get("영상 언어", "데이터 없음")
+        # "서술적 내용기술": analysis_results.get("서술적 내용기술", "데이터 없음")
     }
     st.expander("📜 분석 결과 요약", expanded=False).table(result_data)
 
+    st.divider() ###
+
+    # 방법1-1: selectbox 안에 모든 JSON 파일 리스트 추가 -> 선택해서 expander 안에 내용 표시
+    st.write("### 📂 JSON 파일 확인")
+
+    # 🔹 분석 결과 폴더 설정
+    if "analysis_results" in st.session_state:
+        analysis_results = st.session_state["analysis_results"]
+
+        # ✅ 업로드된 파일명을 올바르게 가져오기
+        uploaded_file = st.session_state.get("uploaded_file", None)  # 파일 업로드 정보 가져오기
+
+        if uploaded_file:
+            uploaded_file_name = uploaded_file.name  # 파일명 가져오기
+        else:
+            uploaded_file_name = "unknown"
+
+        # 📌 classification_runner_def.py에서 설정한 경로와 동일하게 설정
+        base_name = os.path.splitext(uploaded_file_name)[0]  # 파일명에서 확장자 제거
+        result_folder_path = f"C:/Users/chloeseo/ms_project/test_v6/result/{base_name}"
+        
+        json_result_path = f"{result_folder_path}/result_json"  # 기준별 JSON 저장 경로
+        rating_result_path = f"{result_folder_path}/rating_result"  # 등급분류 JSON 저장 경로
+
+        # 🔹 JSON 파일 리스트 가져오기
+        json_files_criteria = []  # 기준별 JSON 파일 리스트
+        json_files_rating = []  # 등급분류 JSON 파일 리스트
+
+        if os.path.exists(json_result_path):
+            json_files_criteria.extend([os.path.join(json_result_path, f) for f in os.listdir(json_result_path) if f.endswith(".json")])
+        if os.path.exists(rating_result_path):
+            json_files_rating.extend([os.path.join(rating_result_path, f) for f in os.listdir(rating_result_path) if f.endswith(".json")])
+
+
+        # ✅ 전체 JSON 파일 확인을 위한 Expander 추가
+        with st.expander("🖱️ 클릭하여 확인하세요", expanded=False):  # 기본적으로 펼쳐진 상태
+            col1, col2 = st.columns(2)  # 두 개의 컬럼으로 나누기
+
+            # ✅ 기준별 JSON 파일 표시 (왼쪽)
+            with col1:
+                st.write("#### 기준별 JSON 파일 확인")
+
+                if json_files_criteria:
+                    # 기준별 JSON 파일명을 selectbox에 표시
+                    json_file_names_criteria = [os.path.basename(f) for f in json_files_criteria]
+                    selected_json_criteria = st.selectbox("📄 기준별 JSON 파일을 선택하세요.", json_file_names_criteria, key="criteria_select")
+
+                    # 선택한 파일의 경로 찾기
+                    selected_json_path_criteria = next((f for f in json_files_criteria if os.path.basename(f) == selected_json_criteria), None)
+
+                    # 선택된 JSON 파일 내용 직접 출력
+                    if selected_json_path_criteria:
+                        with open(selected_json_path_criteria, "r", encoding="utf-8") as file:
+                            json_content = json.load(file)
+
+                        # JSON 내용을 직접 표시 (expander 없음)
+                        st.json(json_content)
+                else:
+                    st.warning("📁 기준별 JSON 파일이 존재하지 않습니다.")
+
+            # ✅ 등급분류 JSON 파일 표시 (오른쪽)
+            with col2:
+                st.write("#### 등급분류 JSON 파일 확인")
+
+                if json_files_rating:
+                    # 등급분류 JSON 파일명을 selectbox에 표시
+                    json_file_names_rating = [os.path.basename(f) for f in json_files_rating]
+                    selected_json_rating = st.selectbox("📄 등급분류 JSON 파일을 선택하세요.", json_file_names_rating, key="rating_select")
+
+                    # 선택한 파일의 경로 찾기
+                    selected_json_path_rating = next((f for f in json_files_rating if os.path.basename(f) == selected_json_rating), None)
+
+                    # 선택된 JSON 파일 내용 직접 출력
+                    if selected_json_path_rating:
+                        with open(selected_json_path_rating, "r", encoding="utf-8") as file:
+                            json_content = json.load(file)
+
+                        # JSON 내용을 직접 표시 (expander 없음)
+                        st.json(json_content)
+                else:
+                    st.warning("📁 등급분류 JSON 파일이 존재하지 않습니다.")
+
     st.write('')
     # 🔹 메인 페이지로 돌아가는 버튼
-    if st.button("🔄 시작 화면으로 돌아가기"):
+    if st.button("🏠 Home"):
         st.query_params["page"] = ""
         st.rerun()
