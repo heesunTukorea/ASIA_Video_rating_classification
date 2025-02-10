@@ -370,105 +370,65 @@ elif page == "result":
         content_info_list = [{"항목": key, "등급": value} for key, value in content_info.items()]
         st.table(content_info_list)  # ✅ Streamlit의 기본 table 기능 활용
 
-    # ## 그래프
-    # st.write("### 📊 내용정보")
-    # # 🔹 등급별 점수 매핑 (그래프 표현을 위해 숫자로 변환)
-    # rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
-    # rating_labels = list(rating_score.keys())  # Y축 라벨 (등급)
-    # rating_positions = list(rating_score.values())  # Y축 위치 (0,1,2,3,4)
-
-    # # 🔹 모든 기준별 등급을 그래프로 표시 (내용정보)
-    # content_info = analysis_results.get("내용정보", {})
-
-    # if content_info:
-    #     categories = list(content_info.keys())  # X축 (각 기준)
-    #     ratings = [rating_score[value] for value in content_info.values()]  # 등급을 숫자로 변환
-
-    #     # 🔹 전체관람가(0)도 최소 높이를 가지도록 조정
-    #     ratings_adjusted = [v if v > 0 else 0.5 for v in ratings]  # 전체관람가도 보이게 최소 0.5 설정
-
-    #     # 그래프 크기 설정
-    #     fig, ax = plt.subplots(figsize=(10, 5))
-
-    #     # 가로 막대 그래프 생성 (X축이 기준, Y축이 등급)
-    #     ax.bar(categories, ratings_adjusted, color='skyblue')
-
-    #     # Y축 (등급) 라벨을 '전체관람가' ~ '제한상영가'로 변경
-    #     ax.set_yticks(rating_positions)
-    #     ax.set_yticklabels(rating_labels, fontsize=12)
-
-    #     # X축 (기준) 라벨 회전
-    #     ax.set_xticklabels(categories, rotation=30, ha='right', fontsize=12)
-
-    #     # 제목 및 라벨 설정
-    #     ax.set_xlabel("", fontsize=14, fontweight='bold')
-    #     ax.set_ylabel("", fontsize=14, fontweight='bold')
-    #     ax.set_title("", fontsize=16, fontweight='bold')
-
-    #     # 값 표시 (막대 위에 해당 등급 라벨 표시)
-    #     for i, v in enumerate(ratings):
-    #         ax.text(i, ratings_adjusted[i] + 0.1, rating_labels[v], ha='center', fontsize=10, color='black', fontweight='bold')
-
-    #     # 스트림릿에서 그래프 출력
-    #     st.pyplot(fig)
+    # ##### 그래프 -> 해야함
 
     st.write('')
-    # ### 내용정보 top3
-    # # 🔹 내용정보 top3 가져오기
-    # content_info_top = analysis_results.get("내용정보 탑3", {})
+    ### 내용정보 top3
+    # 🔹 내용정보 top3 가져오기
+    content_info_top = analysis_results.get("내용정보 탑3", {})
 
-    # if content_info_top:
-    #     # 🔹 등급별 점수화 (높은 등급일수록 높은 값)
-    #     rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
+    if content_info_top:
+        # 🔹 등급별 점수화 (높은 등급일수록 높은 값)
+        rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
         
-    #     # 🔹 데이터 변환 (높은 등급순 정렬)
-    #     sorted_content = sorted(content_info_top.items(), key=lambda x: rating_score[x[1]], reverse=True)
+        # 🔹 데이터 변환 (높은 등급순 정렬)
+        sorted_content = sorted(content_info_top.items(), key=lambda x: rating_score[x[1]], reverse=True)
 
-    #     # 🔹 상위 3개 항목 선택
-    #     top_3 = sorted_content[:3]
+        # 🔹 상위 3개 항목 선택
+        top_3 = sorted_content[:3]
 
-    #     # # 🔹 상위 3개 항목 강조 (PNG 아이콘 표시)
-    #     st.write("### 📌 내용정보 표시항목 (Top3)")
-    #     col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13 = st.columns(13) # wide
-    #     # col1, col2, col3, col4, col5, col6, col7 = st.columns(7) # centered
+        # # 🔹 상위 3개 항목 강조 (PNG 아이콘 표시)
+        st.write("### 📌 내용정보 표시항목 (Top3)")
+        col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13 = st.columns(13) # wide
+        # col1, col2, col3, col4, col5, col6, col7 = st.columns(7) # centered
 
-    #     for idx, (category, rating) in enumerate(top_3):
-    #         with [col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13][idx]: # wide
-    #         # with [col1, col2, col3, col4, col5, col6, col7][idx]: # centered
-    #             icon_path = icon_map.get(category)
-    #             if icon_path and os.path.exists(icon_path):
-    #                 image = Image.open(icon_path)
-    #                 st.image(image, width=120) # wide
-    #                 # st.image(image, caption=f"{category}: {rating}", width=95) # centered     
+        for idx, (category, rating) in enumerate(top_3):
+            with [col1, col2, col3, col4, col5, col6, col7, col8, col9, col10, col11, col12, col13][idx]: # wide
+            # with [col1, col2, col3, col4, col5, col6, col7][idx]: # centered
+                icon_path = icon_map.get(category)
+                if icon_path and os.path.exists(icon_path):
+                    image = Image.open(icon_path)
+                    st.image(image, width=120) # wide
+                    # st.image(image, caption=f"{category}: {rating}", width=95) # centered     
 
-    #             else:
-    #                 st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
+                else:
+                    st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
     
     st.write('')
-    # # 🔹 분석 사유 출력
-    # st.write("### 📝 서술적 내용기술")
+    # 🔹 분석 사유 출력
+    st.write("### 📝 서술적 내용기술")
     
-    # ## st.write_stream 사용 - 한글자씩
-    # reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
-    # if reason_text and reason_text != "데이터 없음":
-    #     def stream_text():
-    #         lines = reason_text.split("\n")  # 줄 단위로 분리
+    ## st.write_stream 사용 - 한글자씩
+    reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
+    if reason_text and reason_text != "데이터 없음":
+        def stream_text():
+            lines = reason_text.split("\n")  # 줄 단위로 분리
 
-    #         for line in lines:
-    #             text_container = st.empty()  # 한 줄을 출력할 컨테이너
-    #             output = ""  # 한 줄의 출력을 담을 변수
+            for line in lines:
+                text_container = st.empty()  # 한 줄을 출력할 컨테이너
+                output = ""  # 한 줄의 출력을 담을 변수
                 
-    #             for char in line:
-    #                 output += char  # 한 글자씩 추가
-    #                 text_container.text(output)  # 한 줄의 출력 업데이트
-    #                 time.sleep(0.02)  # 글자마다 짧은 딜레이
+                for char in line:
+                    output += char  # 한 글자씩 추가
+                    text_container.text(output)  # 한 줄의 출력 업데이트
+                    time.sleep(0.02)  # 글자마다 짧은 딜레이
                 
-    #             time.sleep(0.2)  # 한 줄이 완성된 후 약간의 딜레이 추가
-    #             st.write("")  # 줄 바꿈 (새로운 줄 시작)
+                time.sleep(0.2)  # 한 줄이 완성된 후 약간의 딜레이 추가
+                st.write("")  # 줄 바꿈 (새로운 줄 시작)
 
-    #     stream_text()
-    # else:
-    #     st.warning("데이터 없음")
+        stream_text()
+    else:
+        st.warning("데이터 없음")
 
     # ## 버튼형식
     # reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
@@ -494,63 +454,63 @@ elif page == "result":
     # else:
     #     st.warning("데이터 없음")
 
-    ## top3 아이콘, 서술적 내용기술 col1 col2로 배치
-    # 가로 레이아웃 설정 - 서술적 내용기술 더 넓게
-    col1, col2 = st.columns([1, 2])
+    # ## top3 아이콘, 서술적 내용기술 col1 col2로 배치
+    # # 가로 레이아웃 설정 - 서술적 내용기술 더 넓게
+    # col1, col2 = st.columns([1, 2])
 
-    # 🔹 Col1: 내용정보 탑3 아이콘 (가로 배치)
-    with col1:
-        content_info_top = analysis_results.get("내용정보 탑3", {})
+    # # 🔹 Col1: 내용정보 탑3 아이콘 (가로 배치)
+    # with col1:
+    #     content_info_top = analysis_results.get("내용정보 탑3", {})
 
-        if content_info_top:
-            # 🔹 등급별 점수화 (높은 등급일수록 높은 값)
-            rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
+    #     if content_info_top:
+    #         # 🔹 등급별 점수화 (높은 등급일수록 높은 값)
+    #         rating_score = {"전체관람가": 0, "12세이상관람가": 1, "15세이상관람가": 2, "청소년관람불가": 3, "제한상영가": 4}
             
-            # 🔹 데이터 변환 (높은 등급순 정렬)
-            sorted_content = sorted(content_info_top.items(), key=lambda x: rating_score[x[1]], reverse=True)
+    #         # 🔹 데이터 변환 (높은 등급순 정렬)
+    #         sorted_content = sorted(content_info_top.items(), key=lambda x: rating_score[x[1]], reverse=True)
 
-            # 🔹 상위 3개 항목 선택
-            top_3 = sorted_content[:3]
+    #         # 🔹 상위 3개 항목 선택
+    #         top_3 = sorted_content[:3]
 
-            # 🔹 내용정보 아이콘을 가로 배치하기 위한 컬럼 나누기 
-            st.write("### 📌 내용정보 표시항목 (Top3)")
-            icon_cols = st.columns(4)  
+    #         # 🔹 내용정보 아이콘을 가로 배치하기 위한 컬럼 나누기 
+    #         st.write("### 📌 내용정보 표시항목 (Top3)")
+    #         icon_cols = st.columns(4)  
 
-            # 🔹 상위 3개 항목 강조 (가로 배치)
-            for idx, (category, rating) in enumerate(top_3):
-                with icon_cols[idx]:  # 가로 배치
-                    icon_path = icon_map.get(category)
-                    if icon_path and os.path.exists(icon_path):
-                        image = Image.open(icon_path)
-                        st.image(image, width=120)  # 아이콘 크기 조절
-                    else:
-                        st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
+    #         # 🔹 상위 3개 항목 강조 (가로 배치)
+    #         for idx, (category, rating) in enumerate(top_3):
+    #             with icon_cols[idx]:  # 가로 배치
+    #                 icon_path = icon_map.get(category)
+    #                 if icon_path and os.path.exists(icon_path):
+    #                     image = Image.open(icon_path)
+    #                     st.image(image, width=120)  # 아이콘 크기 조절
+    #                 else:
+    #                     st.markdown(f"**{category}**: <span style='color:{rating_color_map[rating]}; font-weight:bold;'>{rating}</span>", unsafe_allow_html=True)
 
-    # 🔹 Col2: 서술적 내용 기술 Expander
-    with col2:
-        reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
+    # # 🔹 Col2: 서술적 내용 기술 Expander
+    # with col2:
+    #     reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
 
-        if reason_text and reason_text != "데이터 없음":
-            with st.expander("### 📝 서술적 내용 기술", expanded=True):  # Expander 내부에 버튼 포함
-                if st.button("보기", key="expander_button"):  # 고유한 key 추가
-                    def stream_text():
-                        lines = reason_text.split("\n")  # 줄 단위로 분리
+    #     if reason_text and reason_text != "데이터 없음":
+    #         with st.expander("### 📝 서술적 내용 기술", expanded=True):  # Expander 내부에 버튼 포함
+    #             if st.button("보기", key="expander_button"):  # 고유한 key 추가
+    #                 def stream_text():
+    #                     lines = reason_text.split("\n")  # 줄 단위로 분리
 
-                        for line in lines:
-                            text_container = st.empty()  # 한 줄을 출력할 컨테이너
-                            output = ""  # 한 줄의 출력을 담을 변수
+    #                     for line in lines:
+    #                         text_container = st.empty()  # 한 줄을 출력할 컨테이너
+    #                         output = ""  # 한 줄의 출력을 담을 변수
                             
-                            for char in line:
-                                output += char  # 한 글자씩 추가
-                                text_container.text(output)  # 한 줄의 출력 업데이트
-                                time.sleep(0.02)  # 글자마다 짧은 딜레이
+    #                         for char in line:
+    #                             output += char  # 한 글자씩 추가
+    #                             text_container.text(output)  # 한 줄의 출력 업데이트
+    #                             time.sleep(0.02)  # 글자마다 짧은 딜레이
                             
-                            time.sleep(0.2)  # 한 줄이 완성된 후 약간의 딜레이 추가
-                            st.write("")  # 줄 바꿈 (새로운 줄 시작)
+    #                         time.sleep(0.2)  # 한 줄이 완성된 후 약간의 딜레이 추가
+    #                         st.write("")  # 줄 바꿈 (새로운 줄 시작)
 
-                    stream_text()
-        else:
-            st.warning("데이터 없음")
+    #                 stream_text()
+    #     else:
+    #         st.warning("데이터 없음")
 
     st.write("")  
 # 🔹 분석 결과를 표로 정리 
