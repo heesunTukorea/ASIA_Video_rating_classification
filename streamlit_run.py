@@ -5,9 +5,10 @@ from classification_runner_def import total_classification_run
 import os
 import datetime
 import time
-import matplotlib.pyplot as plt
 import sys
 import io
+import pandas as pd
+import altair as alt
 
 # ✅ 페이지 설정 추가
 st.set_page_config(page_title="영상물 등급 분류 시스템", page_icon="🎬", layout="wide")
@@ -359,18 +360,86 @@ elif page == "result":
         )
 
     st.write('')
-    ### 내용정보 
-    # 표
+    ### 내용정보
+    ## 그래프
     st.write("### 📊 내용정보")
-
-    # 🔹 모든 기준별 등급을 표로 표시 (내용정보)
+    st.write('')
+    # 🔹 내용정보 데이터
+    # 1) content_info 불러오기
     content_info = analysis_results.get("내용정보", {})
 
-    if content_info:
-        content_info_list = [{"항목": key, "등급": value} for key, value in content_info.items()]
-        st.table(content_info_list)  # ✅ Streamlit의 기본 table 기능 활용
+    # 2) 필요한 리스트와 매핑 (등급 → 1~5)
+    all_items = ["주제", "대사", "약물", "폭력성", "공포", "선정성", "모방위험"]
+    rating_map = {
+        "전체관람가": 1,
+        "12세이상관람가": 2,
+        "15세이상관람가": 3,
+        "청소년관람불가": 4,
+        "제한상영가": 5
+    }
 
-    # ##### 그래프 -> 해야함
+    # 3) 데이터프레임 생성
+    rows = []
+    for item in all_items:
+        label = content_info.get(item, "전체관람가")     # 항목별 등급
+        val   = rating_map[label]                      # 1~5
+        
+        # 🔸 여기서 rating_assets에서 color를 불러옴
+        color = rating_assets[label]["color"]
+        rows.append({
+            "항목": item,
+            "등급": label,
+            "등급값": val,
+            "color": color
+        })
+
+    df = pd.DataFrame(rows)
+    df["start"] = 0  # 막대 시작점(0)
+
+    # 4) Altair 차트 설정
+    chart = (
+        alt.Chart(df)
+        .mark_bar(size=20)
+        .encode(
+            x=alt.X("항목:N",
+                    sort=all_items,
+                    axis=alt.Axis(title=None, 
+                                  labelAngle=0,
+                                  labelFontSize=14)),
+            y=alt.Y(
+                "start:Q",
+                scale=alt.Scale(domain=[0,5.8], nice=False),
+                axis=alt.Axis(
+                    title=None,
+                    values=[1,2,3,4,5],
+                    labelExpr=(
+                        "datum.value == 1 ? '전체관람가' : "
+                        "datum.value == 2 ? '12세이상관람가' : "
+                        "datum.value == 3 ? '15세이상관람가' : "
+                        "datum.value == 4 ? '청소년관람불가' : "
+                        "'제한상영가'"
+                    ),
+                    labelFontSize=14
+                )
+            ),
+            y2="등급값:Q",   # 막대 끝점
+            color=alt.value(None),  # 일단 Altair 기본 color는 None
+            tooltip=["항목", "등급"]
+        )
+        .properties(width=600, height=300)
+    )
+
+    # 5) 막대에 row별 color 적용
+    bars = chart.mark_bar(size=50).encode(
+        color=alt.Color("color:N",scale=None, legend=None)
+    )
+    # 차트 배경색
+    final_chart = bars.configure_view(
+        fill="gray",
+        fillOpacity=0.07
+    )
+    st.altair_chart(final_chart, use_container_width=True)
+
 
     st.write('')
     ### 내용정보 top3
