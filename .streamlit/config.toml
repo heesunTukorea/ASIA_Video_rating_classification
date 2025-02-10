@@ -1,2 +1,9 @@
 [server]
-maxUploadSize = 400 #400MB
+maxUploadSize = 5000 # 5GB 파일 업로드 제한
+
+[theme]
+base="light"  # ✅ 기본 테마를 밝은 테마로 설정 (배경 흰색)
+primaryColor="#f17373"  # 기본 글자색 (검은색)
+backgroundColor="#FBF8F3"  # ✅ 배경색을 흰색으로 설정
+secondaryBackgroundColor="#f0f2f6"  # ✅ 사이드바 배경색 (연한 회색)
+textColor="#000000"  # 글자색을 검은색으로 설정
