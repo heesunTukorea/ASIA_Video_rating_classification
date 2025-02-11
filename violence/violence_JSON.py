@@ -15,38 +15,46 @@ def violence(image_folder_path, output_file, threshold=0.45):
     text_candidates = [
         # 폭력
         "a scene of physical violence",
-        "a scene of rape",
-        "a scene of a person bleeding",
-        "a scene of an animal bleeding",
+        "a scene of person bleeding",
+        "a scene of animal bleeding",
         "the scene of a corpses",
         "a murderous scene",
-        "a scene using knives, guns, bats, etc. to pose a threat",
+        "a scene of using knives, guns, bats, etc. to pose a threat",
+        "a scene of holding guns",
+        "a scene of war",
 
         # 기타
-        "A picture of a person standing",
         "A peaceful scene",
-        "A person walking in the street",
+        "A person running in the street",
         "A lot of people walking in the street",
         "A calm conversation between people",
         "A person smiling and laughing",
         "The scene that people are talking about",
+        "a picture of a person standing",
         "a picture of a person sitting",
         "a photo of a drinking",
         "a picture of someone kissing",
         "a picture of someone taking off his clothes",
         "a photo of a smoking",
         "a photo of someone on drugs",
+        "a photo of someone climbing stairs",
+        "a photo of someone talking on the phone",
+        "a photo of someone eating a meal",
+        "a black screen",
+        "a photo of someone lying on a bed",
+        "a photo of animal playing"
     ]
 
     # 출력 테스트 타깃 설정
     target_captions = {
         "a scene of physical violence",
-        "a scene of rape",
-        "a scene of a person bleeding",
-        "a scene of an animal bleeding",
+        "a scene of person bleeding",
+        "a scene of animal bleeding",
         "the scene of a corpses",
         "a murderous scene",
-        "a scene using knives, guns, bats, etc. to pose a threat"
+        "a scene of using knives, guns, bats, etc. to pose a threat",
+        "a scene of holding guns",
+        "a scene of war"
     }
 
     # 결과 저장
@@ -136,6 +144,6 @@ def violence(image_folder_path, output_file, threshold=0.45):
     return results, summary_stats
 
 # 실행
-# image_path = '이미지 폴더 경로'
-# output_file = '결과 저장 경로'
-# violence(image_path, output_file, threshold=0.45)
+image_path = '/result/너의결혼식/너의결혼식_images_output'
+output_file = '/result_json/너의결혼식_violence2_img_json.json'
+violence(image_path, output_file, threshold=0.45)
