@@ -246,7 +246,6 @@ elif page == "project":
 #     # 필수 입력
 #     category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
 #     title = st.text_input("제목 *")
-#     # genre = st.selectbox("장르 *", ["선택하세요", "범죄", "액션", "드라마", "코미디", "공포", "로맨스", "SF", "판타지", "기타"])
 #     genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스/멜로", "SF", "느와르", "판타지", "기타"])
 #     synopsis = st.text_input("소개 *")
 #     applicant = st.text_input("신청사 *")
