@@ -51,16 +51,16 @@ def classify_violence_rating(input_img_path, input_text_path, result_json_path):
     # GPT 프롬프트 생성
     rating_criteria = """
     다음은 영등위의 분류 기준 중 '폭력성'을 전체관람가, 12세이상관람가, 15세이상관람가, 청소년관람불가, 제한상영가 5가지 등급으로 나누는 각 기준이다.
-    - 전체관람가 : 폭력성의 요소가 없거나 매우 약하게 표현된 것
-    - 12세이상관람가 : 폭력성의 요소가 경미하고 간결하게 표현된 것
-    - 15세이상관람가 : 15세 이상 청소년이 사회, 가족, 학교 등에서 습득한 지식과 경험을 통하여 충분히 수용 가능한 것
-    - 청소년관람불가 : 폭력성의 요소가 과도하며, 그 표현 정도가 구체적이고 직접적이며 노골적인 것
+    - 전체관람가 : 폭력성의 요소가 차지하는 비율이 낮고 경미하게 표현된 것 또는 폭력적인 장면이 없는 것
+    - 12세이상관람가 : 폭력성의 요소가 존재하나 간결하게 표현된 것
+    - 15세이상관람가 : 폭력성의 요소가 다소 존재하나 15세 이상 청소년이 사회, 가족, 학교 등에서 습득한 지식과 경험을 통하여 충분히 수용 가능한 것
+    - 청소년관람불가 : 폭력성의 요소나 대사가 과도하며, 그 표현 정도가 구체적이고 직접적이며 노골적인 것
     
     """
 
     prompt = f"""
         
-        아래 제시한 대사와 이미지 분석 데이터를 보고 분류 기준에 따라 영상물의 등급을 판정하고, 등급 판정의 이유를 출력하시오.
+        아래 제시하는 대사데이터와 이미지데이터는 영화의 장면 중 폭력성과 관련된 데이터이다. 대사와 이미지를 종합해 아래에 제시하는 분류 기준과 영상물등급위원회의 기준에 따라 영상물의 등급을 판정하고, 등급 판정의 이유를 출력하시오.
         반드시 아래 형식을 지켜서 json 형식으로 결과를 출력하시오:
 
         대사 데이터 :
@@ -75,7 +75,7 @@ def classify_violence_rating(input_img_path, input_text_path, result_json_path):
         형식 :
         {{
             "rating": "관람 등급 (전체관람가, 12세이상관람가, 15세이상관람가, 청소년관람불가, 제한상영가)",
-            "reasoning": "한글로 간단한 설명 한 줄"
+            "reasoning": "한글로 간단한 설명"
         }}  
     """
     def get_chatgpt_response(prompt):
@@ -100,7 +100,7 @@ def classify_violence_rating(input_img_path, input_text_path, result_json_path):
     return parsed_result
 
 # # 함수 실행
-# img_file_path = "input 이미지 json파일 경로"
-# text_file_path = "input 대사 text파일 경로"
-# result_file_path = "결과 저장 파일 경로"
+# img_file_path = "input image json path"
+# text_file_path = "input text txt path"
+# result_file_path = "result save path"
 # classify_violence_rating(img_file_path, text_file_path, result_file_path)
