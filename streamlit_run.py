@@ -330,22 +330,27 @@ elif page == "upload":
     st.write('')
     # 🔹 두 개의 컬럼으로 나누기
     col1, col2 = st.columns(2)
-
     with col1:  # ✅ 왼쪽 컬럼
         category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
-        title = st.text_input("제목 *")
         genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스", "SF", "느와르", "판타지", "기타"])
-        synopsis = st.text_input("소개 *")
-        applicant = st.text_input("신청사 *")
-        representative = st.text_input("대표 *")
-        director = st.text_input("감독 *")
 
     with col2:  # ✅ 오른쪽 컬럼
-        director_nationality = st.selectbox("감독 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
-        lead_actor = st.text_input("주연 배우 *")
-        lead_actor_nationality = st.selectbox("주연 배우 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
+        title = st.text_input("제목 *")
         video_language = st.selectbox("영상 언어 *", ["선택하세요"] + list(languages.keys()))
+
+    synopsis = st.text_input("소개 *")
+
+    col1, col2 = st.columns(2)
+    with col1:  # ✅ 왼쪽 컬럼
+        applicant = st.text_input("신청사 *")
+        director = st.text_input("감독 *")
+        lead_actor = st.text_input("주연 배우 *")
         start_time = st.text_input("분석 시작 시간 (HH:MM:SS, 선택사항)", value="")
+
+    with col2:  # ✅ 오른쪽 컬럼
+        representative = st.text_input("대표 *")
+        director_nationality = st.selectbox("감독 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
+        lead_actor_nationality = st.selectbox("주연 배우 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
         duration = st.text_input("분석 지속 시간 (HH:MM:SS, 선택사항)", value="")
 
     # 🔹 파일 업로드 (중앙 정렬)
@@ -821,7 +826,7 @@ elif page == "result":
             # ✅ 기준별 JSON 파일 표시 (왼쪽)
             with col1:
                 st.write("#### 기준별 JSON 파일 확인")
-
+ 
                 if json_files_criteria:
                     # 기준별 JSON 파일명을 selectbox에 표시
                     json_file_names_criteria = [os.path.basename(f) for f in json_files_criteria]
@@ -864,8 +869,10 @@ elif page == "result":
 
     st.write('')
     # 🔹 메인 페이지로 돌아가는 버튼
-    col_center = st.columns([1, 1, 1])  # 가운데 정렬을 위한 레이아웃 설정
+    # col_center = st.columns([1, 1, 1])  # 컴퓨터
+    col_center = st.columns([1, 0.5, 1])  # 노트북
     with col_center[1]:
         if st.button("🏠 Home"):
-            st.query_params["page"] = ""
+            st.query_params["page"] = "" 
             st.rerun()
+    st.session_state["analysis_done"] = False  # ✅ 분석 상태 초기화
