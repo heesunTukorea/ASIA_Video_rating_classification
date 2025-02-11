@@ -143,7 +143,7 @@ def violence(image_folder_path, output_file, threshold=0.45):
     # 결과와 각 폭력성 빈도 리턴
     return results, summary_stats
 
-# 실행
-image_path = '/result/너의결혼식/너의결혼식_images_output'
-output_file = '/result_json/너의결혼식_violence2_img_json.json'
-violence(image_path, output_file, threshold=0.45)
+# # 실행
+# image_path = 'input image json path'
+# output_file = 'result save path'
+# violence(image_path, output_file, threshold=0.45)
