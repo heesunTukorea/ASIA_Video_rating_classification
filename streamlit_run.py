@@ -741,30 +741,81 @@ elif page == "result":
     st.write('')
     st.write('')
     # ## 🔹 분석 사유 출력
+    # st.write("### 📝 서술적 내용기술")
+
+    # ## st.write_stream 사용 - 한글자씩
+    # reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
+    # if reason_text and reason_text != "데이터 없음":
+    #     def stream_text():
+    #         lines = reason_text.split("\n")  # 줄 단위로 분리
+
+    #         for line in lines:
+    #             text_container = st.empty()  # 한 줄을 출력할 컨테이너
+    #             output = ""  # 한 줄의 출력을 담을 변수
+                
+    #             for char in line:
+    #                 output += char  # 한 글자씩 추가
+    #                 text_container.text(output)  # 한 줄의 출력 업데이트
+    #                 time.sleep(0.02)  # 글자마다 짧은 딜레이
+                
+    #             time.sleep(0.2)  # 한 줄이 완성된 후 약간의 딜레이 추가
+    #             st.write("")  # 줄 바꿈 (새로운 줄 시작)
+
+    #     stream_text()
+    # else:
+    #     st.warning("데이터 없음")
+
     st.write("### 📝 서술적 내용기술")
 
-    ## st.write_stream 사용 - 한글자씩
     reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
+
     if reason_text and reason_text != "데이터 없음":
+        # 🔹 컨테이너 박스 스타일링 (CSS 적용)
+        st.markdown(
+            """
+            <style>
+            .description-box {
+                background-color: rgba(250, 245, 245, 0.6);  /* 배경 투명도 50% */
+                padding: 20px;  /* 내부 패딩 */
+                border-radius: 10px;  /* 모서리 둥글게 */
+                border: 1px solid #CCCCCC;  /* 테두리 */
+                font-size: 16px;  /* 글자 크기 */
+                color: #333333;  /* 글자 색 */
+                line-height: 2.0;  /* 줄 간격 증가 */
+                white-space: pre-wrap;  /* 줄 바꿈 유지 */
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+
+        # ✅ **하나의 컨테이너를 생성**
+        text_container = st.empty()
+
+        # 🔹 한 글자씩 출력되는 애니메이션 함수
         def stream_text():
             lines = reason_text.split("\n")  # 줄 단위로 분리
+            full_text = ""  # 전체 텍스트를 담을 변수
 
-            for line in lines:
-                text_container = st.empty()  # 한 줄을 출력할 컨테이너
-                output = ""  # 한 줄의 출력을 담을 변수
-                
+            for i, line in enumerate(lines):
                 for char in line:
-                    output += char  # 한 글자씩 추가
-                    text_container.text(output)  # 한 줄의 출력 업데이트
+                    full_text += char  # 한 글자씩 추가
+                    text_container.markdown(f'<div class="description-box">{full_text}</div>', unsafe_allow_html=True)
                     time.sleep(0.02)  # 글자마다 짧은 딜레이
-                
-                time.sleep(0.2)  # 한 줄이 완성된 후 약간의 딜레이 추가
-                st.write("")  # 줄 바꿈 (새로운 줄 시작)
+
+                # 🔹 마지막 줄이 아니라면 줄바꿈 추가
+                if i < len(lines) - 1:
+                    full_text += "<br><br>"  # 줄 바꿈 추가
+                    text_container.markdown(f'<div class="description-box">{full_text}</div>', unsafe_allow_html=True)
+                    time.sleep(0.2)  # 한 줄이 완성된 후 약간의 딜레이 추가
 
         stream_text()
+
     else:
         st.warning("데이터 없음")
 
+
+    st.write("")  
     st.write("")  
 # 🔹 분석 결과를 표로 정리 
     result_data = {
