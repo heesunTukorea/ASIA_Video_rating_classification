@@ -247,7 +247,7 @@ elif page == "project":
 #     category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
 #     title = st.text_input("제목 *")
 #     # genre = st.selectbox("장르 *", ["선택하세요", "범죄", "액션", "드라마", "코미디", "공포", "로맨스", "SF", "판타지", "기타"])
-#     genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스", "SF", "느와르", "판타지", "기타"])
+#     genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스/멜로", "SF", "느와르", "판타지", "기타"])
 #     synopsis = st.text_input("소개 *")
 #     applicant = st.text_input("신청사 *")
 #     representative = st.text_input("대표 *")
@@ -332,7 +332,7 @@ elif page == "upload":
     col1, col2 = st.columns(2)
     with col1:  # ✅ 왼쪽 컬럼
         category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
-        genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스", "SF", "느와르", "판타지", "기타"])
+        genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스/멜로", "SF", "느와르", "판타지", "기타"])
 
     with col2:  # ✅ 오른쪽 컬럼
         title = st.text_input("제목 *")
