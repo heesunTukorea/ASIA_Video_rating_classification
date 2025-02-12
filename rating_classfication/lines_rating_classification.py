@@ -87,8 +87,8 @@ def process_dialogue_rating(dialogue_json, output_json_path):
     
     # Load JSON data
     with open(dialogue_json, "r", encoding="utf-8") as f:
-        dialogue_data = json.load(f)
-    
+        dialogue_data = json.load(f)["summary"]
+        
     # Perform analysis
     analysis_result = analyze_dialogue_rating(client, dialogue_data)
     
@@ -98,6 +98,6 @@ def process_dialogue_rating(dialogue_json, output_json_path):
 # # Example execution
 # if __name__ == "__main__":
 #     process_dialogue_rating(
-#         "result/브로큰/result_json/브로큰_lines_json.json",
-#         "텍스트 분류 결과/브로큰.json"
+#         "텍스트 결과/수상한 그녀_lines_json.json",
+#         "텍스트 분류 결과/수상한그녀1.json"
 #     )
