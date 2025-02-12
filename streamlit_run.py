@@ -8,12 +8,12 @@ import time
 import matplotlib.pyplot as plt
 import pandas as pd 
 import json 
-import sys
+import sys 
 import io
 import plotly.express as px
 import altair as alt
 
-# ✅ 페이지 설정 추가
+# ✅ 페이지 설정 추가 
 st.set_page_config(page_title="영상물 등급 분류 시스템", page_icon="🎬", layout="centered")
 
 # base64 인코딩 함수
@@ -122,7 +122,8 @@ if "uploaded_file" not in st.session_state:  # 오류 방지를 위해 초기화
 if page == "upload" and "analysis_done" not in st.session_state:
     st.session_state["analysis_done"] = False
 
-# 메인 페이지 - 가운데정렬
+### 메인 페이지 ("" page)
+## 가운데정렬
 if page == "":
      # 🔹 메인 페이지에 들어오면 `analysis_done` 초기화
     st.session_state["analysis_done"] = False  # ✅ 분석 상태 초기화
@@ -168,8 +169,7 @@ if page == "":
             st.query_params["page"] = "upload"
             st.rerun()
 
-
-# 프로젝트 소개 페이지
+### 프로젝트 소개 페이지 (project page)
 elif page == "project":
     st.title("AI를 활용한 영상물 등급 판정 시스템 : GRAB")
     with st.expander("🔍 프로젝트 개요 보기"):
@@ -222,87 +222,6 @@ elif page == "project":
 
 
 ### 업로드 및 메타데이터 입력 페이지
-## 한줄 입력
-# elif page == "upload":
-    
-#     st.title("비디오 정보 입력")
-#     st.write("비디오 등급 분류에 필요한 정보를 입력해주세요.")
-
-#     languages = {
-#     "한국어": "ko",
-#     "영어": "en",
-#     "일본어": "ja",
-#     "중국어": "zh",
-#     "스페인어": "es",
-#     "프랑스어": "fr",
-#     "독일어": "de",
-#     "이탈리아어": "it",
-#     "힌디어": "hi",
-#     "아랍어": "ar",
-#     "포르투갈어": "pt",
-#     "러시아어": "ru"
-#     }
-
-#     # 필수 입력
-#     category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
-#     title = st.text_input("제목 *")
-#     genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스/멜로", "SF", "느와르", "판타지", "기타"])
-#     synopsis = st.text_input("소개 *")
-#     applicant = st.text_input("신청사 *")
-#     representative = st.text_input("대표 *")
-#     director = st.text_input("감독 *")
-#     director_nationality = st.selectbox("감독 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
-#     lead_actor = st.text_input("주연 배우 *")
-#     lead_actor_nationality = st.selectbox("주연 배우 국적 *", ["선택하세요", "한국", "미국", "일본", "중국", "기타"])
-#     # video_language = st.selectbox("영상 언어 *", ["선택하세요", "ko", "en", "ja", "cn", "es", "fr", "it"])
-#     video_language = st.selectbox("영상 언어 *", ["선택하세요"] + list(languages.keys()))
-
-#     # 옵션 입력
-#     start_time = st.text_input("분석 시작 시간 (HH:MM:SS, 선택사항)", value="")
-#     duration = st.text_input("분석 지속 시간 (HH:MM:SS, 선택사항)", value="")
-#     # 파일 업로드
-#     uploaded_file = st.file_uploader("비디오 업로드 *", type=["mp4", "mov", "avi"], help="MP4, MOV 또는 AVI 형식, 최대 5GB")
-
-#     if uploaded_file is not None:
-#         st.session_state["uploaded_file"] = uploaded_file
-#         st.write("파일 업로드 완료!")
-
-#     if st.button("등급 분류 요청"):
-#         if not all([genre, category, applicant, director_nationality, title, lead_actor_nationality, representative, video_language, director, lead_actor, uploaded_file]):
-#             st.error("모든 필수 항목을 입력해주세요.")
-#         else:
-#             # 📌 start_time과 duration이 빈 문자열("")이면 None으로 변환
-#             start_time = start_time if start_time.strip() else None
-#             duration = duration if duration.strip() else None
-
-#             # 입력 데이터 저장
-#             st.session_state["input_data"] = {
-#                 "구분": category,
-#                 "장르" : genre,
-#                 "제목": title,
-#                 "소개" : synopsis,
-#                 "신청사": applicant,
-#                 "감독": director,
-#                 "감독 국적": director_nationality,
-#                 "주연 배우": lead_actor,
-#                 "주연 배우 국적": lead_actor_nationality,
-#                 "대표": representative,
-#                 # "영상 언어": video_language[:2],
-#                 "영상 언어": languages.get(video_language, None) if video_language != "선택하세요" else "데이터 없음",  # 선택한 언어의 코드 값 저장
-#                 "업로드 파일": uploaded_file.name if uploaded_file else None,
-#                 "분석 시작 시간": start_time,
-#                 "분석 지속 시간": duration
-#             }
-#             # 🔹 등급 분석 실행
-#             process_video_classification()
-
-#     # ✅ 등급 분석이 완료되었을 때만 버튼 표시
-#     if st.session_state["analysis_done"]:
-#         st.write("등급 분류가 완료되었습니다! 아래 버튼을 눌러 결과 페이지로 이동하세요.")
-#         if st.button("📊 결과 페이지로 이동"):
-#             st.query_params["page"] = "result"
-#             st.rerun()
-
 ## 두줄 입력 => 입력 레이아웃 두줄인 경우, 로딩 상태를 버튼 중앙정렬과 분리 ∵ 로딩 상태가 col 너비에 맞춰서 이상해짐
 elif page == "upload":
     
@@ -406,12 +325,13 @@ elif page == "upload":
         with col_center[1]:
             st.write("✅ 등급 분류가 완료되었습니다! 아래 버튼을 눌러 결과 페이지로 이동하세요.")
         # 🔹 버튼만 중앙 정렬
-        col_center = st.columns([1, 1, 1])  # 가운데 정렬을 위한 레이아웃 설정
+        col_center = st.columns([1, 0.99, 1])  # 가운데 정렬을 위한 레이아웃 설정
         with col_center[1]:
             if st.button("📊 결과 페이지로 이동"):
                 st.query_params["page"] = "result"
                 st.rerun()
 
+### 결과 페이지 (result page)
 elif page == "result":
     # 🔹 등급별 색상 매핑
     rating_color_map = {
@@ -463,98 +383,8 @@ elif page == "result":
         st.error("🚨 분석 결과가 없습니다. 먼저 비디오 등급 분류를 수행해주세요.")
         st.stop()
 
-    ## 그래프 - 기본
+    ### 내용정보
     st.write("### 📊 내용정보")
-    # # 🔹 내용정보 데이터
-    # # 1) content_info 불러오기
-    # content_info = analysis_results.get("내용정보", {})
-
-    # # 2) 필요한 리스트와 매핑 (등급 → 1~5)
-    # all_items = ["주제", "대사", "약물", "폭력성", "공포", "선정성", "모방위험"]
-    # rating_map = {
-    #     "전체관람가": 1,
-    #     "12세이상관람가": 2,
-    #     "15세이상관람가": 3,
-    #     "청소년관람불가": 4,
-    #     "제한상영가": 5
-    # }
-
-    # # 3) 데이터프레임 생성
-    # rows = []
-    # for item in all_items:
-    #     label = content_info.get(item, "전체관람가")     # 항목별 등급
-    #     val   = rating_map[label]                      # 1~5
-        
-    #     # 🔸 여기서 rating_assets에서 color를 불러옴
-    #     color = rating_assets[label]["color"]
-    #     rows.append({
-    #         "항목": item,
-    #         "등급": label,
-    #         "등급값": val,
-    #         "color": color
-    #     })
-
-    # df = pd.DataFrame(rows)
-    # df["start"] = 0  # 막대 시작점(0)
-
-    # # 4) Altair 차트 설정 - 컨테이너x
-    # chart = (
-    #     alt.Chart(df)
-    #     .mark_bar(size=20)
-    #     .encode(
-    #         x=alt.X("항목:N",
-    #                 sort=all_items,
-    #                 axis=alt.Axis(title=None, 
-    #                               labelAngle=0,
-    #                               labelFontSize=14,
-    #                             labelColor="black",  # x축 라벨 진하게
-    #                             tickColor="black",  # x축 눈금 진하게
-    #                             domainColor="black",  # x축 선 진하게
-    #                             domainWidth=2,  # x축 선 두께
-    #                             tickWidth=2  # x축 눈금 두께
-    #                 )),
-    #         y=alt.Y(
-    #             "start:Q",
-    #             scale=alt.Scale(domain=[0,5.8], nice=False),
-    #             axis=alt.Axis(
-    #                 title=None,
-    #                 values=[1,2,3,4,5],
-    #                 labelExpr=(
-    #                     "datum.value == 1 ? '전체관람가' : "
-    #                     "datum.value == 2 ? '12세이상관람가' : "
-    #                     "datum.value == 3 ? '15세이상관람가' : "
-    #                     "datum.value == 4 ? '청소년관람불가' : "
-    #                     "'제한상영가'"
-    #                 ),
-    #                 labelFontSize=14,
-    #                 labelColor="black",  # 축 라벨 색상 (진하게)
-    #                 domainColor="black",  # y축 선 진하게
-    #             domainWidth=2,  # y축 선 두께
-    #             tickWidth=2,  # y축 눈금 두께
-    #             grid=True,  # 가로선 활성화
-    #             gridColor="black",  # y축 가로선 검정색
-    #             gridWidth=0.1  # y축 가로선 두께 (1~2가 적당)
-    #             )
-    #         ),
-    #         y2="등급값:Q",   # 막대 끝점
-    #         color=alt.value(None),  # 일단 Altair 기본 color는 None
-    #         tooltip=["항목", "등급"]
-    #     )
-    #     .properties(width=600, height=300)
-    # )
-
-    # # 5) 막대에 row별 color 적용
-    # bars = chart.mark_bar(size=30).encode(
-    #     color=alt.Color("color:N",scale=None, legend=None)
-    # )
-    # # 차트 배경색
-    # final_chart = bars.configure_view(
-    #     fill="#EDEAE4",
-    #     fillOpacity=0.5
-    # )
-    # st.altair_chart(final_chart, use_container_width=True)
-
-    
     ## 그래프 - 애니메이션
     # 🔹 내용정보 데이터
     content_info = analysis_results.get("내용정보", {})
@@ -696,7 +526,6 @@ elif page == "result":
     chart_placeholder.altair_chart(chart, use_container_width=True)
 
     st.write('')
-
     ## 최종등급 - 내용정보top3 가로배열 col1 col2
     col1, col2 = st.columns([1, 2])  # col1 (최종 등급) - col2 (내용정보 Top3)
 
@@ -739,7 +568,7 @@ elif page == "result":
 
     st.write('')
     st.write('')
-    # ## 🔹 분석 사유 출력
+    # ## 🔹 분석 사유 출력 - 기본
     # st.write("### 📝 서술적 내용기술")
 
     # ## st.write_stream 사용 - 한글자씩
@@ -764,6 +593,7 @@ elif page == "result":
     # else:
     #     st.warning("데이터 없음")
 
+    ## 🔹 분석 사유 출력 - 컨테이너 
     st.write("### 📝 서술적 내용기술")
 
     reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
