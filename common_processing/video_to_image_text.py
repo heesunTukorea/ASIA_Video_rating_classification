@@ -97,6 +97,7 @@ def transcribe_audio_segments(client, output_audio_base_path, language):
 def format_time(seconds):
     return str(timedelta(seconds=int(seconds))).zfill(8)
 
+
 # 텍스트 파일에 기록
 def write_text(output_text_path, results):
     with open(output_text_path, 'w', encoding='utf-8') as f:
