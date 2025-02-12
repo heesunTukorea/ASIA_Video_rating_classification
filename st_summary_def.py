@@ -13,12 +13,15 @@ def load_json(file_path):
 def classfication_tf(data):
     summary_data = data[-1]  # 마지막 요소는 summary
     true_dict = {}
-
+    
     for img in data[:-1]:  # 마지막 summary 제외
         if img['classification'] == True:
             img_name = os.path.splitext(img['image_name'])[0]
-            best_caption = img['best_caption']
-            true_dict[img_name] = best_caption
+            try:
+                best_caption = img['best_caption']
+                true_dict[img_name] = best_caption
+            except:
+                true_dict[img_name] = ''
 
     return true_dict, summary_data
 
@@ -277,10 +280,10 @@ def display_drug_summary(file_path):
 
         # 기본 정보
         total_scenes = summary_data['total_scenes']
-        non_horror = summary_data['non-drug']
-        horror_rate_true = summary_data['drug_rate_true']
-        horror_rate_false = summary_data['drug_rate_false']
-        horror_best_caption = summary_data['drug_best_caption']
+        non_drug = summary_data['non-drug']
+        drug_rate_true = summary_data['drug_rate_true']
+        drug_rate_false = summary_data['drug_rate_false']
+        drug_best_caption = summary_data['drug_best_caption']
 
         # 마약 장면 비율 탭
         tab1, tab2 = st.tabs(['📊 장면 비율', '📌 마약 장면 상세 분석'])
@@ -288,14 +291,19 @@ def display_drug_summary(file_path):
         with tab1:
             st.markdown("### 📊 **장면 비율 분석**")
             st.write(f"- **총 장면 수**: {total_scenes} 개")
-            st.write(f"- **마약이 나타나지 않는 장면 수**: {non_horror} 개 (**{horror_rate_false * 100:.1f}%**)")
-            st.write(f"- **마약 장면 수**: {total_scenes - non_horror} 개 (**{horror_rate_true * 100:.1f}%**)")
+            st.write(f"- **마약이 나타나지 않는 장면 수**: {non_drug} 개 (**{drug_rate_false * 100:.1f}%**)")
+            st.write(f"- **마약 장면 수**: {total_scenes - non_drug} 개 (**{drug_rate_true * 100:.1f}%**)")
+            
+             # 진행 바로 흡연 장면 비율 시각화
+            st.markdown(f"#### **💊 마약 비율**: {drug_rate_true * 100:.1f}%")
+            st.progress(min(round(drug_rate_true, 2), 1.0))  # 최대 1.0 (100%)까지
+
 
         with tab2:
             st.markdown("### 📌 **마약 장면 상세 분석**")
-            for caption, count in horror_best_caption.items():
+            for caption, count in drug_best_caption.items():
                 st.write(f"- **{caption}**: {count} 건")
-
+        
     # 📌 **개별 이미지 표시**
     else:
         img_path = os.path.join(img_folder_path, f"{select_img}.png").replace("\\", "/")
@@ -304,7 +312,9 @@ def display_drug_summary(file_path):
         st.image(img_path, caption=f"🖼️ {select_img}")
         st.markdown(f"### **🔍 장면 분류**")
         st.write(f"💬 {true_dict[select_img]}")
+    return 
 
+#알코올
 def display_alcohol_summary(file_path):
     # 기본 경로 설정
     base_path = file_path.split("result/")[1].split("/result_json")[0]  
@@ -316,35 +326,31 @@ def display_alcohol_summary(file_path):
     true_dict, summary_data = classfication_tf(data)
 
     # 이미지 선택 박스
+     # 이미지 선택 박스
     true_dict_keys = list(true_dict.keys())
-    st.title("🕷️ 음주 장면 분석 결과")
+    st.title("🍺 음주 장면 분석 결과")
     select_img = st.selectbox("📌 **음주 해당 이미지 선택**", ['summary'] + true_dict_keys, index=0)
     
     # 📌 **요약 정보 표시**
     if select_img == 'summary':
-        # st.title("🕷️ 음주 장면 분석 결과")
         st.subheader(f"🎬 {base_name} 분석 요약")
-
+        st.write('--------')
         # 기본 정보
         total_scenes = summary_data['total_scenes']
-        non_horror = summary_data['non-horror']
-        horror_rate_true = summary_data['horror_rate_true']
-        horror_rate_false = summary_data['horror_rate_false']
-        horror_best_caption = summary_data['horror_best_caption']
+        alcohol_false = summary_data['alcohol_false']
+        alcohol_true = summary_data['alcohol_true']
+        true_rate = summary_data['true_rate']
+        false_rate = summary_data['false_rate']
 
-        # 음주 장면 비율 탭
-        tab1, tab2 = st.tabs(['📊 장면 비율', '📌 음주 장면 상세 분석'])
 
-        with tab1:
-            st.markdown("### 📊 **장면 비율 분석**")
-            st.write(f"- **총 장면 수**: {total_scenes} 개")
-            st.write(f"- **비음주 장면 수**: {non_horror} 개 (**{horror_rate_false * 100:.1f}%**)")
-            st.write(f"- **음주 장면 수**: {total_scenes - non_horror} 개 (**{horror_rate_true * 100:.1f}%**)")
+        st.markdown("#### 📊 **장면 비율 분석**")
+        st.write(f"- **총 장면 수**: {total_scenes} 개")
+        st.write(f"- **비음주 장면 수**: {alcohol_false} 개 (**{false_rate * 100:.1f}%**)")
+        st.write(f"- **음주 장면 수**: {alcohol_true} 개 (**{true_rate * 100:.1f}%**)")
 
-        with tab2:
-            st.markdown("### 📌 **음주 장면 상세 분석**")
-            for caption, count in horror_best_caption.items():
-                st.write(f"- **{caption}**: {count} 건")
+        # 진행 바로 음주 장면 비율 시각화
+        st.markdown(f"#### 🍾 **음주 비율**: {round(true_rate, 2)*100}%")
+        st.progress(min(true_rate, 1.0))  # 최대 1.0 (100%)까지
 
     # 📌 **개별 이미지 표시**
     else:
@@ -352,9 +358,61 @@ def display_alcohol_summary(file_path):
         
         st.title(f"📷 {select_img}")
         st.image(img_path, caption=f"🖼️ {select_img}")
-        st.markdown(f"### **🔍 장면 분류**")
-        st.write(f"💬 {true_dict[select_img]}")
+def display_somke_summary(file_path):
+    # 기본 경로 설정
+    base_path = file_path.split("result/")[1].split("/result_json")[0]  
+    base_name = os.path.basename(base_path)  
+    img_folder_path = f'result/{base_name}/{base_name}_images_output'
 
+    # JSON 데이터 로드
+    data = load_json(file_path)
+    true_dict, summary_data = classfication_tf(data)
+
+    # 이미지 선택 박스
+     # 이미지 선택 박스
+    true_dict_keys = list(true_dict.keys())
+    st.title("🚬 흡연 장면 분석 결과")
+    select_img = st.selectbox("📌 **흡연 해당 이미지 선택**", ['summary'] + true_dict_keys, index=0)
+    
+    # 📌 **요약 정보 표시**
+    if select_img == 'summary':
+        st.subheader(f"🎬 {base_name} 분석 요약")
+        st.write('--------')
+        # 기본 정보
+        total_scenes = summary_data['total_scenes']
+        smoke_false = summary_data['smoking_false']
+        smoke_true = summary_data['smoking_true']
+        true_rate = summary_data['true_rate']
+        false_rate = summary_data['false_rate']
+
+
+        st.markdown("#### 📊 **장면 비율 분석**")
+        st.write(f"- **총 장면 수**: {total_scenes} 개")
+        st.write(f"- **비흡연 장면 수**: {smoke_false} 개 (**{false_rate * 100:.1f}%**)")
+        st.write(f"- **흡연 장면 수**: {smoke_true} 개 (**{true_rate * 100:.1f}%**)")
+
+        # 진행 바로 흡연 장면 비율 시각화
+        st.markdown(f"#### 🚬 **흡연 비율**: {round(true_rate, 2)*100}%")
+        st.progress(min(true_rate, 1.0))  # 최대 1.0 (100%)까지
+
+    # 📌 **개별 이미지 표시**
+    else:
+        img_path = os.path.join(img_folder_path, f"{select_img}.png").replace("\\", "/")
+        
+        st.title(f"📷 {select_img}")
+        st.image(img_path, caption=f"🖼️ {select_img}")
+def display_drug_total_summary(drug_file_path,alcohol_file_path,smoke_file_path):
+
+    tab1, tab2, tab3 = st.tabs(['음주','흡연','마약'])
+    with tab1:
+        display_alcohol_summary(alcohol_file_path)
+    with tab2:
+        display_somke_summary(smoke_file_path)
+    with tab3:
+        display_drug_summary(drug_file_path)
+    # display_drug_summary(drug_file_path)
+    
+    
 # Streamlit 실행
 def streamlit_summary_def(base_name):#영상이름 ex) 스파이
     select_category = st.selectbox("📌 **분류 기준 선택**", ['주제','대사','공포','약물','폭력성','선정성','모방위험'], index=0)
@@ -367,8 +425,10 @@ def streamlit_summary_def(base_name):#영상이름 ex) 스파이
         display_sexuality_summary(file_path = f'result/{base_name}/result_json/{base_name}_sexuality_img_json.json')    
     elif select_category == '대사':  
         display_lines_summary(file_path=f'result/{base_name}/result_json/{base_name}_lines_json.json') 
-    # elif select_category == '약물':  
-    #     display_lines_summary(file_path='result/스파이/result_json/스파이_lines_json.json')   
+    elif select_category == '약물':  
+       display_drug_total_summary(drug_file_path=f'result/{base_name}/result_json/{base_name}_drug_json.json',
+                                  alcohol_file_path=f'result/{base_name}/result_json/{base_name}_alcohol_json.json',
+                                  smoke_file_path=f'result/{base_name}/result_json/{base_name}_smoking_json.json')
 if __name__ == "__main__":
     base_name='스파이'
     streamlit_summary_def(base_name)
