@@ -106,10 +106,10 @@ def filter_by_category(input_path, category):
 
     with open(input_path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    
+    summary = data['summary']
     filtered_lines = [entry["lines"] for entry in data["results"] if entry[category]]
     
-    return filtered_lines
+    return filtered_lines,summary
 
 
 
