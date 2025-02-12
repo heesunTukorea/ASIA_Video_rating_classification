@@ -53,7 +53,7 @@ def extract_audio_segments(input_video_path, output_audio_base_path, segment_dur
 
 
 def extract_images(input_video_path, output_images_path, start_time=None, duration=None):
-    command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1"]
+    command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1/60"]
     
     if start_time:
         command.extend(["-ss", start_time])
@@ -67,11 +67,11 @@ def extract_images(input_video_path, output_images_path, start_time=None, durati
 import glob
 
 def transcribe_audio_segments(client, output_audio_base_path, language):
-    """ 여러 개의 오디오 세그먼트를 Whisper로 변환 """
-    audio_files = sorted(glob.glob(f"{output_audio_base_path}_*.mp3"))  # 오디오 파일 리스트 정렬
+    """ 여러 개의 오디오 세그먼트를 Whisper로 변환 (실제 영상 시간 기준) """
+    audio_files = sorted(glob.glob(f"{output_audio_base_path}_*.mp3"))  # 오디오 파일 정렬
     full_transcription = []
 
-    for audio_file in audio_files:
+    for idx, audio_file in enumerate(audio_files):
         with open(audio_file, "rb") as f:
             print(f"🎙 Whisper 처리 중: {audio_file}")
             transcription = client.audio.transcriptions.create(
@@ -81,6 +81,13 @@ def transcribe_audio_segments(client, output_audio_base_path, language):
                 response_format="verbose_json",
                 timestamp_granularities=["segment"]
             )
+
+            # 현재 오디오 파일의 시작 오프셋 (idx * segment_duration 초)
+            offset = idx * 600  # 10분(600초) 단위로 오프셋 추가
+            for segment in transcription.segments:
+                segment.start += offset
+                segment.end += offset
+
             full_transcription.append(transcription)
 
     return full_transcription
@@ -91,15 +98,15 @@ def format_time(seconds):
     return str(timedelta(seconds=int(seconds))).zfill(8)
 
 # 텍스트 파일에 기록
-def write_text(output_text_path, result):
+def write_text(output_text_path, results):
     with open(output_text_path, 'w', encoding='utf-8') as f:
-        for segment in result.segments:
-            start_time = format_time(segment.start)
-            end_time = format_time(segment.end)
-            text = segment.text
-            f.write(f"[{start_time} - {end_time}]  {text}\n")
-            print(f"[{start_time} - {end_time}]  {text}")
-
+        for result in results:
+            for segment in result.segments:
+                start_time = format_time(segment.start)
+                end_time = format_time(segment.end)
+                text = segment.text
+                f.write(f"[{start_time} - {end_time}]  {text}\n")
+                print(f"[{start_time} - {end_time}]  {text}")
 # 메인 프로세스 실행
 def process_video(input_video_path, start_time=None, duration=None, language='ko'):
     client = open_ai_load()
