@@ -95,7 +95,7 @@ def process_script(script_path, output_path):
     
     print(f"분석 결과가 '{output_path}' 파일에 저장되었습니다.")
 
-def filter_by_category(input_path, output_path, category):
+def filter_by_category(input_path, category):
     """category에는
     "strong_abusive_percentage", "weak_abusive_percentage",
     "여성/가족_hate_percentage", "남성_hate_percentage",
@@ -109,10 +109,7 @@ def filter_by_category(input_path, output_path, category):
     
     filtered_lines = [entry["lines"] for entry in data["results"] if entry[category]]
     
-    with open(output_path, "w", encoding="utf-8") as json_file:
-        json.dump(filtered_lines, json_file, ensure_ascii=False, indent=4)
-    
-    print(f"필터링된 결과가 '{output_path}' 파일에 저장되었습니다.")
+    return filtered_lines
 
 
 
@@ -126,6 +123,5 @@ def filter_by_category(input_path, output_path, category):
 # if __name__ == "__main__":
 #     filter_by_category(
 #         "텍스트 결과/수상한 그녀_lines_json.json",
-#         "텍스트 결과/수상한 그녀lines_json.json",
 #         "strong_abusive_percentage"
 #     )
