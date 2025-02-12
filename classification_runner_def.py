@@ -11,7 +11,7 @@ from violence.violence_text_JSON import violence_text_main
 from sexuality.Sexuality_text_JSON import sexuality_text_main
 from drug.alcohol_classfication import detect_alcohol_in_images
 from rating_classfication.topic_rating_classification import classify_topic_rating 
-from rating_classfication.lines_rating_classification import lines_classify
+from rating_classfication.lines_rating_classification import process_dialogue_rating
 from rating_classfication.drugs_rating_classification import process_drug_rating
 from rating_classfication.horror_rating_classification import get_horror_rating
 from rating_classfication.imitaion_risk_rating_classification import imitaion_risk_classify
@@ -106,7 +106,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     #------------------------------------------최종 분류---------------------------------------------------------------------'
     classify_topic_rating(json_file_path=json_class_name['주제'], result_file_path=json_class_name['주제_등급'])
     print('주제 등급 판정 완료')
-    lines_classify(input_file=json_class_name['대사'],output_file=json_class_name['대사_등급'])
+    process_dialogue_rating(input_file=json_class_name['대사'],output_file=json_class_name['대사_등급'])
     print('대사 등급 판정 완료')
     process_drug_rating(drug_json=json_class_name['약물_마약'], smoking_json=json_class_name['약물_담배'], alcohol_json=json_class_name['약물_술'], output_json_path=json_class_name['약물_등급'])
     print('약물 등급 판정 완료')
