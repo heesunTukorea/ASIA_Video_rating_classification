@@ -100,7 +100,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     print('주제 완료')
 
     #모방위험 : 이미지가 많기때문에 따로 돌리는거 권장
-    imitation_risk_api(image_folder=images_path,text_file_path=text_path) #모방위험 gpt포함
+    imitation_risk_api(image_folder=images_path,text_file_path=text_path, time_interval=1) #모방위험 gpt포함 # ime_interval=1 30초당 1번이면 30으로 변경
     print('모방위험 완료')
     
     #------------------------------------------최종 분류---------------------------------------------------------------------'
