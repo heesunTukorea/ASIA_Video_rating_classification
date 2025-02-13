@@ -461,6 +461,94 @@ def display_topic_summary(file_path):
             else:
                 st.write(line)
 
+#모방위험
+def display_imitation_summary(file_path):
+    """모방위험 장면 분석 결과를 Streamlit에서 출력하는 함수"""
+    
+    # 기본 경로 설정
+    base_path = file_path.split("result/")[1].split("/result_json")[0]  
+    base_name = os.path.basename(base_path)  
+    img_folder_path = f'result/{base_name}/{base_name}_images_output'
+
+    # JSON 데이터 로드
+    data = load_json(file_path)
+
+    # JSON 데이터가 비어 있는 경우 예외 처리
+    if not data:
+        return
+
+    # Summary 데이터 가져오기
+    summary_data = data[-1]["summary"]
+    high_risk = summary_data["high_risk"]
+    medium_risk = summary_data["medium_risk"]
+    
+    total_scenes = len(data) - 1  # summary 제외한 총 장면 수
+    high_count = len(high_risk)
+    medium_count = len(medium_risk)
+    low_count = total_scenes - (high_count + medium_count)
+
+    high_ratio = high_count / total_scenes * 100
+    medium_ratio = medium_count / total_scenes * 100
+    low_ratio = low_count / total_scenes * 100
+
+    # Streamlit UI - Summary 먼저 출력
+    st.markdown("### 👥 **모방위험 장면 분석 결과**")
+
+    # Low Risk는 제외하고 Medium, High만 선택할 수 있도록 데이터 필터링
+    im_data = {k: v for item in data if isinstance(item, dict) for k, v in item.items() if k != 'summary'}
+    filtered_data = {k: v for k, v in im_data.items() if v["mimicry_risk"] in ["Medium", "High"]}
+
+    # 🟡 Medium / 🔴 High 위험도에 따라 레이블 추가
+    selectbox_options = ['📊 Summary'] + [
+        f"{'🟡 Medium' if v['mimicry_risk'] == 'Medium' else '🔴 High'} - {k}"
+        for k, v in filtered_data.items()
+    ]
+
+    # 📌 **Medium & High 이미지 선택 박스**
+    select_img_label = st.selectbox("🔍 **모방위험이 감지된 이미지 선택** (Medium, High만)", selectbox_options, index=0)
+
+    if select_img_label == '📊 Summary':
+        # 📊 **요약 정보**
+        st.markdown("### 📊 **모방위험 장면 요약 분석**")
+        st.write(f"- **총 장면 수**: {total_scenes} 개")
+        st.write(f"- 🟥 **High Risk (높음)**: {high_count} 개 (**{high_ratio:.1f}%**)")
+        st.progress(high_ratio / 100)
+
+        st.write(f"- 🟧 **Medium Risk (중간)**: {medium_count} 개 (**{medium_ratio:.1f}%**)")
+        st.progress(medium_ratio / 100)
+
+        st.write(f"- 🟢 **Low Risk (낮음)**: {low_count} 개 (**{low_ratio:.1f}%**)")
+        st.progress(low_ratio / 100)
+
+    else:
+        # 선택된 이미지 키 추출 (라벨 제거)
+        select_img = select_img_label.split(" - ")[1]
+
+        # 📷 **개별 이미지 표시**
+        img_path = os.path.join(img_folder_path, f"{select_img}.png").replace("\\", "/")
+        
+        st.markdown(f"### 📷 **선택한 장면: {select_img}**")
+        st.image(img_path, caption=f"🖼️ {select_img}")
+        
+        # 장면에 대한 설명 표시
+        scene_data = filtered_data[select_img]
+        context = scene_data.get('context', '설명 없음')
+        risk_behavior = scene_data.get('risk_behavior', '없음')
+        mimicry_risk = scene_data.get('mimicry_risk', '없음')
+
+        # 모방위험 수준 색상 지정
+        risk_levels = {
+            "Medium": ("🟡 **Medium** (중간)", "⚠️ 모방 가능성이 있습니다."),
+            "High": ("🔴 **High** (높음)", "🚨 위험한 수준으로 모방 가능성이 큽니다!")
+        }
+        
+        risk_label, risk_message = risk_levels.get(mimicry_risk, ("⚪ **Unknown** (알 수 없음)", "정보가 부족합니다."))
+
+        st.markdown("### **🔍 장면 분석**")
+        st.write(f"💬 **설명**: {context}")
+        st.write(f"⚠️ **위험 요소**: {risk_behavior}")
+        st.markdown(f"🛑 **모방위험 수준**: {risk_label}")
+
 # Streamlit 실행
 def streamlit_summary_def(base_name):#영상이름 ex) 스파이
     select_category = st.selectbox("📌 **분류 기준 선택**", ['주제','대사','공포','약물','폭력성','선정성','모방위험'], index=0)
@@ -479,6 +567,8 @@ def streamlit_summary_def(base_name):#영상이름 ex) 스파이
                                   smoke_file_path=f'result/{base_name}/result_json/{base_name}_smoking_json.json')
     elif select_category == '주제':
         display_topic_summary(file_path=f'result/{base_name}/result_json/{base_name}_topic_json.json')
+    elif select_category == '모방위험':
+        display_imitation_summary(file_path=f'result/{base_name}/result_json/{base_name}_imitation_json.json')
 if __name__ == "__main__":
     base_name='스파이'
     streamlit_summary_def(base_name)
