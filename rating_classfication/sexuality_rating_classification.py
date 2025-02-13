@@ -36,6 +36,10 @@ def classify_sexuality_rating(input_img_path, input_text_path, output_file):
     # 이미지 데이터 로드
     with open(input_img_path, "r", encoding="utf-8") as file:
         image_data = json.load(file)
+        # JSON이 리스트 형식이면 마지막 요소 선택
+        if isinstance(image_data, list):
+            return image_data[-1]  # 마지막 객체 선택
+        return image_data  # 객체 그대로 반환
     image_data_str = json.dumps(image_data, ensure_ascii=False, indent=2)
 
     # 대사 텍스트 로드
@@ -126,11 +130,12 @@ def classify_sexuality_rating(input_img_path, input_text_path, output_file):
         json.dump(parsed_result, outfile, ensure_ascii=False, indent=2)
     
     print(f"결과 저장 완료 : '{output_file}'")
+    print(image_data_str)
     return parsed_result
 
-if __name__ == "__main__":
-    base_name = "수리남" # 비디오 파일 이름 (확장자 제외)
-    input_img_path = 'C:/Users/chloeseo/ms_project/test_v6/result/수리남/result_json/수리남_sexuality_img_json.json' # 이미지 데이터 JSON 파일 경로
-    input_text_path = 'C:/Users/chloeseo/ms_project/test_v6/result/수리남/수리남_text_output/수리남_text.txt' # 대사 텍스트 파일 경로
-    output_file = 'C:/Users/chloeseo/ms_project/test_v6/result/수리남_따로_json.json' # 결과 파일 경로
-    classify_sexuality_rating(input_img_path, input_text_path, output_file) # 함수 호출
+# if __name__ == "__main__":
+#     base_name = "수리남" # 비디오 파일 이름 (확장자 제외)
+#     input_img_path = '/result_json/겨울왕국_sexuality_img_json.json' # 이미지 데이터 JSON 파일 경로
+#     input_text_path = '/result/겨울왕국/겨울왕국_text_output/겨울왕국_text.txt' # 대사 텍스트 파일 경로
+#     output_file = '/result/테스트테스트.json' # 결과 파일 경로
+#     classify_sexuality_rating(input_img_path, input_text_path, output_file) # 함수 호출
