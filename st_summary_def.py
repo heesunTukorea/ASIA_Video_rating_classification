@@ -2,6 +2,7 @@ import json
 import streamlit as st
 import os
 from lines.lines_JSON import filter_by_category
+from topic.Topic_JSON import filter_topic
 #---------------------공통 함수 ----------------------------
 # JSON 파일 로드 함수
 def load_json(file_path):
@@ -63,6 +64,9 @@ def display_horror_summary(file_path):
             st.write(f"- **총 장면 수**: {total_scenes} 개")
             st.write(f"- **비공포 장면 수**: {non_horror} 개 (**{horror_rate_false * 100:.1f}%**)")
             st.write(f"- **공포 장면 수**: {total_scenes - non_horror} 개 (**{horror_rate_true * 100:.1f}%**)")
+            
+            st.markdown(f"#### **👻 공포 장면 비율**: {horror_rate_true * 100:.1f}%")
+            st.progress(min(round(horror_rate_true, 2), 1.0))  # 최대 1.0 (100%)까지
 
         with tab2:
             st.markdown("### 📌 **공포 장면 상세 분석**")
@@ -108,10 +112,10 @@ def display_violence_summary(file_path):
 
         # 기본 정보
         total_scenes = summary_data['total_scenes']
-        non_horror = summary_data['non-violence']
-        horror_rate_true = summary_data['violence_rate_true']
-        horror_rate_false = summary_data['violence_rate_false']
-        horror_best_caption = summary_data['violence_best_caption']
+        non_violence = summary_data['non-violence']
+        violence_rate_true = summary_data['violence_rate_true']
+        violence_rate_false = summary_data['violence_rate_false']
+        violence_best_caption = summary_data['violence_best_caption']
 
         # 공포 장면 비율 탭
         tab1, tab2 = st.tabs(['📊 장면 비율', '📌 폭력 장면 상세 분석'])
@@ -119,12 +123,15 @@ def display_violence_summary(file_path):
         with tab1:
             st.markdown("### 📊 **장면 비율 분석**")
             st.write(f"- **총 장면 수**: {total_scenes} 개")
-            st.write(f"- **폭력적이지 않은 장면 수**: {non_horror} 개 (**{horror_rate_false * 100:.1f}%**)")
-            st.write(f"- **폭력 장면 수**: {total_scenes - non_horror} 개 (**{horror_rate_true * 100:.1f}%**)")
+            st.write(f"- **폭력적이지 않은 장면 수**: {non_violence} 개 (**{violence_rate_false * 100:.1f}%**)")
+            st.write(f"- **폭력 장면 수**: {total_scenes - non_violence} 개 (**{violence_rate_true * 100:.1f}%**)")
+            
+            st.markdown(f"#### **💥 폭력성 비율**: {violence_rate_true * 100:.1f}%")
+            st.progress(min(round(violence_rate_true, 2), 1.0))  # 최대 1.0 (100%)까지
 
         with tab2:
             st.markdown("### 📌 **폭력 장면 상세 분석**")
-            for caption, count in horror_best_caption.items():
+            for caption, count in violence_best_caption.items():
                 st.write(f"- **{caption}**: {count} 건")
 
     # 📌 **개별 이미지 표시**
@@ -158,10 +165,10 @@ def display_sexuality_summary(file_path):
 
         # 기본 정보
         total_scenes = summary_data['total_scenes']
-        non_horror = summary_data['non-sexual']
-        horror_rate_true = summary_data['sexual_rate_true']
-        horror_rate_false = summary_data['sexual_rate_false']
-        horror_best_caption = summary_data['sexual_best_caption']
+        non_sexual = summary_data['non-sexual']
+        sexual_rate_true = summary_data['sexual_rate_true']
+        sexual_rate_false = summary_data['sexual_rate_false']
+        sexual_best_caption = summary_data['sexual_best_caption']
 
         # 선정성 장면 비율 탭
         tab1, tab2 = st.tabs(['📊 장면 비율', '📌 선정성 장면 상세 분석'])
@@ -169,12 +176,15 @@ def display_sexuality_summary(file_path):
         with tab1:
             st.markdown("### 📊 **장면 비율 분석**")
             st.write(f"- **총 장면 수**: {total_scenes} 개")
-            st.write(f"- **비선정성 장면 수**: {non_horror} 개 (**{horror_rate_false * 100:.1f}%**)")
-            st.write(f"- **선정성 장면 수**: {total_scenes - non_horror} 개 (**{horror_rate_true * 100:.1f}%**)")
+            st.write(f"- **비선정성 장면 수**: {non_sexual} 개 (**{sexual_rate_false * 100:.1f}%**)")
+            st.write(f"- **선정성 장면 수**: {total_scenes - non_sexual} 개 (**{sexual_rate_true * 100:.1f}%**)")
+            
+            st.markdown(f"#### **🔞 선정성 비율**: {sexual_rate_true * 100:.1f}%")
+            st.progress(min(round(sexual_rate_true, 2), 1.0))  # 최대 1.0 (100%)까지
 
         with tab2:
             st.markdown("### 📌 **선정성 장면 상세 분석**")
-            for caption, count in horror_best_caption.items():
+            for caption, count in sexual_best_caption.items():
                 st.write(f"- **{caption}**: {count} 건")
 
     # 📌 **개별 이미지 표시**
@@ -358,6 +368,7 @@ def display_alcohol_summary(file_path):
         
         st.title(f"📷 {select_img}")
         st.image(img_path, caption=f"🖼️ {select_img}")
+# 담배        
 def display_somke_summary(file_path):
     # 기본 경로 설정
     base_path = file_path.split("result/")[1].split("/result_json")[0]  
@@ -401,6 +412,7 @@ def display_somke_summary(file_path):
         
         st.title(f"📷 {select_img}")
         st.image(img_path, caption=f"🖼️ {select_img}")
+# 약물 종합        
 def display_drug_total_summary(drug_file_path,alcohol_file_path,smoke_file_path):
 
     tab1, tab2, tab3 = st.tabs(['음주','흡연','마약'])
@@ -412,7 +424,39 @@ def display_drug_total_summary(drug_file_path,alcohol_file_path,smoke_file_path)
         display_drug_summary(drug_file_path)
     # display_drug_summary(drug_file_path)
     
-    
+#----------------------------------------주제--------------------------------    
+def display_topic_summary(file_path):
+    topic_str = filter_topic(file_path)
+
+    st.markdown("## 🎬 **주제 분석 결과**")
+    st.markdown("---")
+
+    # 주제 키워드와 설명 강조
+    st.markdown("### 🏷️ **주제 키워드 3개와 설명**")
+    lines = topic_str.split("\n")
+    keyword_section = True  # 주제 키워드 부분을 추적하기 위한 플래그
+
+    for line in lines:
+        if "전반적 설명" in line:
+            st.markdown("---")
+            st.markdown("### 📌 **전반적 설명**")
+            keyword_section = False  # 이후부터는 전반적 설명 부분
+            continue
+        
+        if keyword_section and line.strip():
+            if " : " in line:
+                keyword, desc = line.split(" : ", 1)
+                st.write(f"🔹 **{keyword}**: {desc}")
+        elif line.strip():
+            if "작품의 표현 방식" in line:
+                st.write(f"🖌️ **{line}**")
+            elif "메시지 전달 의도" in line:
+                st.write(f"💡 **{line}**")
+            elif "장르적 특성" in line:
+                st.write(f"🎭 **{line}**")
+            else:
+                st.write(line)
+
 # Streamlit 실행
 def streamlit_summary_def(base_name):#영상이름 ex) 스파이
     select_category = st.selectbox("📌 **분류 기준 선택**", ['주제','대사','공포','약물','폭력성','선정성','모방위험'], index=0)
@@ -429,6 +473,8 @@ def streamlit_summary_def(base_name):#영상이름 ex) 스파이
        display_drug_total_summary(drug_file_path=f'result/{base_name}/result_json/{base_name}_drug_json.json',
                                   alcohol_file_path=f'result/{base_name}/result_json/{base_name}_alcohol_json.json',
                                   smoke_file_path=f'result/{base_name}/result_json/{base_name}_smoking_json.json')
+    elif select_category == '주제':
+        display_topic_summary(file_path=f'result/{base_name}/result_json/{base_name}_topic_json.json')
 if __name__ == "__main__":
     base_name='스파이'
     streamlit_summary_def(base_name)
