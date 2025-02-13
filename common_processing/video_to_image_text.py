@@ -53,7 +53,11 @@ def extract_audio_segments(input_video_path, output_audio_base_path, segment_dur
 
 
 def extract_images(input_video_path, output_images_path, start_time=None, duration=None):
-    command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1/60"]
+    # command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1"] #1초당 한장
+    command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1/10"] #10초당 한장
+    # command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1/30"] #30초당 한장
+    # command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1/60"] #1분당 한장
+
     
     if start_time:
         command.extend(["-ss", start_time])
@@ -143,10 +147,6 @@ def process_video(input_video_path, start_time=None, duration=None, language='ko
 
     print("✅ 프로세스 완료")
 
-    
-    
-    
-    
 # import한 후 호출 예시
 # from this_module import process_video
 #process_video("video_data/불한당.mp4",)
