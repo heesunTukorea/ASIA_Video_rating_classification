@@ -10,7 +10,7 @@ def load_json(file_path):
         data = json.load(file)
     return data  
 
-# 공포 장면 분석 함수
+# 캡션 및 true 장면 분석 함수
 def classfication_tf(data):
     summary_data = data[-1]  # 마지막 요소는 summary
     true_dict = {}
@@ -26,9 +26,11 @@ def classfication_tf(data):
 
     return true_dict, summary_data
 
-
-#-------------------------------공포 --------------------------------------------------------------
 # Streamlit UI 구성 함수
+#-------------------------------공포 --------------------------------------------------------------
+
+
+#호러
 def display_horror_summary(file_path):
     # 기본 경로 설정
     base_path = file_path.split("result/")[1].split("/result_json")[0]  
@@ -41,7 +43,7 @@ def display_horror_summary(file_path):
 
     # 이미지 선택 박스
     true_dict_keys = list(true_dict.keys())
-    st.title("🕷️ 공포 장면 분석 결과")
+    st.markdown("### 🕷️ **공포 장면 분석 결과**")
     select_img = st.selectbox("📌 **공포 해당 이미지 선택**", ['summary'] + true_dict_keys, index=0)
     
     # 📌 **요약 정보 표시**
@@ -83,6 +85,7 @@ def display_horror_summary(file_path):
         st.write(f"💬 {true_dict[select_img]}")
 
 #---------------------------폭력------------------------------------------
+#폭력
 def display_violence_summary(file_path):
     # 기본 경로 설정
     base_path = file_path.split("result/")[1].split("/result_json")[0]  
@@ -102,7 +105,7 @@ def display_violence_summary(file_path):
             true_dict[img_name] = best_caption
     # 이미지 선택 박스
     true_dict_keys = list(true_dict.keys())
-    st.title("💥 폭력 장면 분석 결과")
+    st.markdown("### 💥 **폭력 장면 분석 결과**")
     select_img = st.selectbox("📌 **폭력성 해당 이미지 선택**", ['summary'] + true_dict_keys, index=0)
 
     # 📌 **요약 정보 표시**
@@ -117,7 +120,7 @@ def display_violence_summary(file_path):
         violence_rate_false = summary_data['violence_rate_false']
         violence_best_caption = summary_data['violence_best_caption']
 
-        # 공포 장면 비율 탭
+        # 폭력 장면 비율 탭
         tab1, tab2 = st.tabs(['📊 장면 비율', '📌 폭력 장면 상세 분석'])
 
         with tab1:
@@ -142,6 +145,7 @@ def display_violence_summary(file_path):
         st.image(img_path, caption=f"🖼️ {select_img}")
         st.markdown(f"### **🔍 장면 분류**")
         st.write(f"💬 {true_dict[select_img]}")
+        
 # --------------------------선정 -------------------------------------------------
 def display_sexuality_summary(file_path):
     # 기본 경로 설정
@@ -155,7 +159,7 @@ def display_sexuality_summary(file_path):
 
     # 이미지 선택 박스
     true_dict_keys = list(true_dict.keys())
-    st.title("🔞 선정성 장면 분석 결과")
+    st.markdown("### 🔞 **선정성 장면 분석 결과**")
     select_img = st.selectbox("📌 **선정성 해당 이미지 선택**", ['summary'] + true_dict_keys, index=0)
 
     # 📌 **요약 정보 표시**
@@ -198,8 +202,8 @@ def display_sexuality_summary(file_path):
 #--------------------------- 대사 -----------------------------------------------
 def display_lines_summary(file_path):
     """대사 요약 및 필터링 UI"""
-    st.title("🗣️ 대사 분석 결과")
-    st.markdown("### 🎬 **욕설 및 혐오 표현 비율별 대사 분류**")
+    st.markdown("### 🗣️ **대사 분석 결과**")
+    # st.markdown("### 🎬 **욕설 및 혐오 표현 비율별 대사 분류**")
     CATEGORY_LABELS = {
     "summary": "대사 비율 요약",
     "strong_abusive_percentage": "강한 욕설",
@@ -228,7 +232,7 @@ def display_lines_summary(file_path):
     filtered_lines, summary = filter_by_category(file_path, select_cate1)
 
     if select_cate == "summary":
-        st.markdown("### 📌 **대사 비율 요약**")
+        st.markdown("### 💬 **대사 비율 요약**")
         st.write("아래 표는 각 카테고리별 대사 비율(%)을 나타냅니다.")
 
         # 데이터를 표로 출력
@@ -250,7 +254,7 @@ def display_lines_summary(file_path):
     
     else:
         # 대사 목록 UI 표시
-        st.markdown(f"### 📌 **{CATEGORY_LABELS[select_cate]} 리스트**")
+        st.markdown(f"### 💬 **{CATEGORY_LABELS[select_cate]} 리스트**")
 
         if not filtered_lines:
             st.warning("❌ 해당 카테고리에 해당하는 대사가 없습니다.")
@@ -280,7 +284,7 @@ def display_drug_summary(file_path):
             true_dict[img_name] = best_caption
     # 이미지 선택 박스
     true_dict_keys = list(true_dict.keys())
-    st.title("💊 마약 장면 분석 결과")
+    st.markdown("### 💊 **마약 장면 분석 결과**")
     select_img = st.selectbox("📌 **마약성 해당 이미지 선택**", ['summary'] + true_dict_keys, index=0)
 
     # 📌 **요약 정보 표시**
@@ -304,7 +308,7 @@ def display_drug_summary(file_path):
             st.write(f"- **마약이 나타나지 않는 장면 수**: {non_drug} 개 (**{drug_rate_false * 100:.1f}%**)")
             st.write(f"- **마약 장면 수**: {total_scenes - non_drug} 개 (**{drug_rate_true * 100:.1f}%**)")
             
-             # 진행 바로 흡연 장면 비율 시각화
+             # 진행 바로 마약 장면 비율 시각화
             st.markdown(f"#### **💊 마약 비율**: {drug_rate_true * 100:.1f}%")
             st.progress(min(round(drug_rate_true, 2), 1.0))  # 최대 1.0 (100%)까지
 
@@ -338,7 +342,7 @@ def display_alcohol_summary(file_path):
     # 이미지 선택 박스
      # 이미지 선택 박스
     true_dict_keys = list(true_dict.keys())
-    st.title("🍺 음주 장면 분석 결과")
+    st.markdown("### 🍺 **음주 장면 분석 결과**")
     select_img = st.selectbox("📌 **음주 해당 이미지 선택**", ['summary'] + true_dict_keys, index=0)
     
     # 📌 **요약 정보 표시**
@@ -382,7 +386,7 @@ def display_somke_summary(file_path):
     # 이미지 선택 박스
      # 이미지 선택 박스
     true_dict_keys = list(true_dict.keys())
-    st.title("🚬 흡연 장면 분석 결과")
+    st.markdown("### 🚬 **흡연 장면 분석 결과**")
     select_img = st.selectbox("📌 **흡연 해당 이미지 선택**", ['summary'] + true_dict_keys, index=0)
     
     # 📌 **요약 정보 표시**
@@ -428,7 +432,7 @@ def display_drug_total_summary(drug_file_path,alcohol_file_path,smoke_file_path)
 def display_topic_summary(file_path):
     topic_str = filter_topic(file_path)
 
-    st.markdown("## 🎬 **주제 분석 결과**")
+    st.markdown("### 🎬 **주제 분석 결과**")
     st.markdown("---")
 
     # 주제 키워드와 설명 강조
