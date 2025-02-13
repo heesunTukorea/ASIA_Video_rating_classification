@@ -31,7 +31,7 @@ def parse_script(file_path):
     return script
 
 # 이미지 파일과 대사를 매칭하는 함수
-def match_images_with_script(image_folder, script):
+def match_images_with_script(image_folder, script, time_interval=1):
     """이미지 파일과 대사를 매칭"""
     matched_data = []
 
@@ -42,14 +42,15 @@ def match_images_with_script(image_folder, script):
 
     for image_file in image_files:
         # 이미지 파일명에서 시간 추출 (예: "오징어게임시즌2_001.png" -> 001)
-        match = re.search(r"_(\d{3})", image_file)
+        match = re.search(r"_(\d+)\.", image_file)
         if match:
-            image_time = int(match.group(1))  # 초 단위로 변환
-
+            image_time = int(match.group(1))*time_interval  # 초 단위로 변환
+            print(image_time)
             # 해당 시간에 포함된 대사를 찾음
             matched = False
             for start_time, end_time, text in script:
-                if start_time <= image_time < end_time:
+                if start_time - time_interval <= image_time <= end_time + time_interval:
+                    print(f'시작{start_time},이미지{image_time},끝{end_time}')
                     matched_data.append({"image_path": image_folder + '/' + image_file, "text": text})
                     matched = True
                     break
@@ -58,8 +59,9 @@ def match_images_with_script(image_folder, script):
             if not matched:
                 matched_data.append({"image_path": image_folder + '/' + image_file, "text": "대사없음"})
 
-    return matched_data
 
+    return matched_data
+    
 # 매칭 결과를 파일로 저장하는 함수
 def save_matched_data(output_file_path, matched_data):
     """매칭 결과를 JSON 파일로 저장"""
@@ -67,7 +69,7 @@ def save_matched_data(output_file_path, matched_data):
         json.dump(matched_data, f, ensure_ascii=False, indent=4)
 
 # 메인 실행 함수
-def process_matching(image_folder, text_file_path):
+def process_matching(image_folder, text_file_path,time_interval=1):
     base_path = os.path.dirname(image_folder)
     base_name = base_path.split('result/')[1]  
     classify_folder = base_path+ f"/{base_name}_classify"
@@ -79,18 +81,20 @@ def process_matching(image_folder, text_file_path):
     script = parse_script(text_file_path)
 
     # 이미지와 대사 매칭
-    matched_data = match_images_with_script(image_folder, script)
+    matched_data = match_images_with_script(classify_folder, script, time_interval)
     for item in matched_data:
         print(item)
     # 매칭 결과 저장
     save_matched_data(output_file_path, matched_data)
     return matched_data,output_file_path
 
+
 if __name__ == "__main__":
-    # 예제 실행
-    image_folder = "result/오징어게임시즌2/오징어게임시즌2_images_output"
-    text_file_path = "result/오징어게임시즌2/오징어게임시즌2_text_output/오징어게임시즌2_text.txt"  # 텍스트 파일 경로
-    # output_file_path = "result/오징어게임시즌2/matched.json"  # 결과 저장 파일 경로
+    image_folder = "result/스파이/스파이_images_output"
+    text_file_path = "result/스파이/스파이_text_output/스파이_text.txt"
 
-    result,output_file_path = process_matching(image_folder, text_file_path)
+    time_interval = 1  # 1분당 1장면 (30초당 1장면이면 30으로 설정)
 
+
+    result, output_file_path = process_matching(image_folder, text_file_path,time_interval = 60)
+ 

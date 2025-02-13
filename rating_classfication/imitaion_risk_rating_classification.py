@@ -45,22 +45,16 @@ def process_imitaion_rating(lines_data):
         - Realistic and detailed depiction of weapon use.
         - Explicit crime techniques or illegal acts that could be imitated.
         - Graphic portrayal of suicide, violence, or delinquent behavior.
-
-       상영제한가:
-        - Extreme depiction of crime, violence, or self-harm.
-        - Encouragement or glorification of illegal, harmful, or anti-social behavior.
-        - Violation of social norms, democratic values, or human dignity.
-
         ### Task:
         Analyze the provided scene and classify it into one of the five categories.
         Return the result in JSON format:
 
-        "rating": <one of ["전체관람가", "12세이상관람가", "15세이상관람가", "청소년관람불가", "상영제한가"]>, "reasoning": "<brief reason in Korean>"
+        "rating": <one of ["전체관람가", "12세이상관람가", "15세이상관람가", "청소년관람불가"]>, "reasoning": "<brief reason in Korean>"
 
         Input:{lines_data}
         
         input_information:
-        It is data on the part where the scene is switched by extracting one image per second from the image consisting of context, risk behavior, and mimicability
+        This is the data of medium and high imitating risk among the data extracted for context, risk behavior, and likelihood of imitating by extracting the image being transformed
         """},
     ]
 
@@ -92,7 +86,8 @@ def imitaion_risk_classify(input_file, output_file):
 #     "strong_abusive_percentage": 17.95,
 #     "weak_abusive_percentage": 7.69
 # }
-    result = process_imitaion_rating(lines_data)
+    summary_data=lines_data[-1]
+    result = process_imitaion_rating(lines_data=summary_data)
     print(result)
 
     # 결과를 JSON 파일로 저장
@@ -103,6 +98,6 @@ def imitaion_risk_classify(input_file, output_file):
 
 if __name__ == "__main__":
     # 예제 실행 코드
-    input_file = "result/아저씨/result_json/아저씨_imitation_json3.json"  # 입력 이미지 폴더 경로
-    output_file = "아저씨_test1.json"  # 출력 폴더 경로
+    input_file = "result/스파이/result_json/스파이_imitation_json.json"  # 입력 이미지 폴더 경로
+    output_file = "스파이_test1.json"  # 출력 폴더 경로
     imitaion_risk_classify(input_file, output_file)
