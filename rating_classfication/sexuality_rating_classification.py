@@ -3,6 +3,7 @@ import openai
 import json
 import os
 from dotenv import load_dotenv
+import re
 
 # 환경 변수 로드
 load_dotenv()
@@ -11,11 +12,20 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # OpenAI 클라이언트 초기화
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
-def load_dialogue_texts(file_path):
-    """ 파일에서 대사 텍스트를 한 줄씩 읽어 리스트로 반환 """
-    with open(file_path, "r", encoding="utf-8") as f:
-        texts = f.read().splitlines()
-    return texts
+# 🔹 타임라인 제거 후 정제된 대사를 반환하는 함수 (파일 저장 없음)
+def remove_timeline_from_text(input_file):
+    """타임라인 제거 후 정제된 대사 리스트 반환"""
+    with open(input_file, "r", encoding="utf-8") as f:
+        lines = f.read().splitlines()
+
+    cleaned_lines = []
+    for line in lines:
+        # 정규 표현식을 사용하여 [00:00:00 - 00:00:00] 패턴 제거
+        cleaned_text = re.sub(r"\[\d{2}:\d{2}:\d{2} - \d{2}:\d{2}:\d{2}\]\s*", "", line).strip()
+        if cleaned_text:  # 빈 문자열이 아닐 경우만 추가
+            cleaned_lines.append(cleaned_text)
+
+    return cleaned_lines  # 🔹 파일 저장 없이 정제된 리스트 반환
 
 # 등급판정 및 결과 저장 함수
 def classify_sexuality_rating(input_img_path, input_text_path, output_file): 
@@ -29,7 +39,7 @@ def classify_sexuality_rating(input_img_path, input_text_path, output_file):
     image_data_str = json.dumps(image_data, ensure_ascii=False, indent=2)
 
     # 대사 텍스트 로드
-    dialogue_texts = load_dialogue_texts(input_text_path)
+    dialogue_texts = remove_timeline_from_text(input_text_path)
     dialogue_data_json = json.dumps({"dialogues": dialogue_texts}, ensure_ascii=False, indent=2) # 키 이름 변경: "dialogues"
 
     # 분류 기준 (기존과 동일)

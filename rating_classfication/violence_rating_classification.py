@@ -2,6 +2,7 @@ import json
 import openai
 import os
 from dotenv import load_dotenv
+import re
 
 # .env 파일 로드
 load_dotenv()
@@ -22,12 +23,20 @@ def load_imgjson(file_path):
         return data[-1]  # 마지막 객체 선택
     return data  # 객체 그대로 반환
 
-# 대사 텍스트 파일을 JSON 형식 리스트로 반환 함수
-def load_textjson(file_path):
-    with open(file_path, "r", encoding="utf-8") as file:
-        lines = file.readlines()
-        parsed_data = [{"text": line.strip()} for line in lines if line.strip()]  # 빈 줄 제거 후 저장
-    return parsed_data
+# 🔹 타임라인 제거 후 정제된 대사를 반환하는 함수 (파일 저장 없음)
+def remove_timeline_from_text(input_file):
+    """타임라인 제거 후 정제된 대사 리스트 반환"""
+    with open(input_file, "r", encoding="utf-8") as f:
+        lines = f.read().splitlines()
+
+    cleaned_lines = []
+    for line in lines:
+        # 정규 표현식을 사용하여 [00:00:00 - 00:00:00] 패턴 제거
+        cleaned_text = re.sub(r"\[\d{2}:\d{2}:\d{2} - \d{2}:\d{2}:\d{2}\]\s*", "", line).strip()
+        if cleaned_text:  # 빈 문자열이 아닐 경우만 추가
+            cleaned_lines.append(cleaned_text)
+
+    return cleaned_lines  # 🔹 파일 저장 없이 정제된 리스트 반환
 
 # JSON 데이터를 파일로 저장하는 함수
 def save_json_raw(data, file_path):
@@ -38,7 +47,7 @@ def save_json_raw(data, file_path):
 def classify_violence_rating(input_img_path, input_text_path, result_json_path):
     # JSON 데이터 불러오기
     img_data = load_imgjson(input_img_path)
-    text_data = load_textjson(input_text_path)
+    text_data = remove_timeline_from_text(input_text_path)
 
     # 필요한 데이터 추출
     violence_summary = img_data.get("summary", "")
