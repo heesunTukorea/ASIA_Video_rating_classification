@@ -117,6 +117,24 @@ def process_video(input_video_path, start_time=None, duration=None, language='ko
     client = open_ai_load()
     base_path, relative_path = input_video_path.split("video_data/")
 
+    # 파일 확장자 확인 및 변환 (.mkv → .mp4)
+    base_name, file_extension = os.path.splitext(relative_path)  # 확장자 추출
+    
+    if file_extension.lower() == ".mkv":
+        converted_video_path = f"video_data/{base_name}.mp4"
+        
+        # `.mkv`를 `.mp4`로 변환
+        command = [
+            "ffmpeg", "-i", input_video_path, "-c:v", "copy", "-c:a", "aac", converted_video_path
+        ]
+        
+        if subprocess.run(command).returncode == 0:
+            print(f"✅ {input_video_path} → {converted_video_path} 변환 완료")
+            input_video_path = converted_video_path  # 변환된 파일 경로 사용
+        else:
+            print("❌ MKV 변환 중 오류 발생")
+            return
+    
     # 디렉토리 생성 및 경로 반환
     output_audio_base_path, output_images_path, output_text_path = create_dirs(base_path, relative_path)
 
