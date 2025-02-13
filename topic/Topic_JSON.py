@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 import json
+import re
 
 def load_env():
     """.env 파일에서 OpenAI API 키를 로드합니다."""
@@ -12,11 +13,27 @@ def initialize_openai_client(api_key):
     """제공된 API 키를 사용하여 OpenAI 클라이언트를 초기화합니다."""
     return OpenAI(api_key=api_key)
 
+# ✅ 타임라인 제거 함수 추가
+def remove_timeline_from_text(text):
+    """대사에서 타임라인을 제거하여 반환"""
+    lines = text.splitlines()
+    cleaned_lines = []
+
+    for line in lines:
+        # 정규 표현식을 사용하여 [00:00:00 - 00:00:00] 패턴 제거
+        cleaned_text = re.sub(r"\[\d{2}:\d{2}:\d{2} - \d{2}:\d{2}:\d{2}\]\s*", "", line).strip()
+        if cleaned_text:  # 빈 문자열이 아닐 경우 추가
+            cleaned_lines.append(cleaned_text)
+
+    return "\n".join(cleaned_lines)  # ✅ 정제된 대사를 하나의 문자열로 반환
+
+# ✅ 텍스트 로드 시 타임라인 제거 적용
 def load_generated_text(file_path):
-    """생성된 텍스트 파일을 읽어 문자열로 반환합니다."""
+    """생성된 텍스트 파일을 읽어 타임라인을 제거한 후 문자열로 반환"""
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
-            return file.read()
+            raw_text = file.read()
+            return remove_timeline_from_text(raw_text)  # ✅ 타임라인 제거 후 반환
     except FileNotFoundError:
         raise FileNotFoundError(f"텍스트 파일을 찾을 수 없습니다: {file_path}")
 
@@ -25,31 +42,37 @@ def analyze_metadata_and_script(openai_client, metadata, script):
     메타데이터와 대사를 분석하여 키워드, 설명, 표현 방식, 메시지 전달 의도,
     장르적 특성을 JSON 형식으로 추출합니다.
     """
-    prompt = (
-        f"다음 메타데이터와 대사를 분석해서 JSON 형식으로 결과를 출력해줘. 반드시 아래 형식을 유지해야 해."
-        "\n\n"
-        "{"
-        "    \"keywords\": ["
-        "        {\"keyword\": \"키워드1\", \"description\": \"키워드1에 대한 설명\"},"
-        "        {\"keyword\": \"키워드2\", \"description\": \"키워드2에 대한 설명\"},"
-        "        {\"keyword\": \"키워드3\", \"description\": \"키워드3에 대한 설명\"}"
-        "    ],"
-        "    \"overallDescription\": {"
-        "        \"expression\": \"작품의 표현 방식 설명\","
-        "        \"intention\": \"작품의 메시지 전달 의도 설명\","
-        "        \"genreSpecificFeatures\": \"장르적 특성 설명\""
-        "    }"
-        "}"
-        "\n\n"
-        f"메타데이터:\n{json.dumps(metadata, ensure_ascii=False, indent=4)}\n\n"
-        f"대사:\n{script}"
-    )
 
     response = openai_client.chat.completions.create(
         model="gpt-4o",
         messages=[
-            {"role": "user", "content": prompt}
-        ],
+                    {
+                        "role": "system",
+                        "content": (
+                            "당신은 주어진 대사에서 주제를 파악하는 전문가입니다. "
+                        ),
+                    },
+                    {
+                        "role": "user",
+                        "content": 
+                         f"""
+                            다음 메타데이터와 대사를 분석해서 JSON 형식으로 결과를 출력해주세요. 한글로 대답해 주세요. 문장으로 대답해 주세요.
+                            {{
+                            "keywords": [
+                                {{"keyword": "첫번째 키워드", "description": "첫번째 키워드에 대한 설명"}},
+                                {{"keyword": "두번째 키워드", "description": "두번째 키워드에 대한 설명"}},
+                                {{"keyword": "세번째 키워드", "description": "세번째 키워드에 대한 설명"}}
+                            ],
+                            "overallDescription": {{
+                                "expression": "작품의 표현 방식 설명",
+                                "intention": "작품의 메시지 전달 의도 설명",
+                                "genreSpecificFeatures": "장르적 특성 설명"
+                            }}
+                            }}
+                            메타데이터: {json.dumps(metadata, ensure_ascii=False, indent=4)}
+                            대사: {script}
+                            """}
+                    ],
         max_tokens=1000
     )
     ai_response = response.choices[0].message.content
@@ -75,10 +98,7 @@ def process_topic(text_output_path, output_json_path, title, synopsis, genre):
     # OpenAI 클라이언트 초기화
     client = initialize_openai_client(openai_api_key)
 
-    # 생성된 텍스트 파일 경로 설정
-    text_output_path = text_output_path
-
-    # 저장된 텍스트 파일 읽기
+    # 저장된 텍스트 파일 읽기 (✅ 타임라인 제거 적용됨)
     try:
         script = load_generated_text(text_output_path)
         print(f"텍스트 파일에서 내용을 성공적으로 읽었습니다: {text_output_path}")
@@ -126,14 +146,14 @@ def filter_topic(json_path):
     
     return topic_str
 
+# # ✅ 실행 예제
 # if __name__ == "__main__":
 #     process_topic(
-#     text_output_path='result\마스크걸\마스크걸_text_output\마스크걸_text.txt',
-#     output_json_path='topic/topicJSON.json',  # 파일 확장자 추가 및 슬래시로 경로 수정
-#     title="마스크걸",
-#     synopsis='외모 콤플렉스를 가진 평범한 직장인 김모미가 밤마다 마스크로 얼굴을 가린 채 인터넷 방송 BJ로 활동하면서 의도치 않은 사건에 휘말리며 벌어지는 이야기',
-#     genre='스릴러'
-# )
+#         text_output_path='result/마스크걸/마스크걸_text_output/마스크걸_text.txt',
+#         output_json_path='topic/topicJSON.json',  
+#         title="마스크걸",
+#         synopsis='외모 콤플렉스를 가진 평범한 직장인 김모미가 밤마다 마스크로 얼굴을 가린 채 인터넷 방송 BJ로 활동하면서 의도치 않은 사건에 휘말리며 벌어지는 이야기',
+#         genre='스릴러'
+#     )
 
-# if __name__ == "__main__":
 #     print(filter_topic("topic/topicJSON.json"))
