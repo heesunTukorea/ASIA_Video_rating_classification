@@ -53,8 +53,9 @@ def extract_audio_segments(input_video_path, output_audio_base_path, segment_dur
 
 
 def extract_images(input_video_path, output_images_path, start_time=None, duration=None):
-    # command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1"] #1초당 한장
-    command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1/10"] #10초당 한장
+    command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1"] #1초당 한장
+    
+    # command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1/10"] #10초당 한장
     # command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1/30"] #30초당 한장
     # command = ["ffmpeg", "-i", input_video_path, "-vf", "fps=1/60"] #1분당 한장
 
