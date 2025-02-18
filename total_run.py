@@ -1,5 +1,6 @@
 from common_processing.video_to_image_text import process_video
 from drug.drug_JSON import drug
+from drug.drug_text_JSON import drug_text
 from drug.Smoking_JSON import classify_images_smoking
 from horror.horror_classfication import classify_images_horror
 from sexuality.Sexuality_img_JSON import classify_images_sexuality
@@ -41,6 +42,7 @@ json_class_name={'주제':f'{json_result_path}/{base_name}_topic_json.json',
                  '약물_술':f'{json_result_path}/{base_name}_alcohol_json.json',
                  '약물_담배':f'{json_result_path}/{base_name}_smoking_json.json',
                  '약물_마약':f'{json_result_path}/{base_name}_drug_json.json',
+                 '약물_마약텍스트':f'{json_result_path}/{base_name}_drug_text_json.json',
                  '폭력_이미지':f'{json_result_path}/{base_name}_violence_img_json.json',
                  '폭력_텍스트':f'{json_result_path}/{base_name}_violence_text_json.json',
                  '모방위험':f'{json_result_path}/{base_name}_imitaion_json.json',
@@ -76,6 +78,9 @@ print('폭력 이미지 완료')
 #폭력 텍스트
 violence_text_main(text_path=text_path,output_path=json_class_name['폭력_텍스트'])# 폭력 텍스트 gpt
 print('폭력 텍스트 완료')
+#마약 텍스트
+drug_text(input_file=text_path,output_file = json_class_name['약물_마약텍스트']) #마약 텍스트 gpt
+print('마약 텍스트 완료')
 #선정성 텍스트
 sexuality_text_main(text_path=text_path,output_path=json_class_name['선정성_텍스트'])# 선정성 텍스트 gpt
 print('선정성 텍스트 완료')
