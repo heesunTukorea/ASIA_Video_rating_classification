@@ -20,7 +20,7 @@ from rating_classfication.violence_rating_classification import classify_violenc
 from rating_classfication.sexuality_rating_classification import classify_sexuality_rating
 import os
 from openai import OpenAI
-from dotenv import load_dotenv
+from dotenv import load_dotenv 
 import json
 
 #경로,이름,시놉시스,장르,시작시간,시작시간부터 지속 시간,언어    
