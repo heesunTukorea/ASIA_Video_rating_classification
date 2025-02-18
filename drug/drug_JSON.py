@@ -4,7 +4,7 @@ import json
 from PIL import Image
 from collections import Counter
 
-def drug(image_folder_path, output_file, threshold=0.3):
+def drug(image_folder_path, output_file, threshold=0.65):
     
     # 모델 및 프로세서 로드
     model_name = "openai/clip-vit-large-patch14"
@@ -15,11 +15,9 @@ def drug(image_folder_path, output_file, threshold=0.3):
     text_candidates = [
 
        # 마약
-        "someone on drugs",
-        "white powder in the scene",
-        "a person preparing drugs for use",
-        "a laboratory scene with drug production equipment",
-        "a posture of inhaling powder while blocking one nostril with one hand",
+        "white powder(illegal drug) in the scene",
+        "a person preparing illegal drugs for use",
+        "a posture of inhaling drugs",
 
         # 기타
         "A picture of a person standing",
@@ -34,17 +32,15 @@ def drug(image_folder_path, output_file, threshold=0.3):
         "a photo of a drinking",
         "a picture of someone kissing",
         "a picture of someone taking off his clothes",
-        "a photo of a smoking",
-        "a scene of violence"
+        "a scene of violence",
+        "a laboratory scene"
     ]
 
     # 출력 테스트 타깃 설정
     target_captions = {
-        "someone on drugs",
-        "white powder in the scene",
-        "a person preparing drugs for use",
-        "a laboratory scene with drug production equipment",
-        "a posture of inhaling powder while blocking one nostril with one hand"
+        "white powder(illegal drug) in the scene",
+        "a person preparing illegal drugs for use",
+        "a posture of inhaling drugs"
     }
 
     # 결과 저장
@@ -133,6 +129,6 @@ def drug(image_folder_path, output_file, threshold=0.3):
     return results, summary_stats
 
 # 실행
-# image_path = '이미지 폴더 경로'
-# output_file = '결과 저장 경로'
-# drug(image_path, output_file, threshold=0.3)
+# image_path = '/result/수리남/수리남_images_output'
+# output_file = '/result/수리남/result_json/수리남_drug_img_json.json'
+# drug(image_path, output_file, threshold=0.65)
