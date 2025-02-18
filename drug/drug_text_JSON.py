@@ -39,7 +39,7 @@ def save_to_json(result_json, output_path):
     with open(output_path, "w", encoding="utf-8") as json_file:
         json.dump(result_json, json_file, ensure_ascii=False, indent=4)
 
-def drug_text_main(input_file, output_file):
+def drug_text(input_file, output_file):
 
     text_data = load_textjson(input_file)
     result_json = detect_drug_terms(text_data)
@@ -50,4 +50,4 @@ def drug_text_main(input_file, output_file):
 # if __name__ == "__main__":
 #     input_file = "/result/청설/청설_text_output/청설_text.txt"  # 입력 텍스트 파일 경로
 #     output_file = "/result/청설/result_json/청설_drug_text_json.json"  # 출력 JSON 파일 저장 경로
-#     drug_text_main(input_file, output_file)
+#     drug_text(input_file, output_file)
