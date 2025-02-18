@@ -1,5 +1,6 @@
 from common_processing.video_to_image_text import process_video
 from drug.drug_JSON import drug
+from drug.drug_text_JSON import drug_text
 from drug.Smoking_JSON import classify_images_smoking
 from horror.horror_classfication import classify_images_horror
 from sexuality.Sexuality_img_JSON import classify_images_sexuality
@@ -45,6 +46,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
                     '약물_술':f'{json_result_path}/{base_name}_alcohol_json.json',
                     '약물_담배':f'{json_result_path}/{base_name}_smoking_json.json',
                     '약물_마약':f'{json_result_path}/{base_name}_drug_json.json',
+                    '약물_마약텍스트':f'{json_result_path}/{base_name}_drug_text_json.json',
                     '폭력_이미지':f'{json_result_path}/{base_name}_violence_img_json.json',
                     '폭력_텍스트':f'{json_result_path}/{base_name}_violence_text_json.json',
                     '모방위험':f'{json_result_path}/{base_name}_imitation_json.json',
@@ -72,11 +74,17 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     process_script(script_path= text_path, output_path=json_class_name['대사'])
     print('대사 완료')
     st.write('✔️ 대사 분석 완료')
-    #마약
+    #마약 이미지
     st.write(f'🔄 약물 분석 진행중')
     drug(image_folder_path=images_path, output_file = json_class_name['약물_마약'], threshold=0.3) #클립 마약
-    print('마약 완료')
-    st.write('✔️ 마약 분석 완료')
+    print('마약 이미지 완료')
+    st.write('✔️ 마약 이미지 분석 완료')
+    #마약 텍스트
+    st.write(f'🔄 약물 분석 진행중')
+    drug_text(input_file=text_path,output_file = json_class_name['약물_마약텍스트']) #마약 텍스트 gpt
+    print('마약 텍스트 완료')
+    st.write('✔️ 마약 텍스트 분석 완료')
+    
     #담배
     st.write(f'🔄 흡연 분석 진행중')
     classify_images_smoking(folder_path=images_path,threshold=0.3,display_image=False,output_json_path=json_class_name['약물_담배']) #클립 담배
@@ -124,7 +132,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     process_dialogue_rating(dialogue_json=json_class_name['대사'],output_json_path=json_class_name['대사_등급'])
     print('대사 등급 판정 완료')
     st.write(f'✔️ 대사 등급 판정 완료')
-    process_drug_rating(drug_json=json_class_name['약물_마약'], smoking_json=json_class_name['약물_담배'], alcohol_json=json_class_name['약물_술'], output_json_path=json_class_name['약물_등급'])
+    process_drug_rating(drug_img_json=json_class_name['약물_마약'], drug_text_json=json_class_name['약물_마약텍스트'], smoking_json=json_class_name['약물_담배'], alcohol_json=json_class_name['약물_술'], output_json_path=json_class_name['약물_등급'])
     print('약물 등급 판정 완료')
     st.write(f'✔️ 약물 등급 판정 완료')
     get_horror_rating(input_json_path=json_class_name['공포'], output_json_path=json_class_name['공포_등급'])
