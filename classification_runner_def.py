@@ -1,6 +1,6 @@
 from common_processing.video_to_image_text import process_video
 from drug.drug_JSON import drug
-from drug.drug_text_JSON import drug_text_main
+from drug.drug_text_JSON import drug_text
 from drug.Smoking_JSON import classify_images_smoking
 from horror.horror_classfication import classify_images_horror
 from sexuality.Sexuality_img_JSON import classify_images_sexuality
@@ -95,7 +95,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     violence_text_main(text_path=text_path,output_path=json_class_name['폭력_텍스트'])# 폭력 텍스트 gpt
     print('폭력 텍스트 완료')
     #마약 텍스트
-    drug(input_file=text_path,output_file = json_class_name['약물_마약텍스트']) #마약 텍스트 gpt
+    drug_text(input_file=text_path,output_file = json_class_name['약물_마약텍스트']) #마약 텍스트 gpt
     print('마약 텍스트 완료')
     #선정성 텍스트
     sexuality_text_main(text_path=text_path,output_path=json_class_name['선정성_텍스트'])# 선정성 텍스트 gpt
