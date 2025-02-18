@@ -9,12 +9,13 @@ def classify_images_sexuality(folder_path, threshold=0.3, display_image=False, o
     text_candidates = {
         "sexual": [
             'They are having sex',
-            "They are engaging in simulated sexual activity.",
             "There are direct full body exposure.",
             "They are kissing on the lips.",
-            "They are having physical contact and touching in revealing clothes.",
-            "There are upper body exposure especially chest in revealing clothes.",
-            "bikini"
+            "bikini",
+            "behave in a manner similar to sex",
+            "A naked person",
+            "Explicit sexual content",
+            "a woman's chest stands out",
         ],
         "non_sexual": [
             "A peaceful scene",
@@ -31,7 +32,10 @@ def classify_images_sexuality(folder_path, threshold=0.3, display_image=False, o
             "a photo of a gun posing a threat",
             "people and animal",
             "There are family",
-            'They are eating food'
+            'They are eating food',
+            "A person wearing a swimsuit at the beach",
+            "Two people shaking hands",
+            "Two people hugging in a friendly manner"
         ]
     }
 
@@ -109,17 +113,17 @@ def classify_images_sexuality(folder_path, threshold=0.3, display_image=False, o
 
     return results
 
-# if __name__ == "__main__":
-#     folder_path = "./video2imgs/인간중독_video2imgs"
-#     output_json_path = "./sexual_res_json/인간중독_results.json"
+if __name__ == "__main__":
+    folder_path = "result/뽀로로/뽀로로_images_output"
+    output_json_path = "sexuality/test_뽀로로07.json"
 
-#     try:
-#         results = classify_images_sexual(
-#             folder_path,
-#             threshold=0.3,
-#             display_image=False,
-#             output_json_path=output_json_path
-#         )
-#         print(f"총 {len(results)}개의 이미지가 분석되었습니다.")
-#     except FileNotFoundError as e:
-#         print(e)
+    try:
+        results = classify_images_sexuality(
+            folder_path,
+            threshold=0.7,
+            display_image=False,
+            output_json_path=output_json_path
+        )
+        print(f"총 {len(results)}개의 이미지가 분석되었습니다.")
+    except FileNotFoundError as e:
+        print(e)
