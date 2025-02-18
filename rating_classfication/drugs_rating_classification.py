@@ -12,7 +12,7 @@ def initialize_openai_client(api_key):
     """제공된 API 키를 사용하여 OpenAI 클라이언트를 초기화합니다."""
     return OpenAI(api_key=api_key)
 
-def analyze_drug_rating(openai_client, drug_data, smoking_data, alcohol_data):
+def analyze_drug_rating(openai_client, drug_img_data, drug_text_data, smoking_data, alcohol_data):
     """
     마약, 흡연, 음주 데이터를 분석하여 약물 관련 영상물 등급을 판별합니다.
     """
@@ -25,7 +25,8 @@ def analyze_drug_rating(openai_client, drug_data, smoking_data, alcohol_data):
     """
     
     input_data = {
-        "drug_summary": drug_data,
+        "drug_img_summary": drug_img_data,
+        "drug_text_summary": drug_text_data,
         "smoking_summary": smoking_data,
         "alcohol_summary": alcohol_data
     }
@@ -65,7 +66,7 @@ def save_json_result(output_json_path, result):
     except json.JSONDecodeError:
         print("JSON 디코딩 실패. 응답 내용:", result)
 
-def process_drug_rating(drug_json, smoking_json, alcohol_json, output_json_path):
+def process_drug_rating(drug_img_json, drug_text_json, smoking_json, alcohol_json, output_json_path):
     """약물 관련 영상물 등급 분석을 처리하는 메인 함수."""
     # API 키 로드
     openai_api_key = load_env()
@@ -76,24 +77,27 @@ def process_drug_rating(drug_json, smoking_json, alcohol_json, output_json_path)
     client = initialize_openai_client(openai_api_key)
     
     # JSON 데이터 로드
-    with open(drug_json, "r", encoding="utf-8") as f:
-        drug_data = json.load(f)["summary"]
+    with open(drug_img_json, "r", encoding="utf-8") as f:
+        drug_img_data = json.load(f)["summary"]
+    with open(drug_text_json, "r", encoding="utf-8") as f:
+        drug_text_data = json.load(f) 
     with open(smoking_json, "r", encoding="utf-8") as f:
         smoking_data = json.load(f)[-1]  # 마지막 요소가 summary
     with open(alcohol_json, "r", encoding="utf-8") as f:
         alcohol_data = json.load(f)[-1]  # 마지막 요소가 summary
     
     # 분석 수행
-    analysis_result = analyze_drug_rating(client, drug_data, smoking_data, alcohol_data)
+    analysis_result = analyze_drug_rating(client, drug_img_data, drug_text_data, smoking_data, alcohol_data)
     
     # 결과 저장
     save_json_result(output_json_path, analysis_result)
 
-# # 예제 실행
+# 예제 실행
 # if __name__ == "__main__":
 #     process_drug_rating(
-#         "result/마스크걸/result_json/마스크걸_drug_json.json",
-#         "result/마스크걸/result_json/마스크걸_smoking_json.json",
-#         "result/마스크걸/result_json/마스크걸_alcohol_json.json",
-#         "result/마스크걸/result_json/마스크걸_drug_rating.json"
+#         "/result/범죄와의전쟁/result_json/범죄와의전쟁2_drug_img_json.json",
+#         "/result/범죄와의전쟁/result_json/범죄와의전쟁_drug_text_json.json",
+#         "/result/범죄와의전쟁/result_json/범죄와의전쟁_smoking_json.json",
+#         "/result/범죄와의전쟁/result_json/범죄와의전쟁_alcohol_json.json",
+#         "/rating_test(drug)/범죄와의전쟁2(마약,담배,술)_drug_rating.json"
 #     )
