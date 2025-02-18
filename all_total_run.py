@@ -66,7 +66,7 @@ print('전처리 완료')
 process_script(script_path= text_path, output_path=json_class_name['대사'])
 print('대사 완료')
 #마약
-drug(image_folder_path=images_path, output_file = json_class_name['약물_마약'], threshold=0.3) #클립 마약
+drug(image_folder_path=images_path, output_file = json_class_name['약물_마약'], threshold=0.65) #클립 마약
 print('마약 완료')
 #담배
 classify_images_smoking(folder_path=images_path,threshold=0.3,display_image=False,output_json_path=json_class_name['약물_담배']) #클립 담배
