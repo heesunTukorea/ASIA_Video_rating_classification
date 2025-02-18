@@ -76,7 +76,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     st.write('✔️ 대사 분석 완료')
     #마약 이미지
     st.write(f'🔄 약물 분석 진행중')
-    drug(image_folder_path=images_path, output_file = json_class_name['약물_마약'], threshold=0.3) #클립 마약
+    drug(image_folder_path=images_path, output_file = json_class_name['약물_마약'], threshold=0.65) #클립 마약
     print('마약 이미지 완료')
     st.write('✔️ 마약 이미지 분석 완료')
     #마약 텍스트
