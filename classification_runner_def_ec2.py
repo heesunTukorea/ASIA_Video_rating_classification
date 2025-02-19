@@ -87,7 +87,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     
     #담배
     st.write(f'🔄 흡연 분석 진행중')
-    classify_images_smoking(folder_path=images_path,threshold=0.3,display_image=False,output_json_path=json_class_name['약물_담배']) #클립 담배
+    classify_images_smoking(folder_path=images_path, output_json_path=json_class_name['약물_담배']) #클립 담배
     print('담배 완료')
     st.write('✔️ 흡연 분석 완료')
     
