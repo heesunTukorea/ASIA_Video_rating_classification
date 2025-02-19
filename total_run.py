@@ -67,7 +67,7 @@ print('담배 완료')
 classify_images_horror(image_folder=images_path, output_json_path = json_class_name['공포'])# 클립 호러
 print('공포 완료')
 #선정성 이미지
-classify_images_sexuality(folder_path=images_path, threshold=0.3, display_image=False, output_json_path=json_class_name['선정성_이미지'])# 클립 선정성
+classify_images_sexuality(folder_path=images_path, threshold=0.5, display_image=False, output_json_path=json_class_name['선정성_이미지'])# 클립 선정성
 print('선정성 이미지 완료')
 #폭력 이미지
 violence(image_folder_path=images_path, output_file=json_class_name['폭력_이미지'], threshold=0.45)#클립 폭력성
