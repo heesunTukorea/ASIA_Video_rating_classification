@@ -5,37 +5,30 @@ import json
 import os
 from collections import Counter
 
-def classify_images_sexuality(folder_path, threshold=0.3, display_image=False, output_json_path=None):
+def classify_images_sexuality(folder_path, threshold=0.5, display_image=False, output_json_path=None):
     text_candidates = {
         "sexual": [
-            'They are having sex',
-            "There are direct full body exposure.",
-            "They are kissing on the lips.",
-            "bikini",
-            "behave in a manner similar to sex",
-            "A naked person",
-            "Explicit sexual content",
-            "a woman's chest stands out",
+            "They are passionately kissing on the lips.",
+            "They are engaging in intimate or sexual physical contact.",
+            "There is a topless person.",
+            "There is a person in lingerie or revealing underwear.",
+            "There is a person in a thong bikini.",
+            "There is nudity in the image.",
+            "They are posing provocatively in revealing clothing."
         ],
         "non_sexual": [
-            "A peaceful scene",
-            "A person walking in the street",
-            "A calm conversation between people",
-            "A person smiling, laughing, surprising",
-            "A serene and tranquil environment",
-            "a photo of a drinking coke",
-            "a photo of a drinking",
-            "a photo of a person bleeding",
-            "a photo of a ghost",
-            "a photo of a smoking",
-            "a photo of a knife posing a threat",
-            "a photo of a gun posing a threat",
-            "people and animal",
-            "There are family",
-            'They are eating food',
-            "A person wearing a swimsuit at the beach",
-            "Two people shaking hands",
-            "Two people hugging in a friendly manner"
+            "A person is sitting in a normal outfit.",
+            "A person is standing in a casual pose.",
+            "A person is engaged in an everyday activity.",
+            "A person is wearing a swimsuit at the beach.",
+            "A person is hugging a friend.",
+            "A close-up of a face.",
+            "A person is smiling or talking.",
+            "A person is taking a selfie.",
+            "A person is exercising at the gym.",
+            "A group of people are at a party.",
+            "A family is spending time together.",
+            "A person is lying down and resting."
         ]
     }
 
@@ -76,21 +69,26 @@ def classify_images_sexuality(folder_path, threshold=0.3, display_image=False, o
         raise FileNotFoundError(f"폴더 경로를 찾을 수 없습니다: {folder_path}")
 
     image_files = [
-        os.path.join(folder_path, file) for file in os.listdir(folder_path)
+        os.path.join(folder_path, file) for file in sorted(os.listdir(folder_path))
         if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif'))
     ]
 
     results = []
 
     for image_path in image_files:
-        print(f"분석 중: frame_{os.path.splitext(os.path.basename(image_path))[0].split('_')[-1]}.png")
-        result = detect_sexual_content(image_path)
-        results.append(result)
+        try:
+            print(f"분석 중: {os.path.basename(image_path)}")
+            result = detect_sexual_content(image_path)
+            results.append(result)
+        except Exception as e:
+            print(f"오류 발생: {image_path}에서 {e}")
 
     total_pages = len(results)
     caption_counts = Counter(item['best_caption'] for item in results)
     sexual_caption_counts = {caption: caption_counts.get(caption, 0) for caption in sexual}
 
+    sexual_count = sum(sexual_caption_counts.values())
+    
     true_count = sum(1 for item in results if item['classification'] is True)
     false_count = total_pages - true_count
 
@@ -99,31 +97,18 @@ def classify_images_sexuality(folder_path, threshold=0.3, display_image=False, o
 
     summary = {
         "total_scenes": total_pages,
+        "sexual": sexual_count,  
         "sexual_best_caption": sexual_caption_counts,
-        "non-sexual": caption_counts.get("선정적인 장면이 없습니다.", 0),
+        "non_sexual": caption_counts.get("선정적인 장면이 없습니다.", 0),
         "sexual_rate_true": true_rate,
         "sexual_rate_false": false_rate
     }
     results.append(summary)
 
     if output_json_path:
+        os.makedirs(os.path.dirname(output_json_path), exist_ok=True)
         with open(output_json_path, "w", encoding="utf-8") as json_file:
             json.dump(results, json_file, ensure_ascii=False, indent=4)
         print(f"전체 결과가 {output_json_path}에 저장되었습니다.")
 
-    return results
-
-if __name__ == "__main__":
-    folder_path = "result/뽀로로/뽀로로_images_output"
-    output_json_path = "sexuality/test_뽀로로07.json"
-
-    try:
-        results = classify_images_sexuality(
-            folder_path,
-            threshold=0.7,
-            display_image=False,
-            output_json_path=output_json_path
-        )
-        print(f"총 {len(results)}개의 이미지가 분석되었습니다.")
-    except FileNotFoundError as e:
-        print(e)
+    return None
