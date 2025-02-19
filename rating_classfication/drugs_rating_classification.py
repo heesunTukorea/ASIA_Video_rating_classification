@@ -90,6 +90,7 @@ def process_drug_rating(drug_img_json, drug_text_json, smoking_json, alcohol_jso
     analysis_result = analyze_drug_rating(client, drug_img_data, drug_text_data, smoking_data, alcohol_data)
     
     # 결과 저장
+    os.makedirs(os.path.dirname(output_json_path), exist_ok=True)
     save_json_result(output_json_path, analysis_result)
 
 # 예제 실행
