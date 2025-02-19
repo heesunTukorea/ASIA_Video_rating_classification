@@ -12,24 +12,24 @@ def classify_images_smoking(folder_path, output_json_path):
 
     # 🚬 흡연 관련 텍스트 후보군 (Positive Class)
     text_candidates_smoking = [
-        "A person smoking a cigarette",  # 일반적인 흡연 행위
-        "A cigarette with visible smoke",  # 담배에서 연기가 보이는 경우
-        "A person exhaling a thick cloud of smoke",  # 입에서 짙은 연기를 내뿜는 행위
-        "A person vaping with a visible vapor cloud",  # 전자담배 사용, 뚜렷한 증기가 보이는 경우
-        "A person smoking a cigar",  # 시가 흡연
-        "A cigarette with ashes forming at the tip",  # 타고 있는 담배와 재의 형성
-        "A person flicking ash from a cigarette",  # 담배 재를 털어내는 행동
-        "A person holding a cigarette between their fingers",  # 손가락 사이에 들린 담배
-        "A person holding a lit cigarette in their mouth",  # 입에 물고 있는 불 붙은 담배
+        "A person smoking a cigarette",  
+        "A cigarette with visible smoke",  
+        "A person exhaling a thick cloud of smoke",  
+        "A person vaping with a visible vapor cloud",  
+        "A person smoking a cigar",  
+        "A cigarette with ashes forming at the tip", 
+        "A person flicking ash from a cigarette",  
+        "A person holding a cigarette between their fingers",  
+        "A person holding a lit cigarette in their mouth",  
     ]
 
     # 🚫 비흡연 관련 텍스트 후보군 (Negative Class)
     text_candidates_non_smoking = [
-        "A person sitting without smoking",  # 흡연 없이 앉아 있는 상태
-        "A person drinking coffee without smoking",  # 커피를 마시지만 흡연하지 않는 상태
-        "A person standing in a non-smoking area",  # 금연 구역에서의 상태
-        "A person holding a lighter without a cigarette",  # 담배 없이 라이터만 들고 있는 상태
-        "A person using a lighter to ignite a candle",  # 라이터를 사용하지만 담배가 아닌 촛불 점화
+        "A person sitting without smoking",  
+        "A person drinking coffee without smoking", 
+        "A person standing in a non-smoking area",  
+        "A person holding a lighter without a cigarette",  
+        "A person using a lighter to ignite a candle", 
         "A person holding a lollipop in their mouth",
         "A person holding a white stick(not a cigarette) in their mouth"
     ]
