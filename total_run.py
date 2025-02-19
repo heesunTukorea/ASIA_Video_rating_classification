@@ -1,5 +1,5 @@
 from common_processing.video_to_image_text import process_video
-from drug.drug_JSON import drug
+from drug.drug_JSON import drug 
 from drug.drug_text_JSON import drug_text
 from drug.Smoking_JSON import classify_images_smoking
 from horror.horror_classfication import classify_images_horror
