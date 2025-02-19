@@ -44,7 +44,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     #json 파일 경로 설정
     json_class_name={'주제':f'{json_result_path}/{base_name}_topic_json.json',
                     '대사':f'{json_result_path}/{base_name}_lines_json.json',
-                    '약물_술':f'{json_result_path}/{base_name}_alcohol_json.json',
+                    '약물_술':f'{json_result_path}/{base_name}_alcohol_json.json', 
                     '약물_담배':f'{json_result_path}/{base_name}_smoking_json.json',
                     '약물_마약':f'{json_result_path}/{base_name}_drug_json.json',
                     '약물_마약텍스트':f'{json_result_path}/{base_name}_drug_text_json.json',
