@@ -2,19 +2,36 @@ import os
 import json
 from PIL import Image
 from transformers import CLIPProcessor, CLIPModel
+import unicodedata
 
-def classify_images_smoking(folder_path, output_json_path, threshold=0.3, display_image=False):
+def classify_images_smoking(folder_path, output_json_path):
     """
-    이미지에서 흡연 관련 객체를 탐지하고 결과를 JSON 파일로 저장합니다.
+    이미지에서 흡연 장면을 탐지하고, 비흡연 후보군과 비교하여 최종 판정을 내립니다.
+    결과는 JSON 파일로 저장됩니다.
     """
-    text_candidates = [
-        "A person with smoke coming from their mouth",
-        "A lit cigarette",
-        "A cigarette with visible smoke",
-        "A cigarette held between fingers",
-        "A person holding a lighter with no cigarette",
-        "A person holding a lighter and cigarette",
-        "A person holding a cigarette"
+
+    # 🚬 흡연 관련 텍스트 후보군 (Positive Class)
+    text_candidates_smoking = [
+        "A person smoking a cigarette",  # 일반적인 흡연 행위
+        "A cigarette with visible smoke",  # 담배에서 연기가 보이는 경우
+        "A person exhaling a thick cloud of smoke",  # 입에서 짙은 연기를 내뿜는 행위
+        "A person vaping with a visible vapor cloud",  # 전자담배 사용, 뚜렷한 증기가 보이는 경우
+        "A person smoking a cigar",  # 시가 흡연
+        "A cigarette with ashes forming at the tip",  # 타고 있는 담배와 재의 형성
+        "A person flicking ash from a cigarette",  # 담배 재를 털어내는 행동
+        "A person holding a cigarette between their fingers",  # 손가락 사이에 들린 담배
+        "A person holding a lit cigarette in their mouth",  # 입에 물고 있는 불 붙은 담배
+    ]
+
+    # 🚫 비흡연 관련 텍스트 후보군 (Negative Class)
+    text_candidates_non_smoking = [
+        "A person sitting without smoking",  # 흡연 없이 앉아 있는 상태
+        "A person drinking coffee without smoking",  # 커피를 마시지만 흡연하지 않는 상태
+        "A person standing in a non-smoking area",  # 금연 구역에서의 상태
+        "A person holding a lighter without a cigarette",  # 담배 없이 라이터만 들고 있는 상태
+        "A person using a lighter to ignite a candle",  # 라이터를 사용하지만 담배가 아닌 촛불 점화
+        "A person holding a lollipop in their mouth",
+        "A person holding a white stick(not a cigarette) in their mouth"
     ]
 
     # CLIP 모델 및 프로세서 초기화
@@ -26,40 +43,63 @@ def classify_images_smoking(folder_path, output_json_path, threshold=0.3, displa
             raise FileNotFoundError(f"이미지 경로를 찾을 수 없습니다: {image_path}")
 
         img = Image.open(image_path)
-        inputs = processor(text=text_candidates, images=img, return_tensors="pt", padding=True)
-        outputs = clip(**inputs)
 
-        logits_per_image = outputs.logits_per_image
-        probs = logits_per_image.softmax(dim=1)
+        # CLIP을 사용하여 흡연 & 비흡연 텍스트 후보군 비교
+        inputs_smoking = processor(text=text_candidates_smoking, images=img, return_tensors="pt", padding=True)
+        inputs_non_smoking = processor(text=text_candidates_non_smoking, images=img, return_tensors="pt", padding=True)
 
-        best_match_idx = probs.argmax()
-        best_caption_candidate = text_candidates[best_match_idx]
-        highest_prob = probs[0, best_match_idx].item()
+        outputs_smoking = clip(**inputs_smoking)
+        outputs_non_smoking = clip(**inputs_non_smoking)
 
-        is_smoking_scene = highest_prob >= threshold
+        probs_smoking = outputs_smoking.logits_per_image.softmax(dim=1)
+        probs_non_smoking = outputs_non_smoking.logits_per_image.softmax(dim=1)
+
+        # 각 그룹에서 최고 확률을 가진 후보 선택
+        highest_prob_smoking = probs_smoking.max().item()
+        highest_prob_non_smoking = probs_non_smoking.max().item()
+
+        # 🚬 흡연 장면인지 여부 결정 (흡연 확률이 더 높을 때만 True)
+        is_smoking_scene = highest_prob_smoking > highest_prob_non_smoking
 
         return {
             "image_name": f"frame_{os.path.splitext(os.path.basename(image_path))[0].split('_')[-1]}.png",
-            "highest_prob": highest_prob,
+            "highest_prob_smoking": highest_prob_smoking,
+            "highest_prob_non_smoking": highest_prob_non_smoking,
             "classification": is_smoking_scene
         }
+
+    folder_path = unicodedata.normalize('NFC', folder_path)
+    output_json_path = unicodedata.normalize('NFC', output_json_path)
 
     if not os.path.exists(folder_path):
         raise FileNotFoundError(f"폴더 경로를 찾을 수 없습니다: {folder_path}")
 
     image_files = [
-        os.path.join(folder_path, file) for file in os.listdir(folder_path)
+        os.path.join(folder_path, file) for file in sorted(os.listdir(folder_path))
         if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif'))
     ]
 
     results = []
+    caption_counts = {}
 
     for image_path in image_files:
         print(f"분석 중: frame_{os.path.splitext(os.path.basename(image_path))[0].split('_')[-1]}.png")
         result = detect_smoking_scene(image_path)
+        # classification이 True인 경우 흡연 후보군 중 최고 확률에 해당하는 캡션 추출
+        if result["classification"]:
+            img = Image.open(image_path)
+            inputs_smoking = processor(text=text_candidates_smoking, images=img, return_tensors="pt", padding=True)
+            outputs_smoking = clip(**inputs_smoking)
+            probs_smoking = outputs_smoking.logits_per_image.softmax(dim=1)
+            _, best_idx = probs_smoking.max(dim=1)
+            caption = text_candidates_smoking[best_idx.item()]
+            result["caption"] = caption
+            caption_counts[caption] = caption_counts.get(caption, 0) + 1
+        else:
+            result["caption"] = "흡연에 해당하는 장면 없음"
         results.append(result)
 
-    # 통계 요약 생성
+    # 📊 통계 요약 생성
     total_scenes = len(results)
     smoking_true_count = sum(1 for item in results if item['classification'] is True)
     smoking_false_count = total_scenes - smoking_true_count
@@ -69,18 +109,26 @@ def classify_images_smoking(folder_path, output_json_path, threshold=0.3, displa
     summary_data = {
         "total_scenes": total_scenes,
         "smoking_true": smoking_true_count,
+        "smoking_captions": caption_counts, 
         "smoking_false": smoking_false_count,
         "true_rate": true_rate,
         "false_rate": false_rate
     }
     results.append(summary_data)
 
-    # 결과 저장
+    # 📝 결과 JSON 파일로 저장 (폴더가 없으면 생성)
+    output_folder = os.path.dirname(output_json_path)
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+
+    # 📝 결과 JSON 파일로 저장
+    sorted_results = sorted(results[:-1], key=lambda x: int(x["image_name"].split("_")[-1].split(".")[0]))  # 마지막 요약 데이터 제외 후 정렬
+    sorted_results.append(summary_data)  # 마지막 요약 데이터 다시 추가
     with open(output_json_path, "w", encoding="utf-8") as json_file:
         json.dump(results, json_file, ensure_ascii=False, indent=4)
 
-    print(f"Results saved to {output_json_path}")
-
+    print(f"✅ 결과 저장 완료: {output_json_path}")
+    
 # folder_path = 'video_data/흡연_images_output'
 # output_json_path = 'smoking_predictions.json'
 # classify_images_smoking(folder_path, output_json_path)
