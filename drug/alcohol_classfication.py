@@ -22,7 +22,7 @@ def detect_alcohol_in_images(image_folder, output_json_path):
         "A dining table with a bottle of alcohol in the background",  # 배경에 와인병이 놓여 있는 식사 장면
         "A restaurant scene with unopened bottles of alcohol",  # 개봉되지 않은 술병이 있는 레스토랑 장면
         "A bartender preparing drinks at a bar",  # 바에서 바텐더가 술을 준비하는 장면
-        "a scene where there's a alcohol bottle or glass in alcohol",
+        "a scene where there's alcohol bottle or alcohol glass",
 
         # ✅ 12세 이상 관람가 (경미한 음주 장면 포함)
         "A person sipping alcohol or beer",  # 식사 중 와인이나 맥주를 홀짝이는 장면
@@ -54,7 +54,7 @@ def detect_alcohol_in_images(image_folder, output_json_path):
 
     # ✅ 비음주(일반적인 장면) 후보군 (청소년 관련 3개 추가)
     non_alcohol_candidates = [
-        "It's just a scene where there's a bottle or glass",
+        "It's just a scene where there's bottle or glass",
         "A person drinking water or soda",
         "A character holding a cup of coffee or tea",
         "A family having dinner together with non-alcoholic drinks",
