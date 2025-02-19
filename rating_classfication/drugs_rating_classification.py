@@ -33,6 +33,7 @@ def analyze_drug_rating(openai_client, drug_img_data, drug_text_data, smoking_da
     
     prompt = (
         f"""Based on the following classification criteria for drug-related content and the provided summary data, determine the appropriate age rating for this media.
+        Note: Among the drug-related content, depictions of narcotics ("마약") should be considered more strictly than those of alcohol and smoking(cigarette).
         Provide the response strictly in JSON format with the following structure:
         {{
             \"rating\": \"관람 등급 (전체관람가, 12세이상관람가, 15세이상관람가, 청소년관람불가)\",
@@ -80,7 +81,7 @@ def process_drug_rating(drug_img_json, drug_text_json, smoking_json, alcohol_jso
     with open(drug_img_json, "r", encoding="utf-8") as f:
         drug_img_data = json.load(f)["summary"]
     with open(drug_text_json, "r", encoding="utf-8") as f:
-        drug_text_data = json.load(f) 
+        drug_text_data = json.load(f)
     with open(smoking_json, "r", encoding="utf-8") as f:
         smoking_data = json.load(f)[-1]  # 마지막 요소가 summary
     with open(alcohol_json, "r", encoding="utf-8") as f:
@@ -93,7 +94,7 @@ def process_drug_rating(drug_img_json, drug_text_json, smoking_json, alcohol_jso
     os.makedirs(os.path.dirname(output_json_path), exist_ok=True)
     save_json_result(output_json_path, analysis_result)
 
-# 예제 실행
+# # 예제 실행
 # if __name__ == "__main__":
 #     process_drug_rating(
 #         "/result/범죄와의전쟁/result_json/범죄와의전쟁2_drug_img_json.json",
