@@ -69,7 +69,7 @@ print('대사 완료')
 drug(image_folder_path=images_path, output_file = json_class_name['약물_마약'], threshold=0.65) #클립 마약
 print('마약 완료')
 #담배
-classify_images_smoking(folder_path=images_path,threshold=0.3,display_image=False,output_json_path=json_class_name['약물_담배']) #클립 담배
+classify_images_smoking(folder_path=images_path, output_json_path=json_class_name['약물_담배']) #클립 담배
 print('담배 완료')
 #공포 이미지
 classify_images_horror(image_folder=images_path, output_json_path = json_class_name['공포'])# 클립 호러
