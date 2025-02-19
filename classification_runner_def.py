@@ -87,7 +87,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     violence(image_folder_path=images_path, output_file=json_class_name['폭력_이미지'], threshold=0.45)#클립 폭력성
     print('폭력 이미지 완료')
     #술
-    detect_alcohol_in_images(images_path=images_path, output_path=json_class_name['약물_술'], checkpoint="google/owlv2-base-patch16-ensemble", score_threshold=0.1)
+    detect_alcohol_in_images(image_folder=images_path, output_json_path=json_class_name['약물_술'])
     print('술 완료')
     #'---------------------------------------gpt-------------------------------------------------------------------------------'
     
