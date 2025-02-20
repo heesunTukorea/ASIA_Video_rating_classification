@@ -117,7 +117,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     print('약물 등급 판정 완료')
     get_horror_rating(input_json_path=json_class_name['공포'], output_json_path=json_class_name['공포_등급'])
     print('공포 등급 판정 완료')
-    imitaion_risk_classify(input_file=json_class_name['모방위험'], output_file=json_class_name['모방위험_등급'])
+    imitaion_risk_classify(input_file=json_class_name['모방위험'],input_text_file = text_path, output_file=json_class_name['모방위험_등급'])
     print('모방 위험 등급 판정 완료')
     classify_violence_rating(input_img_path=json_class_name['폭력_이미지'], input_text_path=text_path, result_json_path=json_class_name['폭력_등급'])
     print('폭력 등급 판정 완료')

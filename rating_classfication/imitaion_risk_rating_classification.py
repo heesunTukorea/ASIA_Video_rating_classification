@@ -2,6 +2,7 @@ import openai
 import json
 from dotenv import load_dotenv
 import os
+import re
 # OpenAI API 키 설정
 # .env 파일 로드
 
@@ -13,10 +14,23 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 openai.api_key = OPENAI_API_KEY
 
+# 🔹 타임라인 제거 후 정제된 대사를 반환하는 함수 (파일 저장 없음)
+def remove_timeline_from_text(input_file):
+    """타임라인 제거 후 정제된 대사 리스트 반환"""
+    with open(input_file, "r", encoding="utf-8") as f:
+        lines = f.read().splitlines()
 
+    cleaned_lines = []
+    for line in lines:
+        # 정규 표현식을 사용하여 [00:00:00 - 00:00:00] 패턴 제거
+        cleaned_text = re.sub(r"\[\d{2}:\d{2}:\d{2} - \d{2}:\d{2}:\d{2}\]\s*", "", line).strip()
+        if cleaned_text:  # 빈 문자열이 아닐 경우만 추가
+            cleaned_lines.append(cleaned_text)
+
+    return cleaned_lines  # 🔹 파일 저장 없이 정제된 리스트 반환
 
 # GPT 호출 함수
-def process_imitaion_rating(lines_data):
+def process_imitaion_rating(lines_data,txt_file):
 
 
     # 사용자 메시지 생성
@@ -52,9 +66,10 @@ def process_imitaion_rating(lines_data):
         "rating": <one of ["전체관람가", "12세이상관람가", "15세이상관람가", "청소년관람불가"]>, "reasoning": "<brief reason in Korean>"
 
         Input:{lines_data}
-        
+        lines Input:{txt_file}
         input_information:
         This is the data of medium and high imitating risk among the data extracted for context, risk behavior, and likelihood of imitating by extracting the image being transformed
+        and video lines
         """},
     ]
 
@@ -75,7 +90,7 @@ def process_imitaion_rating(lines_data):
     return json_result
 
 # 입력 데이터를 처리하는 함수
-def imitaion_risk_classify(input_file, output_file):
+def imitaion_risk_classify(input_file,input_text_file, output_file):
     """
     JSON 파일로부터 입력 데이터를 읽어와 GPT로 처리하고 결과를 JSON 파일로 저장합니다.
     """
@@ -87,7 +102,9 @@ def imitaion_risk_classify(input_file, output_file):
 #     "weak_abusive_percentage": 7.69
 # }
     summary_data=lines_data[-1]
-    result = process_imitaion_rating(lines_data=summary_data)
+    
+    cleaned_txt=remove_timeline_from_text(input_text_file)
+    result = process_imitaion_rating(lines_data=summary_data,txt_file=cleaned_txt)
     print(result)
 
     # 결과를 JSON 파일로 저장
@@ -100,4 +117,5 @@ if __name__ == "__main__":
     # 예제 실행 코드
     input_file = "result/스파이/result_json/스파이_imitation_json.json"  # 입력 이미지 폴더 경로
     output_file = "스파이_test1.json"  # 출력 폴더 경로
-    imitaion_risk_classify(input_file, output_file)
+    input_text_file=''
+    imitaion_risk_classify(input_file,input_text_file,output_file)
