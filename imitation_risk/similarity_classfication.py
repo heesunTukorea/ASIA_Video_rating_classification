@@ -77,7 +77,7 @@ def calculate_adaptive_threshold(similarities, base_threshold=0.5, k=1.0):
 
     return max(base_threshold, mean_similarity - k * std_similarity)
 
-def detect_scene_transitions(image_folder, output_folder, base_orb_threshold, base_ssim_threshold, min_gap=5, k=1.0):
+def detect_scene_transitions(image_folder, output_folder, base_orb_threshold, base_ssim_threshold, min_gap=3, k=1.0):
     """적응형 ORB와 SSIM 임계값을 사용하여 장면 전환 탐지 및 저장"""
     os.makedirs(output_folder, exist_ok=True)
 

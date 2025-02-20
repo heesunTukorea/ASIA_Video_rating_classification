@@ -61,7 +61,7 @@ def process_imitaion_rating(lines_data):
     # GPT API 호출
     response = openai.chat.completions.create(
         model="gpt-4o",
-        messages=[
+        messages=[{"role": "system", "content": "당신은 영상물 등급 분류 위원이다. 전문가로써 정확한 답변만 해야한다." },
             {"role": "user", "content": user_message}
         ],
         max_tokens=500
