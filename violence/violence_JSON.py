@@ -4,7 +4,7 @@ import json
 from PIL import Image
 from collections import Counter 
 
-def violence(image_folder_path, output_file, threshold=0.45):
+def violence(image_folder_path, output_file, threshold=0.55):
     
     # 모델 및 프로세서 로드
     model_name = "openai/clip-vit-large-patch14"
@@ -21,28 +21,29 @@ def violence(image_folder_path, output_file, threshold=0.45):
         "a murderous scene",
         "a scene of using knives, guns, bats, etc. to pose a threat",
         "a scene of holding guns",
-        "a scene of war",
 
         # 기타
         "A peaceful scene",
         "A person running in the street",
-        "A lot of people walking in the street",
+        "people walking in the street",
         "A calm conversation between people",
         "A person smiling and laughing",
         "The scene that people are talking about",
-        "a picture of a person standing",
-        "a picture of a person sitting",
-        "a photo of a drinking",
-        "a picture of someone kissing",
-        "a picture of someone taking off his clothes",
-        "a photo of a smoking",
-        "a photo of someone on drugs",
-        "a photo of someone climbing stairs",
-        "a photo of someone talking on the phone",
-        "a photo of someone eating a meal",
-        "a black screen",
-        "a photo of someone lying on a bed",
-        "a photo of animal playing"
+        "a scene of a person standing",
+        "a scene of a person sitting",
+        "a scene of a drinking",
+        "a scene of someone kissing",
+        "a scene of someone taking off his clothes",
+        "a scene of a smoking",
+        "a scene of someone on drugs",
+        "a scene of someone climbing stairs",
+        "a scene of someone talking on the phone",
+        "a scene of someone eating a meal",
+        "a scene screen",
+        "a scene of someone lying on a bed",
+        "a scene of animal playing", 
+        "black screen",
+        "A scene where there are no people but only letters"
     ]
 
     # 출력 테스트 타깃 설정
@@ -53,8 +54,7 @@ def violence(image_folder_path, output_file, threshold=0.45):
         "the scene of a corpses",
         "a murderous scene",
         "a scene of using knives, guns, bats, etc. to pose a threat",
-        "a scene of holding guns",
-        "a scene of war"
+        "a scene of holding guns"
     }
 
     # 결과 저장
@@ -143,7 +143,7 @@ def violence(image_folder_path, output_file, threshold=0.45):
     # 결과와 각 폭력성 빈도 리턴
     return results, summary_stats
 
-# # 실행
-# image_path = 'input image json path'
-# output_file = 'result save path'
-# violence(image_path, output_file, threshold=0.45)
+# 실행
+# image_path = '/result/협상/협상_images_output'
+# output_file = '/result/협상/result_json/협상_violence3_img_json.json'
+# violence(image_path, output_file, threshold=0.55)
