@@ -83,17 +83,17 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     #선정성 이미지
     classify_images_sexuality(folder_path=images_path, threshold=0.5, display_image=False, output_json_path=json_class_name['선정성_이미지'])# 클립 선정성
     print('선정성 이미지 완료')
-    #폭력 이미지
-    violence(image_folder_path=images_path, output_file=json_class_name['폭력_이미지'], threshold=0.45)#클립 폭력성
-    print('폭력 이미지 완료')
+    #폭력성 이미지
+    violence(image_folder_path=images_path, output_file=json_class_name['폭력성_이미지'], threshold=0.45)#클립 폭력성
+    print('폭력성 이미지 완료')
     #술
     detect_alcohol_in_images(image_folder=images_path, output_json_path=json_class_name['약물_술'])
     print('술 완료')
     #'---------------------------------------gpt-------------------------------------------------------------------------------'
     
-    #폭력 텍스트
-    violence_text_main(text_path=text_path,output_path=json_class_name['폭력_텍스트'])# 폭력 텍스트 gpt
-    print('폭력 텍스트 완료')
+    #폭력성 텍스트
+    violence_text_main(text_path=text_path,output_path=json_class_name['폭력성_텍스트'])# 폭력성 텍스트 gpt
+    print('폭력성 텍스트 완료')
     #마약 텍스트
     drug_text(input_file=text_path,output_file = json_class_name['약물_마약텍스트']) #마약 텍스트 gpt
     print('마약 텍스트 완료')
@@ -119,8 +119,8 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     print('공포 등급 판정 완료')
     imitaion_risk_classify(input_file=json_class_name['모방위험'],input_text_file = text_path, output_file=json_class_name['모방위험_등급'])
     print('모방 위험 등급 판정 완료')
-    classify_violence_rating(input_img_path=json_class_name['폭력_이미지'], input_text_path=text_path, result_json_path=json_class_name['폭력_등급'])
-    print('폭력 등급 판정 완료')
+    classify_violence_rating(input_img_path=json_class_name['폭력성_이미지'], input_text_path=text_path, result_json_path=json_class_name['폭력성_등급'])
+    print('폭력성 등급 판정 완료')
     classify_sexuality_rating(input_img_path=json_class_name['선정성_이미지'], input_text_path=text_path, output_file=json_class_name['선정성_등급'])
     print('선정성 등급 판정 완료')
 
@@ -148,8 +148,8 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     #결과
     rating_value=[key for key,value in rating_num.items() if value==video_rating_num][0]
     print(rating_value)# 최종 분류 등급 (ex 전체이용가)
-    print(final_result_rating)# 최종 등급 받은 기준 (ex [폭력,주제])
-    print(rating_dict)# 각 기준별 등급 (ex {'주제': '12세이상관람가', '대사': '12세이상관람가', '약물': '12세이상관람가', '폭력': '12세이상관람가', '모방위험': '12세이상관람가', '공포': '12세이상관람가', '선정성': '12세이상관람가'})
+    print(final_result_rating)# 최종 등급 받은 기준 (ex [폭력성,주제])
+    print(rating_dict)# 각 기준별 등급 (ex {'주제': '12세이상관람가', '대사': '12세이상관람가', '약물': '12세이상관람가', '폭력성': '12세이상관람가', '모방위험': '12세이상관람가', '공포': '12세이상관람가', '선정성': '12세이상관람가'})
     
     ### 모든 항목에 대한 판정 이유 출력됨
     # #판정 이유 나열
