@@ -111,7 +111,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     #------------------------------------------최종 분류---------------------------------------------------------------------'
     classify_topic_rating(json_file_path=json_class_name['주제'], result_file_path=json_class_name['주제_등급'])
     print('주제 등급 판정 완료')
-    process_dialogue_rating(dialogue_json=json_class_name['대사'],output_file=json_class_name['대사_등급'])
+    process_dialogue_rating(dialogue_json=json_class_name['대사'],output_json_path=json_class_name['대사_등급'])
     print('대사 등급 판정 완료')
     process_drug_rating(drug_img_json=json_class_name['약물_마약'], drug_text_json=json_class_name['약물_마약텍스트'], smoking_json=json_class_name['약물_담배'], alcohol_json=json_class_name['약물_술'], output_json_path=json_class_name['약물_등급'])
     print('약물 등급 판정 완료')
