@@ -25,6 +25,7 @@ def process_scene_data(scene_text, image_path):
     user_message = [
         {"type": "text", "text": f"""
         Please analyze the following scene and image.
+        
         - Frame ID: {frame_id}
         - Text: {scene_text}
         - Image: The provided image
@@ -32,23 +33,24 @@ def process_scene_data(scene_text, image_path):
         **Analyze the following aspects and generate JSON output:**
         - **Frame ID**: The unique identifier for this scene.
         - **Context**: Describe the main context of the scene.
-        - **Risk Behavior**: Describe any risk behaviors that could encourage mimicry.
-        - **Mimicry Risk**: Categorize risk level as Low, Medium, or High.
-        - **Genre**: Identify the dominant genre (e.g., Action, Comedy, Sci-Fi).
+        - **Risk Behavior**: Describe any risk behaviors, but avoid exaggerating.
+        - **Mimicry Risk**: Strictly categorize risk level as Low, Medium, or High.
+        - Only consider as "High" if the behavior is highly detailed and strongly linked to real-world criminal activity.
+        - Scenes in Comedy, Sci-Fi, or Fantasy genres should be automatically assigned "Low" risk.
+        - **Genre**: Identify the dominant genre.
         - **Tone Sentiment**: Determine if the scene is Serious, Humorous, or Exaggerated.
         - **Risk Specificity**: Define whether the dangerous act is General or Highly Detailed.
-        - **Weapon Detection**: Indicate whether weapons are visibly used (Yes/No).
-
+        - **Weapon Detection**: Indicate whether weapons are visibly used, but distinguish between background presence and active use.
         **Output JSON format:**
         {{
-          "frame_id": "{frame_id}",
-          "context": "[Describe the main context]",
-          "risk_behavior": "[Describe risk behaviors]",
-          "mimicry_risk": "[Low/Medium/High]",
-          "genre": "[Genre of the scene]",
-          "tone_sentiment": "[Serious/Humorous/Exaggerated]",
-          "risk_specificity": "[General/Highly Detailed]",
-          "weapon_detection": "[No/Weapon name]"
+            "frame_id": "{frame_id}",
+            "context": "[Describe the main context accurately]",
+            "risk_behavior": "[Describe risk behaviors in a balanced manner]",
+            "mimicry_risk": "[Low/Medium/High based on the refined criteria]",
+            "genre": "[Genre of the scene]",
+            "tone_sentiment": "[Serious/Humorous/Exaggerated]",
+            "risk_specificity": "[General/Highly Detailed]",
+            "weapon_detection": "[No/Weapon name, with impact assessment]"
         }}
         Only output JSON.
         """},
