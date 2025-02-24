@@ -205,26 +205,23 @@ elif page == "project":
 
     if main_menu == "페이지 정보":
         # 하위 메뉴 (가로 정렬) --> 이거 아니다..
-        sub_menu = st.radio(
-            "🔍 세부 정보", 
-            ["1", "2", "3", "4"], 
-            horizontal=True
-        )
-
-        # 선택한 하위 메뉴에 따라 다른 내용 출력
-        if sub_menu == "1":
-            st.header("📌 AI 활용 영상물 등급 판정")
-            st.write("어쩌구저쩌구")
-        elif sub_menu == "2":
-            st.header("📌 2")
-            st.write("어쩌구저쩌구")
-        elif sub_menu == "3":
-            st.header("📌 3")
-            st.write("어쩌구저쩌구")
-        elif sub_menu == "4":
-            st.header("🤖 4")
-            st.write("어쩌구저쩌구")
-
+        tab1, tab2= st.tabs(["1.📝 영상 데이터 입력", "2.🎬 영상 등급 분류"])
+        with tab1:
+            st.subheader("📝 영상 데이터 입력")
+            
+            st.markdown(f'''1️⃣ **영상 등급 분류를 위한 영상과 메타데이터 기타 신청 사항등을 입력** <br>
+                        2️⃣ **영상은 현재 5GB로 제한**<br>''', unsafe_allow_html=True)
+            with st.container(height=600):
+                st.image('st_img/streamlit_meta.png')
+        with tab2:
+            st.subheader("🎬 영상 등급 분류")
+            
+            st.markdown(f'''1️⃣ **입력된 영상 데이터 기반으로 등급분류를 진행 후 결과 출력** <br>
+                        2️⃣ **결과는 각 기준 별 모델 등급분류 결과, 시각화, 영등위 형식의 보고서 출력**<br>
+                        3️⃣ **부가적인 기능으로 전처리된 데이터와 각 기준별 판정이된 데이터 확인하는 인터페이스 제공**''', unsafe_allow_html=True)
+            with st.container(height=600):
+                st.image('st_img/streamlit_output.png')
+                
     elif main_menu == "팀원 소개":
         st.header("👨‍💻 팀원 소개")
         image = Image.open("C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/팀원소개.png")
