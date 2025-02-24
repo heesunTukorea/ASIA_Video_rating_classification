@@ -305,7 +305,7 @@ def display_drug_summary(file_path):
         drug_best_caption = summary_data['drug_best_caption']
 
         # 마약 장면 비율 탭
-        tab1, tab2 = st.tabs(['📊 장면 비율', '📌 마약 장면 상세 분석'])
+        tab1, tab2, tab3= st.tabs(['📊 장면 비율', '📌 마약 장면 상세 분석','💬마약 대사 분석'])
 
         with tab1:
             st.markdown("### 📊 **장면 비율 분석**")
@@ -322,6 +322,44 @@ def display_drug_summary(file_path):
             st.markdown("### 📌 **마약 장면 상세 분석**")
             for caption, count in drug_best_caption.items():
                 st.write(f"- **{caption}**: {count} 건")
+        with tab3:
+            st.markdown("### 💬 **마약 대사 상세 분석**")
+           # 올바른 파일명으로 수정
+            file_path = f'result/{base_name}/result_json/{base_name}_drug_text_json.json'
+            drug_text_data = load_json(file_path)
+
+            drug_lines = drug_text_data["including_drug"]
+            if not drug_lines:
+                st.warning("❌ 해당 카테고리에 해당하는 대사가 없습니다.")
+            else:
+                with st.expander(f"📖 마약 상세 보기", expanded=True):
+                    for idx, line in enumerate(drug_lines):
+                        st.markdown(f"**{idx + 1}.** `{line}`")
+
+            # 요약 데이터 가져오기
+            total_sentences = int(drug_text_data['summary']['total_sentences'])
+            drug_related_sentences = int(drug_text_data['summary']['drug_related_sentences'])
+            non_drug_sentences = int(drug_text_data['summary']['non_drug_sentences'])
+
+            # 대사 통계 출력
+            st.write(f"- **총 대사 수**: {total_sentences} 개")
+            st.write(f"- **마약이 나타나지 않는 대사 수**: {non_drug_sentences} 개 (**{non_drug_sentences / total_sentences * 100:.1f}%**)")
+            st.write(f"- **마약 대사 수**: {drug_related_sentences} 개 (**{drug_related_sentences / total_sentences * 100:.1f}%**)")
+
+            # 마약 대사 비율 시각화
+            st.markdown(f"#### **💊 마약 대사 비율**: {drug_related_sentences / total_sentences * 100:.1f}%")
+            st.progress(min(drug_related_sentences / total_sentences, 1.0))  # 비율 보정
+    #         {
+    # "including_drug": [
+    #     "[00:15:40 - 00:15:42]   그나저나 물건 하나 사러 들어왔어",
+    #     "[00:46:39 - 00:46:41]   이 새끼들이 이거 IT 강국을 짬뽕으로 보나잉."
+    # ],
+    # "summary": {
+    #     "total_sentences": 2020,
+    #     "drug_related_sentences": 2,
+    #     "non_drug_sentences": 2018
+    # }
+# }
         
     # 📌 **개별 이미지 표시**
     else:
