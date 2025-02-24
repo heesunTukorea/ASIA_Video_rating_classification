@@ -18,25 +18,31 @@ def analyze_dialogue_rating(openai_client, dialogue_data):
     """
     rating_criteria = """
     Classification criteria for dialogue-based ratings:**  
-    All Ages (전체관람가): No or minimal use of profanity, vulgarity, or offensive language. No violent or suggestive dialogue. No discriminatory or demeaning expressions.  
-    - 강한 욕설과 약한 욕설이 전혀 없거나 극히 미미함 (0~1% 이하)  
-    - 혐오 표현(인종, 지역, 성소수자, 여성/가족 등)이 없음  
-    - 아동과 청소년의 언어 습관에 부정적인 영향을 주지 않는 대사  
+    All Ages (전체관람가): No abusive language, profanity, vulgar language, etc. or very weakly expressed, so there are no elements to offend
+    not negatively affecting a child's correct language habits
+    A very weak level of verbal expression that does not have abusive language or offend
+    the absence of discriminatory and human rights violations
+    No or very weak representation of the other person (gender/race/disability/occupation/religion/foreign/region/locality/locality/locality/locality/locality, etc.)
 
-    12+ (12세이상관람가): Mild profanity, slang, or low-frequency offensive language. No significant impact on youth language habits. Minimal discriminatory or insulting expressions.  
-    - 강한 욕설이 없거나 거의 없음 (0% 수준)  
-    - 약한 욕설 비율이 낮음 (약 5% 이하)  
-    - 혐오 표현(인종, 지역 등)이 일부 포함되었으나 경미한 수준  
+    12+ (12세이상관람가): the expression of light swear words, profanity, vulgar language, etc. at a low frequency
+    a slight and concise expression of everyday expletives or casual swear words
+    not negatively affecting the correct language habits of adolescents
+    There are slang and buzzwords that are popular among adolescents, but they can be accommodated by adolescents aged 12 or older
+    a minor and concise expression of discriminatory and human rights violations
+    A minor and concise expression of the personality of the other person or of the expression of attack, insult, or curse
+    a minor and concise expression of derogatory expressions (gender/race/disability/occupation/religion/foreign/region/loyalty, etc.) toward the other party
 
-    15+ (15세이상관람가): Strong profanity, vulgarity, or offensive language used but not continuously repeated. Some aggressive or humiliating expressions, but within acceptable narrative context.  
-    - 강한 욕설이 일부 포함되었으나 빈도가 낮음 (약 0.5% 이상)  
-    - 약한 욕설 비율이 중간 정도 (약 2~10%)  
-    - 혐오 표현이 일부 포함되었으나 지속적이지 않음  
+    15+ (15세이상관람가): There are harsh swear words, profanity, vulgar language, etc., but they are not continuously and repeatedly expressed
+    There are aggressive and shaming expressions, but acceptable in terms of content development
+    an absence of constant and repetitive expression of swear words, profanity, vulgar language, etc
+    The use of language that is discriminatory and infringing on human rights, but the elements of verbal violence are not excessive
+    A continuous and repetitive expression of the personality of the other person or of the expression of attack, insult, or curse
+    continuous and repeated failure to express disparaging expressions (gender/race/disability/occupation/religion/foreign/region/locality/locality/locality/locality/locality, etc.) toward the other party
 
-    Adults Only (청소년관람불가): Frequent and repetitive use of harsh profanity, vulgarity, or offensive language. Explicitly demeaning, humiliating, or violent dialogue. Continuous discrimination or personal attacks.  
-    - 강한 욕설이 빈번하게 등장 (약 9% 이상)  
-    - 약한 욕설 비율이 매우 높음 (약 36% 이상)  
-    - 성소수자, 인종, 지역 등 특정 대상에 대한 혐오 표현이 강하거나 지속적으로 포함됨  
+    Adults Only (청소년관람불가): Repeated and continuous use of vulgar abusive language, profanity, vulgar language, etc. at a level that causes irritating and abhorrent sexual expressions and emotional and personal insults or shame
+    a constant and repeated expression of swear words, profanity, vulgar language, etc
+    A continuous and repetitive expression of the person's character, attack, insult, or curse
+    continuous and repetitive derogatory expressions (gender/race/disability/occupation/religion/foreign/region/locality/locality/locality/locality/locality/locality, etc.) toward the other party
     """
     
     prompt = (
@@ -98,6 +104,6 @@ def process_dialogue_rating(dialogue_json, output_json_path):
 # # Example execution
 # if __name__ == "__main__":
 #     process_dialogue_rating(
-#         "텍스트 결과/수상한 그녀_lines_json.json",
-#         "텍스트 분류 결과/수상한그녀1.json"
+#         "whisper/lines_result/연애빠진로맨스_lines_json.json",
+#         "whisper/rating_result/연애빠진로맨스.json"
 #     )
