@@ -112,8 +112,6 @@ def classify_images_horror(image_folder, output_json_path):
         # "A moment of extreme psychological distress in a character",  # 극심한 심리적 불안이 표현된 장면
         "A scene with suspenseful and unsettling moment with an eerie atmosphere",  # 긴장감을 조성하는 불길한 분위기
         "A violence scene of scenes with some bleeding",
-        'A scene with bleeding',
-        'A scene with graphic, gory details',
 
         # ✅ 무섭거나 혐오스러운 장면 (공포 표현 강도에 따른 구분)
         "A scene with slightly frightening or grotesque scene",  # 경미한 수준의 무섭거나 혐오스러운 장면 (12세 이상)
@@ -199,7 +197,7 @@ def classify_images_horror(image_folder, output_json_path):
             highest_prob = best_prediction['score']
             best_caption = best_prediction['label']
             if best_caption in horror_candidates:
-                if highest_prob < 0.45:
+                if highest_prob < 0.4:
                     best_caption = "non-horror"
                     
             elif best_caption in non_horror_candidates:
