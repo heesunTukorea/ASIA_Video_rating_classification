@@ -1,9 +1,9 @@
+### 텍스트후보군끼리 비교
 import os
 import json
 from PIL import Image
 from transformers import CLIPProcessor, CLIPModel
 import unicodedata
-
 def classify_images_smoking(folder_path, output_json_path):
     """
     이미지에서 흡연 장면을 탐지하고, 비흡연 후보군과 비교하여 최종 판정을 내립니다.
@@ -25,13 +25,7 @@ def classify_images_smoking(folder_path, output_json_path):
 
     # 🚫 비흡연 관련 텍스트 후보군 (Negative Class)
     text_candidates_non_smoking = [
-        "A person sitting without smoking",  
-        "A person drinking coffee without smoking", 
-        "A person standing in a non-smoking area",  
-        "A person holding a lighter without a cigarette",  
-        "A person using a lighter to ignite a candle", 
-        "A person holding a lollipop in their mouth",
-        "A person holding a white stick(not a cigarette) in their mouth"
+        "The scene that people are talking"
     ]
 
     # CLIP 모델 및 프로세서 초기화
@@ -58,8 +52,8 @@ def classify_images_smoking(folder_path, output_json_path):
         highest_prob_smoking = probs_smoking.max().item()
         highest_prob_non_smoking = probs_non_smoking.max().item()
 
-        # 🚬 흡연 장면인지 여부 결정 (흡연 확률이 더 높을 때만 True)
-        is_smoking_scene = highest_prob_smoking > highest_prob_non_smoking
+        # 🚬 흡연 장면인지 여부 결정 (흡연 확률이 더 높고, 흡연 확률이 0.5보다 큼을 둘 다 만족할 때 True)
+        is_smoking_scene = highest_prob_smoking > highest_prob_non_smoking and highest_prob_smoking > 0.5
 
         return {
             "image_name": f"frame_{os.path.splitext(os.path.basename(image_path))[0].split('_')[-1]}.png",
@@ -129,6 +123,3 @@ def classify_images_smoking(folder_path, output_json_path):
 
     print(f"✅ 결과 저장 완료: {output_json_path}")
     
-# folder_path = 'video_data/흡연_images_output'
-# output_json_path = 'smoking_predictions.json'
-# classify_images_smoking(folder_path, output_json_path)
