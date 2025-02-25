@@ -8,8 +8,6 @@ from imitation_risk.imitaion_risk_result import imitation_risk_api
 from topic.Topic_JSON import process_topic
 from lines.lines_JSON import process_script
 from violence.violence_JSON import violence
-from violence.violence_text_JSON import violence_text_main
-from sexuality.Sexuality_text_JSON import sexuality_text_main
 from drug.alcohol_classfication import detect_alcohol_in_images
 from rating_classfication.topic_rating_classification import classify_topic_rating 
 from rating_classfication.lines_rating_classification import process_dialogue_rating
@@ -22,6 +20,7 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv 
 import json
+import streamlit as st
 
 #경로,이름,시놉시스,장르,시작시간,시작시간부터 지속 시간,언어    
 def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
@@ -66,64 +65,107 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
                     
                     }
     #전처리 -위스퍼 -> 이미 데이터 있으면 안해도댐
+    
     process_video(input_video_path=video_path,start_time=start_time,duration=duration,language=language) # 이미지 텍스트 추출 whisper api포함
     print('전처리 완료')
+    st.write('✔️ 영상 전처리 완료 (1/11)')
+    
     #대사
     process_script(script_path= text_path, output_path=json_class_name['대사'])
     print('대사 완료')
+    st.write('✔️ 대사 전처리 완료 (2/11)')
+    
     #마약 이미지
     drug(image_folder_path=images_path, output_file = json_class_name['약물_마약'], threshold=0.65) #클립 마약
     print('마약 이미지 완료')
-    #담배
-    classify_images_smoking(folder_path=images_path, output_json_path=json_class_name['약물_담배']) #클립 담배
-    print('담배 완료')
-    #공포 이미지
-    classify_images_horror(image_folder=images_path, output_json_path = json_class_name['공포'])# 클립 호러
-    print('공포 완료')
-    #선정성 이미지
-    classify_images_sexuality(folder_path=images_path, threshold=0.5, display_image=False, output_json_path=json_class_name['선정성_이미지'])# 클립 선정성
-    print('선정성 이미지 완료')
-    #폭력성 이미지
-    violence(image_folder_path=images_path, output_file=json_class_name['폭력성_이미지'], threshold=0.45)#클립 폭력성
-    print('폭력성 이미지 완료')
-    #술
-    detect_alcohol_in_images(image_folder=images_path, output_json_path=json_class_name['약물_술'])
-    print('술 완료')
-    #'---------------------------------------gpt-------------------------------------------------------------------------------'
+    st.write('✔️ 마약 이미지 전처리 완료 (3/11)')
     
-    #폭력성 텍스트
-    violence_text_main(text_path=text_path,output_path=json_class_name['폭력성_텍스트'])# 폭력성 텍스트 gpt
-    print('폭력성 텍스트 완료')
     #마약 텍스트
     drug_text(input_file=text_path,output_file = json_class_name['약물_마약텍스트']) #마약 텍스트 gpt
     print('마약 텍스트 완료')
-    #선정성 텍스트
-    sexuality_text_main(text_path=text_path,output_path=json_class_name['선정성_텍스트'])# 선정성 텍스트 gpt
-    print('선정성 텍스트 완료')
+    st.write('✔️ 마약 대사 전처리 완료 (4/11)')
+    
+    #담배
+    classify_images_smoking(folder_path=images_path, output_json_path=json_class_name['약물_담배']) #클립 담배
+    print('담배 완료')
+    st.write('✔️ 흡연 전처리 완료 (5/11)')
+    
+    #술
+    detect_alcohol_in_images(image_folder=images_path, output_json_path=json_class_name['약물_술'])
+    print('술 완료')
+    st.write('✔️ 음주 전처리 완료 (6/11)')
+    
+    #공포 이미지
+    classify_images_horror(image_folder=images_path, output_json_path = json_class_name['공포'])# 클립 호러
+    print('공포 완료')
+    st.write('✔️ 공포 전처리 완료 (7/11)')
+    
+    #선정성 이미지
+    classify_images_sexuality(folder_path=images_path, threshold=0.5, display_image=False, output_json_path=json_class_name['선정성_이미지'])# 클립 선정성
+    print('선정성 이미지 완료')
+    st.write('✔️ 선정성 전처리 완료 (8/11)')
+    
+    #폭력성 이미지
+    violence(image_folder_path=images_path, output_file=json_class_name['폭력성_이미지'], threshold=0.45)#클립 폭력성
+    print('폭력성 이미지 완료')
+    st.write('✔️ 폭력성 전처리 완료 (9/11)')
+    
+    
+    #'---------------------------------------gpt-------------------------------------------------------------------------------'
+    
+    
+
     #주제
     process_topic(text_output_path=text_path,output_json_path=json_class_name['주제'], title=title, synopsis=synopsis, genre=genre)# 주제 gpt
     print('주제 완료')
+    st.write('✔️ 주제 전처리 완료 (10/11)')
 
     #모방위험 : 이미지가 많기때문에 따로 돌리는거 권장
     imitation_risk_api(image_folder=images_path,text_file_path=text_path, time_interval=1) #모방위험 gpt포함 # ime_interval=1 30초당 1번이면 30으로 변경
     print('모방위험 완료')
-    
+    st.write('✔️ 모방위험 전처리 완료 (11/11)')
+
+    st.write('')
+    st.write('--------------')
+    st.write('✔️ 모든 전처리 완료')
+    st.write('--------------')
+    st.write('')
+    st.write('🔄 등급분류 시작')
     #------------------------------------------최종 분류---------------------------------------------------------------------'
+    #주제 등급 분류
     classify_topic_rating(json_file_path=json_class_name['주제'], result_file_path=json_class_name['주제_등급'])
     print('주제 등급 판정 완료')
+    st.write('✔️ 주제 등급 판정 완료 (1/7)')
+    
+    #대사 등급 분류 
     process_dialogue_rating(dialogue_json=json_class_name['대사'],output_json_path=json_class_name['대사_등급'])
     print('대사 등급 판정 완료')
+    st.write('✔️ 대사 등급 판정 완료 (2/7)')
+    
+    #약물 등급 분류 
     process_drug_rating(drug_img_json=json_class_name['약물_마약'], drug_text_json=json_class_name['약물_마약텍스트'], smoking_json=json_class_name['약물_담배'], alcohol_json=json_class_name['약물_술'], output_json_path=json_class_name['약물_등급'])
     print('약물 등급 판정 완료')
+    st.write('✔️ 약물 등급 판정 완료 (3/7)')
+    
+    #공포 등급 분류 
     get_horror_rating(input_json_path=json_class_name['공포'], output_json_path=json_class_name['공포_등급'])
     print('공포 등급 판정 완료')
+    st.write('✔️ 공포 등급 판정 완료 (4/7)')
+    
+    #모방위험 등급 분류 
     imitaion_risk_classify(input_file=json_class_name['모방위험'],input_text_file = text_path, output_file=json_class_name['모방위험_등급'])
     print('모방 위험 등급 판정 완료')
+    st.write('✔️ 모방위험 등급 판정 완료 (5/7)')
+    
+    #폭력성 등급 분류 
     classify_violence_rating(input_img_path=json_class_name['폭력성_이미지'], input_text_path=text_path, result_json_path=json_class_name['폭력성_등급'])
     print('폭력성 등급 판정 완료')
+    st.write('✔️ 폭력성 등급 판정 완료 (6/7)')
+    
+    #선정성 등급 분류 
     classify_sexuality_rating(input_img_path=json_class_name['선정성_이미지'], input_text_path=text_path, output_file=json_class_name['선정성_등급'])
     print('선정성 등급 판정 완료')
-
+    st.write('✔️ 선정성 등급 판정 완료 (7/7)')
     
     #최종 등급 계산
     rating_dict,reason_dict={},{}# 등급 딕셔너리, 이유 딕셔너리
