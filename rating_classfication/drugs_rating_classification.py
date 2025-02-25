@@ -16,12 +16,20 @@ def analyze_drug_rating(openai_client, drug_img_data, drug_text_data, smoking_da
     """
     마약, 흡연, 음주 데이터를 분석하여 약물 관련 영상물 등급을 판별합니다.
     """
+
     rating_criteria = """
-    Classifications for drug-related ratings:
-    - All Ages: No or very low frequency depiction of drinking/smoking, no youth drinking/smoking, no direct or suggestive promotion, no depiction of illegal drug manufacturing/use.
-    - 12+: Mild and brief depictions of drinking/smoking, low level youth drinking, no illegal drug depictions, no glorification of substance use.
-    - 15+: Drinking/smoking is not continuous or glorified, illegal drugs are not shown in detailed or realistic ways, no justification of substance abuse.
-    - Adults Only: Continuous and repeated depiction of drinking/smoking, detailed and realistic depiction of illegal drugs, glorification of substance abuse, depiction of illegal activities due to drugs.
+    [전체관람가]
+    음주·흡연: 음주나 흡연 장면이 없거나 매우 낮은 빈도로 묘사됨. 아동·청소년의 음주, 흡연 장면이 전혀 없으며, 성인의 음주, 흡연도 간헐적이고 조장되지 않음.
+    약물: 불법 약물이나 향정신성 물질, 기타 유해물질의 오남용이나 사용법이 전혀 표현되지 않음. 합법적인 약물의 사용도 비판적이지 않으며, 그로 인한 일탈적 요소나 정당화된 내용이 없음.
+    [12세이상관람가]
+    음주·흡연: 음주나 흡연 장면이 짧고 경미하게 표현됨. 청소년의 음주는 낮은 수준으로 나타나고, 성인의 음주와 흡연은 간결하게 묘사됨. 음주나 흡연을 미화하거나 장려하는 내용은 제한적.
+    약물: 합법적인 약물 사용은 일시적이고, 오남용이나 불법 약물의 사용 방법은 전혀 표현되지 않음. 약물이 일탈적이거나 정당화되는 장면은 없음.
+    [15세이상관람가]
+    음주·흡연: 음주와 흡연 장면이 반복적이지 않으며, 청소년의 음주나 흡연을 미화하거나 정당화하지 않음. 성인의 음주와 흡연 장면도 지속적이지 않으며, 음주로 인한 쾌락이나 중독 상태의 장면도 지속적으로 묘사되지 않음.
+    약물: 합법적인 약물 사용이나 불법 약물의 사용이 현실도피나 쾌락을 위한 오남용으로 묘사되지 않음. 불법 약물의 제조나 사용 방법은 구체적이지 않으며, 약물로 인한 일탈 행위가 정당화되거나 미화되지 않음.
+    [청소년관람불가]
+    음주·흡연: 음주와 흡연 장면이 지속적이고 반복적으로 나타나며, 이를 통한 쾌락을 강하게 조장함. 청소년에게 유해한 영향을 미칠 수 있는 내용이 포함됨.
+    약물: 불법 약물의 제조 및 사용 방법이 구체적이고 사실적으로 묘사되며, 약물의 오남용이 조장되거나 정당화되는 내용이 있음. 약물로 인한 범법행위나 폭력 등이 미화되고 정당화되는 경우도 발생함.
     """
     
     input_data = {
@@ -32,9 +40,9 @@ def analyze_drug_rating(openai_client, drug_img_data, drug_text_data, smoking_da
     }
     
     prompt = (
-        f"""Based on the following classification criteria for drug-related content and the provided summary data, determine the appropriate age rating for this media.
-        Note: Among the drug-related content, depictions of narcotics ("마약") should be considered more strictly than those of alcohol and smoking(cigarette).
-        Provide the response strictly in JSON format with the following structure:
+        f"""다음은 약물 관련 콘텐츠에 대한 분류 기준과 제공된 요약 데이터를 기반으로 이 미디어에 적합한 연령 등급을 결정해 주세요.
+        참고: 약물 관련 콘텐츠에서 마약(“마약”)에 대한 묘사는 알코올과 담배(흡연)보다 더 엄격하게 다뤄야 합니다.
+        응답은 아래와 같은 구조의 JSON 형식으로 제공해 주세요.:
         {{
             \"rating\": \"관람 등급 (전체관람가, 12세이상관람가, 15세이상관람가, 청소년관람불가)\",
             \"reasoning\": \"한글로 간단한 설명 한 줄\"
