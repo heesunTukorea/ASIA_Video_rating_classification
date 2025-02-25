@@ -106,7 +106,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     st.write('✔️ 공포 전처리 완료 (7/11)')
     
     #선정성 이미지
-    classify_images_sexuality(folder_path=images_path, threshold=0.5, display_image=False, output_json_path=json_class_name['선정성_이미지'])# 클립 선정성
+    classify_images_sexuality(folder_path=images_path, output_json_path=json_class_name['선정성_이미지'])# 클립 선정성
     print('선정성 이미지 완료')
     st.write('✔️ 선정성 전처리 완료 (8/11)')
     
