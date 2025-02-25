@@ -231,5 +231,5 @@ def process_video(input_video_path, start_time=None, duration=None, language='ko
 
 # import한 후 호출 예시
 # from this_module import process_video
-process_video("video_data/타짜(신의손).mp4",)
+# process_video("video_data/타짜(신의손).mp4",)
 #video_data 폴더 만들고 영상넣으시면됩니다
