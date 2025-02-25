@@ -348,7 +348,7 @@ elif page == "upload":
     with col2:
         uploaded_img = st.file_uploader("포스터 업로드 *", type=["png", "jpg", "jpeg"])
     with col3:
-        uploaded_file = st.file_uploader("비디오 업로드 *", type=["mp4", "mov", "avi"], help="MP4, MOV 또는 AVI 형식, 최대 5GB")
+        uploaded_file = st.file_uploader("비디오 업로드 *", type=["mp4", "aiv", "mkv"])
 
     if uploaded_img is not None:
     # Streamlit 세션 상태에 이미지 데이터 저장
