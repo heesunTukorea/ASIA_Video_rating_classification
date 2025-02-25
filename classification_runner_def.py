@@ -158,7 +158,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     st.write('✔️ 모방위험 등급 판정 완료 (5/7)')
     
     #폭력성 등급 분류 
-    classify_violence_rating(input_img_path=json_class_name['폭력성_이미지'], input_text_path=text_path, result_json_path=json_class_name['폭력성_등급'])
+    classify_violence_rating(input_img_path=json_class_name['폭력_이미지'], input_text_path=text_path, result_json_path=json_class_name['폭력_등급'])
     print('폭력성 등급 판정 완료')
     st.write('✔️ 폭력성 등급 판정 완료 (6/7)')
     
