@@ -111,7 +111,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     st.write('✔️ 선정성 전처리 완료 (8/11)')
     
     #폭력성 이미지
-    violence(image_folder_path=images_path, output_file=json_class_name['폭력성_이미지'], threshold=0.45)#클립 폭력성
+    violence(image_folder_path=images_path, output_file=json_class_name['폭력_이미지'], threshold=0.45)#클립 폭력성
     print('폭력성 이미지 완료')
     st.write('✔️ 폭력성 전처리 완료 (9/11)')
     
