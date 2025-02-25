@@ -169,13 +169,16 @@ if page == "":
     # 제목 가운데 정렬
     st.markdown("<h1 class='centered'>영상물 등급 분류 시스템</h1>", unsafe_allow_html=True)
 
-    col_center = st.columns([1, 3, 1])  # 노트북
-    with col_center[1]:
+    # 이미지 경로
+    image_path = "C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/메인이미지/메인이미지.png"
+    # 빈 컬럼을 이용한 가운데 정렬
+    col1, col2, col3 = st.columns([1, 2, 1])  
+    with col2:  # 가운데 컬럼에 이미지 삽입
         try:
-            image = Image.open("C:/Users/chloeseo/ms_project/ASIA_Video_rating_classification/st_img/메인이미지/메인이미지.png") 
-            st.image(image, width=800) 
+            image = Image.open(image_path)
+            st.image(image, width=800)  # 원하는 크기로 설정
         except FileNotFoundError:
-            st.write(" ")
+            st.write("이미지를 찾을 수 없습니다.")
 
     # 설명 텍스트 가운데 정렬
     st.markdown("<p class='centered'>비디오 콘텐츠에 적절한 등급을 지정하는 시스템입니다.<br>공정하고 신뢰할 수 있는 등급 분류를 경험해보세요.<br>아래 버튼을 클릭하여 시작하세요.</p>", unsafe_allow_html=True)
