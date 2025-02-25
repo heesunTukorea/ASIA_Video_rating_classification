@@ -47,8 +47,8 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
                     '약물_담배':f'{json_result_path}/{base_name}_smoking_json.json',
                     '약물_마약':f'{json_result_path}/{base_name}_drug_json.json',
                     '약물_마약텍스트':f'{json_result_path}/{base_name}_drug_text_json.json',
-                    '폭력_이미지':f'{json_result_path}/{base_name}_violence_img_json.json',
-                    '폭력_텍스트':f'{json_result_path}/{base_name}_violence_text_json.json',
+                    '폭력성_이미지':f'{json_result_path}/{base_name}_violence_img_json.json',
+                    '폭력성_텍스트':f'{json_result_path}/{base_name}_violence_text_json.json',
                     '모방위험':f'{json_result_path}/{base_name}_imitation_json.json',
                     '공포':f'{json_result_path}/{base_name}_horror_json.json',
                     '선정성_이미지':f'{json_result_path}/{base_name}_sexuality_img_json.json',
@@ -58,7 +58,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
                     '주제_등급':f'{rating_result_path}/{base_name}_topic_rating.json', 
                     '대사_등급':f'{rating_result_path}/{base_name}_lines_rating.json' ,
                     '약물_등급':f'{rating_result_path}/{base_name}_drug_rating.json' ,
-                    '폭력_등급':f'{rating_result_path}/{base_name}_violence_rating.json' ,
+                    '폭력성_등급':f'{rating_result_path}/{base_name}_violence_rating.json' ,
                     '모방위험_등급':f'{rating_result_path}/{base_name}_imitation_rating.json' ,
                     '공포_등급':f'{rating_result_path}/{base_name}_horror_rating.json' ,
                     '선정성_등급':f'{rating_result_path}/{base_name}_sexuality_rating.json' 
@@ -106,7 +106,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     st.write('✔️ 선정성 전처리 완료 (8/11)')
     
     #폭력성 이미지
-    violence(image_folder_path=images_path, output_file=json_class_name['폭력_이미지'], threshold=0.45)#클립 폭력성
+    violence(image_folder_path=images_path, output_file=json_class_name['폭력성_이미지'], threshold=0.45)#클립 폭력성
     print('폭력성 이미지 완료')
     st.write('✔️ 폭력성 전처리 완료 (9/11)')
     
@@ -158,7 +158,7 @@ def classify_run(video_path,title,synopsis,genre,start_time,duration,language):
     st.write('✔️ 모방위험 등급 판정 완료 (5/7)')
     
     #폭력성 등급 분류 
-    classify_violence_rating(input_img_path=json_class_name['폭력_이미지'], input_text_path=text_path, result_json_path=json_class_name['폭력_등급'])
+    classify_violence_rating(input_img_path=json_class_name['폭력성_이미지'], input_text_path=text_path, result_json_path=json_class_name['폭력성_등급'])
     print('폭력성 등급 판정 완료')
     st.write('✔️ 폭력성 등급 판정 완료 (6/7)')
     
@@ -240,4 +240,4 @@ def total_classification_run(video_data_lists):
 # #                       '하루 끝의 술 한잔이 인생의 신념인 세 여자의 일상과 과거를 코믹하게 그려낸 본격 기승전 술 드라마',
 # #                       '로맨틱코미디, 우정, 드라마'
 # #                       ,None,None,"ko"]  
-# #     rating_value, final_result_rating, reason_list = total_classification_run(video_data_lists)#최종등급(ex '전체이용가')(text),최종등급기준(ex ['폭력','공포'])(list),분류 이유(ex ['폭력: .....','공포:.....'])(list)
+# #     rating_value, final_result_rating, reason_list = total_classification_run(video_data_lists)#최종등급(ex '전체이용가')(text),최종등급기준(ex ['폭력성','공포'])(list),분류 이유(ex ['폭력: .....','공포:.....'])(list)
