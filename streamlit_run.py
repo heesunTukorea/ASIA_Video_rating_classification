@@ -49,7 +49,7 @@ def process_video_classification():
     input_data = st.session_state["input_data"]
     uploaded_file = st.session_state["uploaded_file"]
     if uploaded_file:
-        upload_folder = "C:/Users/chloeseo/ms_project/test_v6/st_upload_file/"
+        upload_folder = "C:/Users/chloeseo/ms_project/test_final/video_data/"
         os.makedirs(upload_folder, exist_ok=True)  # 폴더가 없으면 생성
 
         video_path = os.path.join(upload_folder, uploaded_file.name)  # 업로드된 파일 저장 경로 설정
@@ -144,7 +144,7 @@ if "description_rendered" not in st.session_state:
     st.session_state["description_rendered"] = False
 
 
-### 메인 페이지 ("" page)
+## 메인 페이지 ("" page)
 ## 가운데정렬
 if page == "":
      # 🔹 메인 페이지에 들어오면 `analysis_done` 초기화
@@ -198,7 +198,7 @@ if page == "":
 
 ### 프로젝트 소개 페이지 (project page)
 elif page == "project":
-    st.title("AI를 활용한 영상물 등금 판정 시스템 : GRAB")
+    st.title("AI를 활용한 영상물 등급 판정 시스템 : GRAB")
     with st.expander("🔍 프로젝트 개요 보기"):
         st.write("AI를 활용하여 영상물의 등급을 잡아라!")
         st.write("영상물의 내용을 분석하여 적절한 등급을 판정하는 시스템입니다.")
@@ -250,7 +250,6 @@ elif page == "project":
         st.query_params["page"] = ""
         st.rerun()
 
-
 ### 업로드(메타데이터 입력) 페이지 (upload page)
 ## 두줄 입력 => 입력 레이아웃 두줄인 경우, 로딩 상태를 버튼 중앙정렬과 분리 ∵ 로딩 상태가 col 너비에 맞춰서 이상해짐
 elif page == "upload":
@@ -298,7 +297,7 @@ elif page == "upload":
     col1, col2, col3, col4 = st.columns([1,3,3,1])
     with col2:  # ✅ 왼쪽 컬럼
         category = st.selectbox("구분 *", ["선택하세요", "영화", "비디오물", "광고물", "기타"])
-        genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스/멜로", "SF", "느와르", "판타지", "기타"])
+        genre = st.multiselect("장르 *", ["범죄", "액션", "드라마", "코미디", "스릴러", "로맨스/멜로", '공포', '재난', "SF", "느와르", "판타지", "기타"])
 
     with col3:  # ✅ 오른쪽 컬럼
         title = st.text_input("제목 *")
@@ -348,7 +347,7 @@ elif page == "upload":
     with col2:
         uploaded_img = st.file_uploader("포스터 업로드 *", type=["png", "jpg", "jpeg"])
     with col3:
-        uploaded_file = st.file_uploader("비디오 업로드 *", type=["mp4", "aiv", "mkv"])
+        uploaded_file = st.file_uploader("비디오 업로드 *", type=["mp4", "avi", "mkv"])
 
     if uploaded_img is not None:
     # Streamlit 세션 상태에 이미지 데이터 저장
@@ -452,6 +451,7 @@ elif page == "result":
     )
 
     st.write('')
+
     # 분석 결과 가져오기
     analysis_results = st.session_state.get("analysis_results", {})
 
@@ -460,6 +460,30 @@ elif page == "result":
         st.stop()
 
     col1, col2, col3, col4, col5= st.columns([0.8,4,0.01,9,0.8])
+    content_info = analysis_results.get("내용정보", {})
+    all_items = ["주제", "대사", "약물", "폭력성", "공포", "선정성", "모방위험"]
+    rating_map = {
+        "전체관람가": 1,
+        "12세이상관람가": 2,
+        "15세이상관람가": 3,
+        "청소년관람불가": 4,
+        "제한상영가": 5
+    }
+
+    # 데이터프레임 생성
+    rows = []
+    for item in all_items:
+        label = content_info.get(item, "전체관람가")
+        val = rating_map.get(label, 1)
+        color = rating_assets[label]["color"]
+        rows.append({
+            "항목": item,
+            "등급": label,
+            "등급값": val,
+            "color": color,
+            "start": 0
+        })
+    df = pd.DataFrame(rows)
     with col2:
         st.write("### 📊 내용정보")
 
@@ -503,46 +527,67 @@ elif page == "result":
 
     ## ✅ **col2 - 차트 아래 아이콘
     with col4:
-        content_info = analysis_results.get("내용정보", {})
-
-        # 🔹 필요한 리스트 및 매핑
-        all_items = ["주제", "대사", "약물", "폭력성", "공포", "선정성", "모방위험"]
-        rating_map = {
-            "전체관람가": 1,
-            "12세이상관람가": 2,
-            "15세이상관람가": 3,
-            "청소년관람불가": 4,
-            "제한상영가": 5
-        }
-    
-        # 🔹 데이터프레임 생성
-        rows = []
-        for item in all_items:
-            label = content_info.get(item, "전체관람가")  # 기본값: 전체관람가
-            val = rating_map.get(label, 1)  # 기본값 1
-            color = rating_assets[label]["color"]  # 색상 가져오기
-
-            rows.append({
-                "항목": item,
-                "등급": label,
-                "등급값": val,
-                "color": color,
-                "start": 0  # 애니메이션 시작점 (0)
-            })
-
-        df = pd.DataFrame(rows)
-
-        # 🔹 그래프 컨테이너 생성
         chart_placeholder = st.empty()
 
-        # ✅ 1. 배경과 축이 포함된 초기 그래프 먼저 표시 (막대 없음)
-        base_chart = (
-            alt.Chart(df)
-            .mark_bar(size=20, opacity=0)  # ✅ 초기에는 막대 안 보이게 설정
-            .encode(
-                x=alt.X("항목:N",
-                        sort=all_items,
-                        axis=alt.Axis(title=None, 
+        # 그래프 애니메이션: 처음 접근 시에만 실행
+        if not st.session_state.get("graph_rendered", False):
+            # 1. 배경과 축이 포함된 초기 그래프(막대 투명)
+            base_chart = (
+                alt.Chart(df)
+                .mark_bar(size=20, opacity=0)
+                .encode(
+                    x=alt.X("항목:N",
+                            sort=all_items,
+                            axis=alt.Axis(
+                                title=None,
+                                labelAngle=0,
+                                labelFontSize=14,
+                                labelColor="black",
+                                tickColor="black",
+                                domainColor="black",
+                                domainWidth=2,
+                                tickWidth=2
+                            )),
+                    y=alt.Y("등급값:Q",
+                            scale=alt.Scale(domain=[0, 5.8], nice=False),
+                            axis=alt.Axis(
+                                title=None,
+                                values=[1, 2, 3, 4, 5],
+                                labelExpr=(
+                                    "datum.value == 1 ? '전체관람가' : "
+                                    "datum.value == 2 ? '12세이상관람가' : "
+                                    "datum.value == 3 ? '15세이상관람가' : "
+                                    "datum.value == 4 ? '청소년관람불가' : "
+                                    "'제한상영가'"
+                                ),
+                                labelFontSize=14,
+                                labelColor="black",
+                                domainColor="black",
+                                domainWidth=2,
+                                tickWidth=2,
+                                grid=True,
+                                gridColor="black",
+                                gridWidth=0.1
+                            )),
+                    color=alt.Color("color:N", scale=None, legend=None),
+                    tooltip=["항목", "등급"]
+                )
+                .properties(width=600, height=300)
+                .configure_view(fill="#EDEAE4", fillOpacity=0.5)
+            )
+            chart_placeholder.altair_chart(base_chart, use_container_width=True)
+
+            # 2. 막대가 점차 나타나는 애니메이션
+            for step in range(1, 11):
+                df["start"] = df["등급값"] * (step / 10)
+                chart = (
+                    alt.Chart(df)
+                    .mark_bar(size=35)
+                    .encode(
+                        x=alt.X("항목:N",
+                                sort=all_items,
+                                axis=alt.Axis(
+                                    title=None,
                                     labelAngle=0,
                                     labelFontSize=14,
                                     labelColor="black",
@@ -550,58 +595,62 @@ elif page == "result":
                                     domainColor="black",
                                     domainWidth=2,
                                     tickWidth=2
-                        )),
-                y=alt.Y("등급값:Q",
-                        scale=alt.Scale(domain=[0, 5.8], nice=False),
-                        axis=alt.Axis(
-                            title=None,
-                            values=[1, 2, 3, 4, 5],
-                            labelExpr=(
-                                "datum.value == 1 ? '전체관람가' : "
-                                "datum.value == 2 ? '12세이상관람가' : "
-                                "datum.value == 3 ? '15세이상관람가' : "
-                                "datum.value == 4 ? '청소년관람불가' : "
-                                "'제한상영가'"
-                            ),
-                            labelFontSize=14,
-                            labelColor="black",
-                            domainColor="black",
-                            domainWidth=2,
-                            tickWidth=2,
-                            grid=True,
-                            gridColor="black",
-                            gridWidth=0.1
-                        )
-                ),
-                color=alt.Color("color:N", scale=None, legend=None),
-                tooltip=["항목", "등급"]
-            )
-            .properties(width=600, height=300)
-            .configure_view(fill="#EDEAE4", fillOpacity=0.5)  # ✅ 배경을 처음부터 적용
-        )
+                                )),
+                        y=alt.Y("start:Q",
+                                scale=alt.Scale(domain=[0, 5.8], nice=False),
+                                axis=alt.Axis(
+                                    title=None,
+                                    values=[1, 2, 3, 4, 5],
+                                    labelExpr=(
+                                        "datum.value == 1 ? '전체관람가' : "
+                                        "datum.value == 2 ? '12세이상관람가' : "
+                                        "datum.value == 3 ? '15세이상관람가' : "
+                                        "datum.value == 4 ? '청소년관람불가' : "
+                                        "'제한상영가'"
+                                    ),
+                                    labelFontSize=14,
+                                    labelColor="black",
+                                    domainColor="black",
+                                    domainWidth=2,
+                                    tickWidth=2,
+                                    grid=True,
+                                    gridColor="black",
+                                    gridWidth=0.1
+                                )
+                        ),
+                        color=alt.Color("color:N", scale=None, legend=None),
+                        tooltip=["항목", "등급"]
+                    )
+                    .properties(width=600, height=300)
+                    .configure_view(fill="#EDEAE4", fillOpacity=0.5)
+                )
+                chart_placeholder.altair_chart(chart, use_container_width=True)
+                time.sleep(0.3)
 
-        # ✅ 배경과 축 먼저 표시 (막대는 안 보임)
-        chart_placeholder.altair_chart(base_chart, use_container_width=True)
+            # 3. 최종 그래프
+            chart_placeholder.altair_chart(chart, use_container_width=True)
 
-        # 🔹 애니메이션 실행 (막대 추가)
-        for step in range(1, 11):  # 10단계 애니메이션
-            df["start"] = df["등급값"] * (step / 10)  # 점진적 증가
+            # ✅ 애니메이션 실행 완료 후 세션 상태 업데이트
+            st.session_state["graph_rendered"] = True
 
-            # ✅ Altair 차트 설정 (이제 막대 보이도록 변경)
-            chart = (
+        else:
+            # 이미 애니메이션이 끝난 상태 -> 최종 그래프만 표시
+            df["start"] = df["등급값"]
+            final_chart = (
                 alt.Chart(df)
-                .mark_bar(size=40)
+                .mark_bar(size=35)
                 .encode(
                     x=alt.X("항목:N",
                             sort=all_items,
-                            axis=alt.Axis(title=None, 
-                                        labelAngle=0,
-                                        labelFontSize=14,
-                                        labelColor="black",
-                                        tickColor="black",
-                                        domainColor="black",
-                                        domainWidth=2,
-                                        tickWidth=2
+                            axis=alt.Axis(
+                                title=None,
+                                labelAngle=0,
+                                labelFontSize=14,
+                                labelColor="black",
+                                tickColor="black",
+                                domainColor="black",
+                                domainWidth=2,
+                                tickWidth=2
                             )),
                     y=alt.Y("start:Q",
                             scale=alt.Scale(domain=[0, 5.8], nice=False),
@@ -629,17 +678,9 @@ elif page == "result":
                     tooltip=["항목", "등급"]
                 )
                 .properties(width=600, height=300)
-                .configure_view(fill="#EDEAE4", fillOpacity=0.5)  # ✅ 애니메이션 동안에도 배경 유지
+                .configure_view(fill="#EDEAE4", fillOpacity=0.5)
             )
-
-            # ✅ 그래프 업데이트 (막대가 점점 위로 차오름)
-            chart_placeholder.altair_chart(chart, use_container_width=True)
-
-            # 🔹 애니메이션 속도 조정
-            time.sleep(0.1)
-
-        # ✅ 최종 그래프 출력 (애니메이션 종료 후 추가 처리 없이 그대로 유지)
-        chart_placeholder.altair_chart(chart, use_container_width=True)
+            chart_placeholder.altair_chart(final_chart, use_container_width=True)
 
 
     # # ✅ **최종 등급 (아이콘만 표시)**
@@ -869,55 +910,61 @@ elif page == "result":
     # # # 🔹 분석 사유 출력
     # 🔹 3개의 컬럼을 생성 (비율: 0.8, 1, 0.8)
     col1, col2, col3 = st.columns([0.8, 13.01, 0.8])
-
-    with col2:  # 중앙 정렬을 위해 col2 내부에 배치
+    with col2:
         st.write("### 📝 서술적 내용기술")
-
         reason_text = analysis_results.get("서술적 내용기술", "데이터 없음")
-
         if reason_text and reason_text != "데이터 없음":
-            # 🔹 컨테이너 박스 스타일링 (CSS 적용)
             st.markdown(
                 """
                 <style>
                 .description-box {
-                    background-color: rgba(247, 246, 244, 1);  /* 배경 투명도 */
-                    padding: 20px;  /* 내부 패딩 */
-                    border-radius: 10px;  /* 모서리 둥글게 */
-                    border: 1px solid #CCCCCC;  /* 테두리 */
-                    font-size: 16px;  /* 글자 크기 */
-                    color: #333333;  /* 글자 색 */
-                    line-height: 2.0;  /* 줄 간격 증가 */
+                    background-color: rgba(247, 246, 244, 1);
+                    padding: 20px;
+                    border-radius: 10px;
+                    border: 1px solid #CCCCCC;
+                    font-size: 16px;
+                    color: #333333;
+                    text-align: left;
+                    line-height: 2 !important; /* 줄 간격 증가 */
                     white-space: pre-wrap;  /* 줄 바꿈 유지 */
-                    text-align: left;  /* 텍스트 중앙 정렬 */
                 }
                 </style>
                 """,
                 unsafe_allow_html=True
             )
 
-            # ✅ **하나의 컨테이너를 생성**
-            text_container = st.empty()
+            # 애니메이션: 처음 결과 페이지 접근 시에만 실행
+            if not st.session_state.get("description_rendered", False):
+                text_container = st.empty()
 
-            # 🔹 한 글자씩 출력되는 애니메이션 함수
-            def stream_text():
-                lines = reason_text.split("\n")  # 줄 단위로 분리
-                full_text = ""  # 전체 텍스트를 담을 변수
+                def stream_text():
+                    lines = reason_text.split("\n") 
+                    full_text = ""
+                    for i, line in enumerate(lines):
+                        for char in line:
+                            full_text += char
+                            text_container.markdown(f'<div class="description-box">{full_text}</div>', unsafe_allow_html=True)
+                            time.sleep(0.02)
+                        if i < len(lines) - 1:
+                            full_text += "<br><br>"
+                            text_container.markdown(f'<div class="description-box">{full_text}</div>', unsafe_allow_html=True)
+                            time.sleep(0.1)
+                    # ✅ 애니메이션 종료 후, 최종 텍스트 저장
+                    st.session_state["full_text"] = full_text  # 줄 간격이 적용된 상태로 저장
+                    text_container.markdown(
+                        f'<div class="description-box">{full_text}</div>', 
+                        unsafe_allow_html=True
+                    )
+                stream_text()  
+                st.session_state["description_rendered"] = True
 
-                for i, line in enumerate(lines):
-                    for char in line:
-                        full_text += char  # 한 글자씩 추가
-                        text_container.markdown(f'<div class="description-box">{full_text}</div>', unsafe_allow_html=True)
-                        time.sleep(0.02)  # 글자마다 짧은 딜레이
-
-                    # 🔹 마지막 줄이 아니라면 줄바꿈 추가
-                    if i < len(lines) - 1:
-                        full_text += "<br><br>"  # 줄 바꿈 추가
-                        text_container.markdown(f'<div class="description-box">{full_text}</div>', unsafe_allow_html=True)
-                        time.sleep(0.1)  # 한 줄이 완성된 후 약간의 딜레이 추가
-
-            stream_text()
-
+            else:
+                # ✅ 이미 애니메이션이 끝난 상태면 session_state에서 저장된 full_text 사용
+                saved_text = st.session_state.get("full_text", reason_text)
+                st.markdown(
+                    f'<div class="description-box">{saved_text}</div>',
+                    unsafe_allow_html=True
+                )
         else:
             st.warning("데이터 없음")
 
